@@ -5,9 +5,9 @@ import { plans } from '@/data/demo'
 
 export function PlansPage() {
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="2xl" weight="semibold">
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
           Plans & billing
         </Heading>
         <Text size="sm" tone="muted">
@@ -16,7 +16,7 @@ export function PlansPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {plans.map((plan) => (
           <PlanCard
             key={plan.id}

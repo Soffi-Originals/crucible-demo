@@ -32,11 +32,25 @@ const pageMeta: Record<
 
 function App() {
   const [page, setPage] = useState<PageId>('overview')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, toggle } = useTheme()
+
+  const handleNavigate = (id: PageId) => {
+    setPage(id)
+    setSidebarOpen(false)
+  }
 
   return (
     <AppShell
-      sidebar={<Sidebar current={page} onNavigate={setPage} />}
+      sidebarOpen={sidebarOpen}
+      onSidebarOpenChange={setSidebarOpen}
+      sidebar={
+        <Sidebar
+          current={page}
+          onNavigate={handleNavigate}
+          onClose={() => setSidebarOpen(false)}
+        />
+      }
       header={
         <Header
           workspace="Crucible"
@@ -45,6 +59,7 @@ function App() {
           badge={pageMeta[page].badge}
           theme={theme}
           onToggleTheme={toggle}
+          onMenuClick={() => setSidebarOpen(true)}
           primaryAction={
             page === 'agents'
               ? { label: 'New agent' }

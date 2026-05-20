@@ -23,8 +23,8 @@ export function AgentsPage() {
   const [selected, setSelected] = useState('navigator')
 
   return (
-    <div className="flex h-full">
-      <div className="flex w-96 shrink-0 flex-col gap-4 border-r border-(--color-border-subtle) bg-(--color-surface) p-6">
+    <div className="flex h-full flex-col lg:flex-row">
+      <div className="flex w-full shrink-0 flex-col gap-4 border-b border-(--color-border-subtle) bg-(--color-surface) p-4 sm:p-6 lg:w-96 lg:border-b-0 lg:border-r">
         <div className="flex flex-col gap-1">
           <Heading as="h1" size="lg" weight="semibold">
             Agents
@@ -68,16 +68,16 @@ export function AgentsPage() {
         </Button>
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-6 p-8">
+      <div className="flex min-w-0 flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
         {(() => {
           const agent = agents.find((a) => a.id === selected) ?? agents[0]
           const badge = statusBadge[agent.status]
           return (
             <>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <Heading as="h2" size="xl" weight="semibold">
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Heading as="h2" size="lg" weight="semibold" className="sm:text-xl">
                       {agent.name}
                     </Heading>
                     <Badge variant={badge.variant} size="sm" shape="pill">
@@ -88,8 +88,8 @@ export function AgentsPage() {
                     {agent.description}
                   </Text>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
+                  <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
                     Logs
                   </Button>
                   <Button variant="secondary" size="sm">
@@ -97,12 +97,12 @@ export function AgentsPage() {
                   </Button>
                   <Button variant="primary" size="sm">
                     Run simulation
-                    <Kbd size="sm" tone="accent" className="ml-1">⌘R</Kbd>
+                    <Kbd size="sm" tone="accent" className="ml-1 hidden sm:inline-flex">⌘R</Kbd>
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <Card variant="default" padding="md" radius="lg" className="gap-1">
                   <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
                     Lifetime runs

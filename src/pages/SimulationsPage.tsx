@@ -9,18 +9,18 @@ import { simulationSteps } from '@/data/demo'
 
 export function SimulationsPage() {
   return (
-    <div className="flex flex-col gap-6 p-8">
-      <div className="flex items-end justify-between">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <Heading as="h1" size="2xl" weight="semibold">
+          <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
             Simulations
           </Heading>
           <Text size="sm" tone="muted">
             Replay a customer interaction or scaffold a new scenario.
           </Text>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
             Import from production
           </Button>
           <Button variant="primary" size="sm">

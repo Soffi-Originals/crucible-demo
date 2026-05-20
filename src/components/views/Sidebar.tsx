@@ -10,6 +10,7 @@ import {
   Plug,
   Search,
   Settings,
+  X,
 } from 'lucide-react'
 import { SidebarNavItem } from './SidebarNavItem'
 import { Avatar } from '@/components/ui/Avatar'
@@ -17,6 +18,7 @@ import { Text } from '@/components/ui/Text'
 import { Input } from '@/components/ui/Input'
 import { Kbd } from '@/components/ui/Kbd'
 import { Divider } from '@/components/ui/Divider'
+import { IconButton } from '@/components/ui/IconButton'
 
 export type PageId =
   | 'overview'
@@ -29,6 +31,7 @@ export type PageId =
 export interface SidebarProps {
   current: PageId
   onNavigate: (id: PageId) => void
+  onClose?: () => void
 }
 
 const items: {
@@ -46,26 +49,39 @@ const items: {
   { id: 'plans', label: 'Plans & billing', icon: <CreditCard className="h-4 w-4" />, shortcut: '⌘6' },
 ]
 
-export function Sidebar({ current, onNavigate }: SidebarProps) {
+export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
   return (
     <div className="flex h-full flex-col gap-4 p-4">
-      <button
-        type="button"
-        className="flex items-center gap-2.5 rounded-(--radius-md) p-1.5 -m-1.5 text-left transition-colors hover:bg-(--color-surface-subtle)"
-      >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-(--radius-md) bg-(--color-fg) text-(--color-warning)">
-          <Flame className="h-4 w-4" strokeWidth={2.25} fill="currentColor" />
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Text size="sm" weight="semibold" truncate>
-            Crucible
-          </Text>
-          <Text size="xs" tone="subtle" truncate>
-            Acme · Production
-          </Text>
-        </div>
-        <ChevronsUpDown className="h-3.5 w-3.5 text-(--color-fg-subtle)" />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="flex flex-1 items-center gap-2.5 rounded-(--radius-md) p-1.5 -m-1.5 text-left transition-colors hover:bg-(--color-surface-subtle)"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-(--radius-md) bg-(--color-fg) text-(--color-warning)">
+            <Flame className="h-4 w-4" strokeWidth={2.25} fill="currentColor" />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <Text size="sm" weight="semibold" truncate>
+              Crucible
+            </Text>
+            <Text size="xs" tone="subtle" truncate>
+              Acme · Production
+            </Text>
+          </div>
+          <ChevronsUpDown className="h-3.5 w-3.5 text-(--color-fg-subtle)" />
+        </button>
+        {onClose ? (
+          <IconButton
+            variant="ghost"
+            size="sm"
+            aria-label="Close menu"
+            onClick={onClose}
+            className="lg:hidden"
+          >
+            <X className="h-4 w-4" />
+          </IconButton>
+        ) : null}
+      </div>
 
       <div className="relative flex items-center">
         <Search className="absolute left-2.5 h-3.5 w-3.5 text-(--color-fg-subtle)" />

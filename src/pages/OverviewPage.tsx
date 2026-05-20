@@ -11,9 +11,9 @@ import { evals, runs } from '@/data/demo'
 
 export function OverviewPage() {
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="2xl" weight="semibold">
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
           Production overview
         </Heading>
         <Text size="sm" tone="muted">
@@ -21,7 +21,7 @@ export function OverviewPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
           label="Eval pass rate"
           value="94.2"
@@ -55,8 +55,8 @@ export function OverviewPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="flex flex-col gap-3 xl:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
           <div className="flex items-center justify-between">
             <Heading as="h2" size="md" weight="semibold">
               Recent runs
@@ -66,29 +66,33 @@ export function OverviewPage() {
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Text>
           </div>
-          <Card variant="default" padding="none" radius="lg">
-            <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
-              <span />
-              <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                Scenario
-              </Text>
-              <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                Agent
-              </Text>
-              <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                Duration
-              </Text>
-              <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                Started
-              </Text>
-              <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                Status
-              </Text>
-            </div>
-            <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-              {runs.map((run) => (
-                <RunRow key={run.runId} {...run} />
-              ))}
+          <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <div className="min-w-[640px]">
+                <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
+                  <span />
+                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                    Scenario
+                  </Text>
+                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                    Agent
+                  </Text>
+                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                    Duration
+                  </Text>
+                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                    Started
+                  </Text>
+                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                    Status
+                  </Text>
+                </div>
+                <div className="flex flex-col divide-y divide-(--color-border-subtle)">
+                  {runs.map((run) => (
+                    <RunRow key={run.runId} {...run} />
+                  ))}
+                </div>
+              </div>
             </div>
           </Card>
         </div>
@@ -102,7 +106,7 @@ export function OverviewPage() {
               2 regressing
             </Badge>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
             {evals.map((evalEntry) => (
               <EvalScoreCard key={evalEntry.id} {...evalEntry} />
             ))}

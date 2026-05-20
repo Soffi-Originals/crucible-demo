@@ -17,10 +17,10 @@ const iconFor: Record<string, ReactNode> = {
 
 export function ConnectorsPage() {
   return (
-    <div className="flex flex-col gap-6 p-8">
-      <div className="flex items-end justify-between">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <Heading as="h1" size="2xl" weight="semibold">
+          <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
             Connectors
           </Heading>
           <Text size="sm" tone="muted">
@@ -31,11 +31,11 @@ export function ConnectorsPage() {
           variant="default"
           size="md"
           placeholder="Search connectors…"
-          className="w-72"
+          className="w-full sm:w-72"
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {connectors.map((c) => (
           <ConnectorCard
             key={c.id}

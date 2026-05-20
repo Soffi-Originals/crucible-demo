@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: true,
     headers: {
       'X-Frame-Options': 'ALLOWALL',
       'Content-Security-Policy': 'frame-ancestors *',

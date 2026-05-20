@@ -10,4 +10,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    headers: {
+      'X-Frame-Options': 'ALLOWALL',
+      'Content-Security-Policy': 'frame-ancestors *',
+    },
+  },
 })

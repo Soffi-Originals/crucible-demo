@@ -72,7 +72,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
           {label}
         </Text>
         <div className="flex items-baseline gap-1">
-          <Heading as="div" size="2xl" weight="semibold">
+          <Heading as="div" size="2xl" weight="semibold" className="text-[#60A5FA]">
             {value}
           </Heading>
           {unit ? (

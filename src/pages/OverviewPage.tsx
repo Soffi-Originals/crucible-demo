@@ -23,6 +23,14 @@ export function OverviewPage() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
+          label="Eval pass rate"
+          value="94.2"
+          unit="%"
+          delta="+1.4 vs. last week"
+          trend="up"
+          sentiment="positive"
+        />
+        <MetricTile
           label="Simulations / 24h"
           value="12,481"
           delta="−2.1 vs. last week"
@@ -45,21 +53,13 @@ export function OverviewPage() {
           trend="down"
           sentiment="positive"
         />
-        <MetricTile
-          label="Eval pass rate"
-          value="94.2"
-          unit="%"
-          delta="+1.4 vs. last week"
-          trend="up"
-          sentiment="positive"
-        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
           <div className="flex items-center justify-between">
             <Heading as="h2" size="md" weight="semibold">
-              szldvkgnhalkrghlierghl
+              Recent runs
             </Heading>
             <Text size="sm" tone="muted" className="flex items-center gap-1">
               View all

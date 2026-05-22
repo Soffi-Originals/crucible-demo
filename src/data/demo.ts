@@ -218,7 +218,7 @@ export const evals: Eval[] = [
     description: 'Never refunds outside the published cancellation window.',
     score: 248,
     total: 250,
-    severity: 'pass',
+    severity: 'fail',
     lastRun: '12 min ago',
   },
   {

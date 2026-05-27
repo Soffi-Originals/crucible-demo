@@ -8,17 +8,17 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-(--color-primary) text-(--color-primary-fg) hover:bg-(--color-primary-hover)',
+          'bg-(--btn-bg) text-(--btn-fg) border border-(--btn-border) hover:bg-(--btn-bg-hover)',
         secondary:
-          'bg-(--color-surface) text-(--color-fg) border border-(--color-border) hover:bg-(--color-surface-subtle)',
+          'bg-(--btn-bg) text-(--btn-fg) border border-(--btn-border) hover:bg-(--btn-bg-hover)',
         outline:
-          'bg-transparent text-(--color-fg) border border-(--color-border-strong) hover:bg-(--color-surface-subtle)',
+          'bg-(--btn-bg) text-(--btn-fg) border border-(--btn-border) hover:bg-(--btn-bg-hover)',
         ghost:
-          'bg-transparent text-(--color-fg) hover:bg-(--color-surface-subtle)',
+          'bg-(--btn-bg) text-(--btn-fg) border border-(--btn-border) hover:bg-(--btn-bg-hover)',
         accent:
-          'bg-(--color-accent) text-(--color-accent-fg) hover:bg-(--color-accent-hover)',
+          'bg-(--btn-bg) text-(--btn-fg) border border-(--btn-border) hover:bg-(--btn-bg-hover)',
         danger:
-          'bg-(--color-danger) text-white hover:opacity-90',
+          'bg-(--btn-bg) text-(--btn-fg) border border-(--btn-border) hover:bg-(--btn-bg-hover)',
       },
       size: {
         sm: 'h-7 px-2.5 text-xs rounded-(--radius-sm)',
@@ -62,6 +62,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        data-variant={variant ?? 'primary'}
         className={cn(buttonVariants({ variant, size, fullWidth }), className)}
         {...props}
       >

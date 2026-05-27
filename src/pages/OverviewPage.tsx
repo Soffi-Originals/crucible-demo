@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { Divider } from '@/components/ui/Divider'
 import { Badge } from '@/components/ui/Badge'
 import { MetricTile } from '@/components/views/MetricTile'
+import { PassRateChart } from '@/components/views/PassRateChart'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
@@ -22,14 +23,7 @@ export function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricTile
-          label="Eval pass rate"
-          value="94.2"
-          unit="%"
-          delta="+1.4 vs. last week"
-          trend="up"
-          sentiment="positive"
-        />
+        <PassRateChart />
         <MetricTile
           label="Simulations / 24h"
           value="12,481"

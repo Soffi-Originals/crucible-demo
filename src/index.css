@@ -153,6 +153,56 @@
   --shadow-focus: 0 0 0 3px rgba(96, 165, 250, 0.25);
 }
 
+/* ---------------------------------------------------------------------------
+ * Button variant tokens
+ *
+ * Each variant sets --btn-bg, --btn-fg, --btn-border, --btn-bg-hover via
+ * [data-variant] attribute selectors. This makes every variant independently
+ * targetable by the style editor without swapping React props or class sets.
+ * ---------------------------------------------------------------------------*/
+
+[data-variant='primary'] {
+  --btn-bg: var(--color-primary);
+  --btn-fg: var(--color-primary-fg);
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-primary-hover);
+}
+
+[data-variant='secondary'] {
+  --btn-bg: var(--color-surface);
+  --btn-fg: var(--color-fg);
+  --btn-border: var(--color-border);
+  --btn-bg-hover: var(--color-surface-subtle);
+}
+
+[data-variant='outline'] {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-fg);
+  --btn-border: var(--color-border-strong);
+  --btn-bg-hover: var(--color-surface-subtle);
+}
+
+[data-variant='ghost'] {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-fg);
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-surface-subtle);
+}
+
+[data-variant='accent'] {
+  --btn-bg: var(--color-accent);
+  --btn-fg: var(--color-accent-fg);
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-accent-hover);
+}
+
+[data-variant='danger'] {
+  --btn-bg: var(--color-danger);
+  --btn-fg: #ffffff;
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-danger);
+}
+
 @layer base {
   html,
   body {

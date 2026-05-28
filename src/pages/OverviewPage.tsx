@@ -9,12 +9,22 @@ import { PassRateChart } from '@/components/views/PassRateChart'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
+import { useMatrixEffect } from '@/hooks/useMatrixEffect'
 
 export function OverviewPage() {
+  const matrix = useMatrixEffect()
+
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
+        <Heading
+          as="h1"
+          size="xl"
+          weight="semibold"
+          className="sm:text-2xl cursor-default select-none relative"
+          onMouseEnter={matrix.onMouseEnter}
+          onMouseLeave={matrix.onMouseLeave}
+        >
           Production overview
         </Heading>
         <Text size="sm" tone="muted">

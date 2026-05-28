@@ -15,48 +15,48 @@
 
 @theme {
   /* Color: surfaces */
-  --color-canvas: #f7f7f5;
-  --color-surface: #ffffff;
-  --color-surface-raised: #ffffff;
-  --color-surface-subtle: #f4f4f2;
-  --color-surface-muted: #ebebe8;
-  --color-surface-inverse: #18181b;
+  --color-canvas: #1a0a2e;
+  --color-surface: #241040;
+  --color-surface-raised: #2d1450;
+  --color-surface-subtle: #2a1248;
+  --color-surface-muted: #331858;
+  --color-surface-inverse: #f3eeff;
 
   /* Color: borders */
-  --color-border: #e7e5e4;
-  --color-border-strong: #d6d3d1;
-  --color-border-subtle: #efeeec;
-  --color-border-focus: #2563eb;
+  --color-border: #4a2578;
+  --color-border-strong: #5e30a0;
+  --color-border-subtle: #3d1e66;
+  --color-border-focus: #c084fc;
 
   /* Color: foreground (text/icons) */
-  --color-fg: #18181b;
-  --color-fg-muted: #57534e;
-  --color-fg-subtle: #8a8580;
-  --color-fg-inverse: #fafaf9;
+  --color-fg: #f3eeff;
+  --color-fg-muted: #c4a8f0;
+  --color-fg-subtle: #9b72d8;
+  --color-fg-inverse: #1a0a2e;
   --color-fg-on-accent: #ffffff;
 
   /* Color: brand / interactive */
-  --color-primary: #18181b;
-  --color-primary-hover: #27272a;
-  --color-primary-fg: #fafaf9;
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-accent-soft: #eff6ff;
+  --color-primary: #c084fc;
+  --color-primary-hover: #d8b4fe;
+  --color-primary-fg: #1a0a2e;
+  --color-accent: #a855f7;
+  --color-accent-hover: #9333ea;
+  --color-accent-soft: rgba(168, 85, 247, 0.18);
   --color-accent-fg: #ffffff;
 
   /* Color: status */
   --color-success: #10b981;
-  --color-success-soft: #ecfdf5;
-  --color-success-fg: #047857;
+  --color-success-soft: rgba(16, 185, 129, 0.15);
+  --color-success-fg: #6ee7b7;
   --color-warning: #f59e0b;
-  --color-warning-soft: #fffbeb;
-  --color-warning-fg: #b45309;
-  --color-danger: #ef4444;
-  --color-danger-soft: #fef2f2;
-  --color-danger-fg: #b91c1c;
-  --color-info: #3b82f6;
-  --color-info-soft: #eff6ff;
-  --color-info-fg: #1d4ed8;
+  --color-warning-soft: rgba(245, 158, 11, 0.15);
+  --color-warning-fg: #fcd34d;
+  --color-danger: #f87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.15);
+  --color-danger-fg: #fca5a5;
+  --color-info: #a855f7;
+  --color-info-soft: rgba(168, 85, 247, 0.15);
+  --color-info-fg: #d8b4fe;
 
   /* Typography */
   --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont,
@@ -84,52 +84,52 @@
   --text-3xl--line-height: 2.25rem;
   --text-4xl--line-height: 2.5rem;
 
-  /* Radius */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
-  --radius-full: 9999px;
+  /* Radius — all set to 0 for sharp, angular UI */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-full: 0px;
 
   /* Shadow */
-  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06),
-    0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06),
-    0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5),
+    0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
+    0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-focus: 0 0 0 3px rgba(168, 85, 247, 0.35);
 }
 
 /* Dark theme — class-driven. Add `.dark` to <body> (or any ancestor). */
 .dark {
-  --color-canvas: #0a0a0a;
-  --color-surface: #141414;
-  --color-surface-raised: #1c1c1c;
-  --color-surface-subtle: #1c1c1c;
-  --color-surface-muted: #262626;
-  --color-surface-inverse: #fafaf9;
+  --color-canvas: #0d0518;
+  --color-surface: #160820;
+  --color-surface-raised: #1e0d2e;
+  --color-surface-subtle: #1e0d2e;
+  --color-surface-muted: #280f3e;
+  --color-surface-inverse: #f3eeff;
 
-  --color-border: #262626;
-  --color-border-strong: #3f3f46;
-  --color-border-subtle: #1f1f1f;
-  --color-border-focus: #60a5fa;
+  --color-border: #3d1e66;
+  --color-border-strong: #5e30a0;
+  --color-border-subtle: #2a1248;
+  --color-border-focus: #c084fc;
 
-  --color-fg: #fafafa;
-  --color-fg-muted: #a3a3a3;
-  --color-fg-subtle: #737373;
-  --color-fg-inverse: #0a0a0a;
+  --color-fg: #f3eeff;
+  --color-fg-muted: #c4a8f0;
+  --color-fg-subtle: #9b72d8;
+  --color-fg-inverse: #0d0518;
   --color-fg-on-accent: #ffffff;
 
-  --color-primary: #fafafa;
-  --color-primary-hover: #e5e5e5;
-  --color-primary-fg: #0a0a0a;
-  --color-accent: #60a5fa;
-  --color-accent-hover: #3b82f6;
-  --color-accent-soft: rgba(96, 165, 250, 0.12);
-  --color-accent-fg: #0a0a0a;
+  --color-primary: #c084fc;
+  --color-primary-hover: #d8b4fe;
+  --color-primary-fg: #0d0518;
+  --color-accent: #a855f7;
+  --color-accent-hover: #9333ea;
+  --color-accent-soft: rgba(168, 85, 247, 0.18);
+  --color-accent-fg: #ffffff;
 
   --color-success: #34d399;
   --color-success-soft: rgba(52, 211, 153, 0.12);
@@ -140,17 +140,67 @@
   --color-danger: #f87171;
   --color-danger-soft: rgba(248, 113, 113, 0.12);
   --color-danger-fg: #fca5a5;
-  --color-info: #60a5fa;
-  --color-info-soft: rgba(96, 165, 250, 0.12);
-  --color-info-fg: #93c5fd;
+  --color-info: #a855f7;
+  --color-info-soft: rgba(168, 85, 247, 0.15);
+  --color-info-fg: #d8b4fe;
 
-  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5),
-    0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
-    0 4px 6px -4px rgba(0, 0, 0, 0.4);
-  --shadow-focus: 0 0 0 3px rgba(96, 165, 250, 0.25);
+  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7),
+    0 2px 4px -2px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7),
+    0 4px 6px -4px rgba(0, 0, 0, 0.6);
+  --shadow-focus: 0 0 0 3px rgba(168, 85, 247, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+ * Button variant tokens
+ *
+ * Each variant sets --btn-bg, --btn-fg, --btn-border, --btn-bg-hover via
+ * [data-variant] attribute selectors. This makes every variant independently
+ * targetable by the style editor without swapping React props or class sets.
+ * ---------------------------------------------------------------------------*/
+
+[data-variant='primary'] {
+  --btn-bg: var(--color-primary);
+  --btn-fg: var(--color-primary-fg);
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-primary-hover);
+}
+
+[data-variant='secondary'] {
+  --btn-bg: var(--color-surface-raised);
+  --btn-fg: var(--color-fg);
+  --btn-border: var(--color-border);
+  --btn-bg-hover: var(--color-surface-muted);
+}
+
+[data-variant='outline'] {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-fg);
+  --btn-border: var(--color-border-strong);
+  --btn-bg-hover: var(--color-surface-subtle);
+}
+
+[data-variant='ghost'] {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-fg);
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-surface-subtle);
+}
+
+[data-variant='accent'] {
+  --btn-bg: var(--color-accent);
+  --btn-fg: var(--color-accent-fg);
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-accent-hover);
+}
+
+[data-variant='danger'] {
+  --btn-bg: var(--color-danger);
+  --btn-fg: #ffffff;
+  --btn-border: transparent;
+  --btn-bg-hover: var(--color-danger);
 }
 
 @layer base {

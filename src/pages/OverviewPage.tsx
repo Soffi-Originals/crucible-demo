@@ -5,15 +5,26 @@ import { Card } from '@/components/ui/Card'
 import { Divider } from '@/components/ui/Divider'
 import { Badge } from '@/components/ui/Badge'
 import { MetricTile } from '@/components/views/MetricTile'
+import { PassRateChart } from '@/components/views/PassRateChart'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
+import { useMatrixEffect } from '@/hooks/useMatrixEffect'
 
 export function OverviewPage() {
+  const matrix = useMatrixEffect()
+
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
+        <Heading
+          as="h1"
+          size="xl"
+          weight="semibold"
+          className="sm:text-2xl cursor-default select-none relative"
+          onMouseEnter={matrix.onMouseEnter}
+          onMouseLeave={matrix.onMouseLeave}
+        >
           Production overview
         </Heading>
         <Text size="sm" tone="muted">
@@ -22,20 +33,14 @@ export function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricTile
-          label="Eval pass rate"
-          value="94.2"
-          unit="%"
-          delta="+1.4 vs. last week"
-          trend="up"
-          sentiment="positive"
-        />
+        <PassRateChart />
         <MetricTile
           label="Simulations / 24h"
           value="12,481"
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          valueClassName="text-(--color-danger)"
         />
         <MetricTile
           label="P95 latency"

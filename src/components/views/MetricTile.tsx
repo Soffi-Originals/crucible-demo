@@ -29,6 +29,7 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  valueClassName?: string
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -55,6 +56,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      valueClassName,
       ...props
     },
     ref,
@@ -72,7 +74,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
           {label}
         </Text>
         <div className="flex items-baseline gap-1">
-          <Heading as="div" size="2xl" weight="semibold">
+          <Heading as="div" size="2xl" weight="semibold" className={valueClassName}>
             {value}
           </Heading>
           {unit ? (

@@ -40,6 +40,7 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          valueClassName="text-(--color-danger)"
         />
         <MetricTile
           label="P95 latency"

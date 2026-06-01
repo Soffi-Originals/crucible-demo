@@ -44,6 +44,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          emphasis="raised"
         />
         <MetricTile
           label="Escalation rate"

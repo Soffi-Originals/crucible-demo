@@ -51,7 +51,7 @@ export function OverviewPage() {
           unit="%"
           delta="−0.6 vs. last week"
           trend="down"
-          sentiment="positive"
+          sentiment="negative"
         />
       </div>
 

@@ -16,7 +16,7 @@ export function OverviewPage() {
         <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
           Production overview
         </Heading>
-        <Text size="sm" tone="muted" className="text-(--color-danger)">
+        <Text size="sm" tone="muted" className="text-[#60A5FA]">
           How your agents are behaving across simulations and live traffic.
         </Text>
       </div>
@@ -102,7 +102,7 @@ export function OverviewPage() {
             <Heading as="h2" size="md" weight="semibold" className="text-[#60A5FA]">
               Eval health
             </Heading>
-            <Badge variant="warning" size="sm" shape="pill">
+            <Badge variant="warning" size="sm" shape="pill" className="p-2">
               2 regressing
             </Badge>
           </div>

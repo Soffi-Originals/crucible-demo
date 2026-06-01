@@ -14,7 +14,7 @@ export function OverviewPage() {
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
         <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
-          Production overview
+          Production
         </Heading>
         <Text size="sm" tone="muted">
           How your agents are behaving across simulations and live traffic.
@@ -44,6 +44,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          emphasis="raised"
         />
         <MetricTile
           label="Escalation rate"
@@ -51,7 +52,7 @@ export function OverviewPage() {
           unit="%"
           delta="−0.6 vs. last week"
           trend="down"
-          sentiment="positive"
+          sentiment="negative"
         />
       </div>
 

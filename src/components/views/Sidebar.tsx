@@ -40,11 +40,12 @@ const items: {
   icon: React.ReactNode
   count?: number
   shortcut?: string
+  className?: string
 }[] = [
   { id: 'overview', label: 'Overview', icon: <Gauge className="h-4 w-4" />, shortcut: '⌘1' },
   { id: 'agents', label: 'Agents', icon: <Bot className="h-4 w-4" />, count: 4, shortcut: '⌘2' },
   { id: 'simulations', label: 'Simulations', icon: <Activity className="h-4 w-4" />, count: 12, shortcut: '⌘3' },
-  { id: 'evals', label: 'Eval packs', icon: <Box className="h-4 w-4" />, shortcut: '⌘4' },
+  { id: 'evals', label: 'Eval packs', icon: <Box className="h-4 w-4" />, shortcut: '⌘4', className: 'text-white hover:text-white' },
   { id: 'connectors', label: 'Connectors', icon: <Plug className="h-4 w-4" />, shortcut: '⌘5' },
   { id: 'plans', label: 'Plans & billing', icon: <CreditCard className="h-4 w-4" />, shortcut: '⌘6' },
 ]
@@ -106,6 +107,7 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
             shortcut={item.shortcut}
             state={current === item.id ? 'active' : 'default'}
             onClick={() => onNavigate(item.id)}
+            className={item.className}
           />
         ))}
       </nav>

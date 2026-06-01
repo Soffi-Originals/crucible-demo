@@ -99,7 +99,7 @@ export function OverviewPage() {
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
+            <Heading as="h2" size="md" weight="semibold" className="text-[#60A5FA]">
               Eval health
             </Heading>
             <Badge variant="warning" size="sm" shape="pill">

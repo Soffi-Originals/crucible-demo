@@ -37,12 +37,6 @@ const trendIcon: Record<TrendDirection, React.ReactNode> = {
   flat: <Minus className="h-3 w-3" />,
 }
 
-const sentimentColor: Record<TrendSentiment, string> = {
-  positive: 'text-(--color-success-fg)',
-  negative: 'text-(--color-danger-fg)',
-  neutral: 'text-(--color-fg-muted)',
-}
-
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
   function MetricTile(
     {
@@ -54,7 +48,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       hint,
       delta,
       trend = 'flat',
-      sentiment = 'neutral',
+      sentiment: _sentiment,
       ...props
     },
     ref,
@@ -84,7 +78,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         {(delta || hint) && (
           <div className="flex items-center justify-between">
             {delta ? (
-              <div className={cn('flex items-center gap-1', sentimentColor[sentiment])}>
+              <div className="flex items-center gap-1 text-(--color-fg-muted)">
                 {trendIcon[trend]}
                 <Text size="xs" weight="medium" className="text-current">
                   {delta}

@@ -20,7 +20,7 @@ export function SimulationsPage() {
           </Text>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
+          <Button variant="ghost" size="sm" className="hidden text-[#60A5FA] sm:inline-flex">
             Import from production
           </Button>
           <Button variant="primary" size="sm">

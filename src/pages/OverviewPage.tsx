@@ -116,7 +116,7 @@ export function OverviewPage() {
 
       <Divider tone="subtle" />
 
-      <Text size="xs" tone="subtle">
+      <Text size="xs" tone="muted">
         Data shown is from the production workspace. Synced 38 seconds ago.
       </Text>
     </div>

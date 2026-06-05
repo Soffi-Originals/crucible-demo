@@ -11,6 +11,7 @@ export const metricTileVariants = cva('flex flex-col gap-2', {
     emphasis: {
       default: '',
       raised: '',
+      subtle: '',
     },
   },
   defaultVariants: { emphasis: 'default' },
@@ -125,6 +126,12 @@ function Sparkline({ data, sentiment, width = 80, height = 28 }: SparklineProps)
   )
 }
 
+const emphasisToCardVariant = {
+  default: 'default',
+  raised: 'raised',
+  subtle: 'subtle',
+} as const
+
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
   function MetricTile(
     {
@@ -142,10 +149,12 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
     },
     ref,
   ) {
+    const cardVariant = emphasisToCardVariant[emphasis ?? 'default']
+
     return (
       <Card
         ref={ref}
-        variant={emphasis === 'raised' ? 'raised' : 'default'}
+        variant={cardVariant}
         padding="md"
         radius="lg"
         className={cn(metricTileVariants({ emphasis }), className)}

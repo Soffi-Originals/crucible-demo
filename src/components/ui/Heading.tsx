@@ -23,6 +23,7 @@ export const headingVariants = cva('text-(--color-fg) tracking-tight', {
       default: 'text-(--color-fg)',
       muted: 'text-(--color-fg-muted)',
       inverse: 'text-(--color-fg-inverse)',
+      accent: 'text-(--color-accent)',
     },
   },
   defaultVariants: {

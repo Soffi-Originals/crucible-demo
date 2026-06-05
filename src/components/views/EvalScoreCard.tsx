@@ -67,7 +67,7 @@ export const EvalScoreCard = React.forwardRef<
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <Heading as="h3" size="sm" weight="semibold">
+          <Heading as="h3" size="sm" weight="semibold" tone="accent">
             {name}
           </Heading>
           {description ? (

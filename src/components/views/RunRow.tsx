@@ -30,13 +30,13 @@ export type RunStatus = 'queued' | 'running' | 'passed' | 'failed' | 'cancelled'
 
 const statusMap: Record<
   RunStatus,
-  { dot: 'idle' | 'running' | 'success' | 'warning' | 'error'; label: string; badge: 'neutral' | 'success' | 'warning' | 'danger' | 'accent' }
+  { dot: 'idle' | 'running' | 'success' | 'warning' | 'error'; label: string; badge: 'neutral' }
 > = {
-  queued: { dot: 'idle', label: 'Queued', badge: 'neutral' },
-  running: { dot: 'running', label: 'Running', badge: 'accent' },
-  passed: { dot: 'success', label: 'Passed', badge: 'success' },
-  failed: { dot: 'error', label: 'Failed', badge: 'danger' },
-  cancelled: { dot: 'warning', label: 'Cancelled', badge: 'warning' },
+  queued:    { dot: 'idle',    label: 'Queued',    badge: 'neutral' },
+  running:   { dot: 'running', label: 'Running',   badge: 'neutral' },
+  passed:    { dot: 'success', label: 'Passed',    badge: 'neutral' },
+  failed:    { dot: 'error',   label: 'Failed',    badge: 'neutral' },
+  cancelled: { dot: 'warning', label: 'Cancelled', badge: 'neutral' },
 }
 
 export interface RunRowProps

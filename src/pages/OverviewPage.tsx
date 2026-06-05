@@ -74,7 +74,7 @@ export function OverviewPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
+            <Heading as="h2" size="md" weight="semibold" tone="accent">
               Recent runs
             </Heading>
             <Text size="sm" tone="muted" className="flex items-center gap-1">

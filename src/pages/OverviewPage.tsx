@@ -4,10 +4,60 @@ import { Text } from '@/components/ui/Text'
 import { Card } from '@/components/ui/Card'
 import { Divider } from '@/components/ui/Divider'
 import { Badge } from '@/components/ui/Badge'
-import { MetricTile } from '@/components/views/MetricTile'
+import { MetricsBarChart, type BarMetric } from '@/components/views/MetricsBarChart'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
+
+const metrics: BarMetric[] = [
+  {
+    label: 'Eval pass rate',
+    value: '94.2',
+    unit: '%',
+    displayValue: 94,
+    delta: '+1.4 vs. last week',
+    trend: 'up',
+    sentiment: 'positive',
+    barColor: 'var(--color-accent)',
+    barColorDark: 'color-mix(in srgb, var(--color-accent) 60%, black)',
+    barColorTop: 'color-mix(in srgb, var(--color-accent) 80%, white)',
+  },
+  {
+    label: 'Simulations / 24h',
+    value: '12,481',
+    displayValue: 72,
+    delta: '−2.1 vs. last week',
+    trend: 'down',
+    sentiment: 'negative',
+    barColor: 'var(--color-primary)',
+    barColorDark: 'color-mix(in srgb, var(--color-primary) 60%, black)',
+    barColorTop: 'color-mix(in srgb, var(--color-primary) 80%, white)',
+  },
+  {
+    label: 'P95 latency',
+    value: '1.8',
+    unit: 's',
+    displayValue: 45,
+    delta: 'flat',
+    trend: 'flat',
+    sentiment: 'neutral',
+    barColor: 'var(--color-fg-muted)',
+    barColorDark: 'color-mix(in srgb, var(--color-fg-muted) 60%, black)',
+    barColorTop: 'color-mix(in srgb, var(--color-fg-muted) 80%, white)',
+  },
+  {
+    label: 'Escalation rate',
+    value: '3.1',
+    unit: '%',
+    displayValue: 31,
+    delta: '−0.6 vs. last week',
+    trend: 'down',
+    sentiment: 'positive',
+    barColor: 'var(--color-success)',
+    barColorDark: 'color-mix(in srgb, var(--color-success) 60%, black)',
+    barColorTop: 'color-mix(in srgb, var(--color-success) 80%, white)',
+  },
+]
 
 export function OverviewPage() {
   return (
@@ -21,39 +71,7 @@ export function OverviewPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MetricTile
-          label="Eval pass rate"
-          value="94.2"
-          unit="%"
-          delta="+1.4 vs. last week"
-          trend="up"
-          sentiment="positive"
-        />
-        <MetricTile
-          label="Simulations / 24h"
-          value="12,481"
-          delta="−2.1 vs. last week"
-          trend="down"
-          sentiment="negative"
-        />
-        <MetricTile
-          label="P95 latency"
-          value="1.8"
-          unit="s"
-          delta="flat"
-          trend="flat"
-          sentiment="neutral"
-        />
-        <MetricTile
-          label="Escalation rate"
-          value="3.1"
-          unit="%"
-          delta="−0.6 vs. last week"
-          trend="down"
-          sentiment="positive"
-        />
-      </div>
+      <MetricsBarChart metrics={metrics} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">

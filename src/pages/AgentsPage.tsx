@@ -130,7 +130,7 @@ export function AgentsPage() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <Heading as="h3" size="md" weight="semibold">
+                <Heading as="span" size="md" weight="semibold" style={{ fontFamily: 'monospace' }}>
                   System prompt
                 </Heading>
                 <Card variant="subtle" padding="md" radius="lg" className="gap-2">

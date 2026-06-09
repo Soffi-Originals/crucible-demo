@@ -21,7 +21,7 @@ export function OverviewPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <MetricTile
           label="Eval pass rate"
           value="94.2"

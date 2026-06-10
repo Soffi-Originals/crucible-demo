@@ -94,32 +94,29 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
             </button>
           </div>
           <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="min-w-[640px]">
-                <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
-                  <span />
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Scenario
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Agent
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Duration
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Started
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Status
-                  </Text>
-                </div>
-                <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-                  {runs.map((run) => (
-                    <RunRowExpandable key={run.runId} {...run} />
-                  ))}
-                </div>
-              </div>
+            {/* Desktop-only column header */}
+            <div className="hidden sm:grid sm:grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] sm:items-center sm:gap-4 sm:px-4 sm:py-2.5 border-b border-(--color-border-subtle)">
+              <span />
+              <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                Scenario
+              </Text>
+              <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                Agent
+              </Text>
+              <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                Duration
+              </Text>
+              <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                Started
+              </Text>
+              <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                Status
+              </Text>
+            </div>
+            <div className="flex flex-col divide-y divide-(--color-border-subtle)">
+              {runs.map((run) => (
+                <RunRowExpandable key={run.runId} {...run} />
+              ))}
             </div>
           </Card>
         </div>

@@ -105,9 +105,9 @@ export function MetricsBarChart({ metrics, className }: MetricsBarChartProps) {
 
   return (
     <Card
-      variant="default"
-      padding="md"
-      radius="2xl"
+      variant="elevated"
+      padding="lg"
+      radius="sm"
       className={cn('flex flex-col gap-4', className)}
     >
       {/* Chart */}

@@ -6,7 +6,7 @@ import { Divider } from '@/components/ui/Divider'
 import { Badge } from '@/components/ui/Badge'
 import { MetricsBarChart, type BarMetric } from '@/components/views/MetricsBarChart'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
-import { RunRow } from '@/components/views/RunRow'
+import { RunRowExpandable } from '@/components/views/RunRowExpandable'
 import { evals, runs } from '@/data/demo'
 
 const metrics: BarMetric[] = [
@@ -107,7 +107,7 @@ export function OverviewPage() {
                 </div>
                 <div className="flex flex-col divide-y divide-(--color-border-subtle)">
                   {runs.map((run) => (
-                    <RunRow key={run.runId} {...run} />
+                    <RunRowExpandable key={run.runId} {...run} />
                   ))}
                 </div>
               </div>

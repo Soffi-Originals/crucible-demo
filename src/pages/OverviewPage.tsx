@@ -8,6 +8,7 @@ import { MetricsBarChart, type BarMetric } from '@/components/views/MetricsBarCh
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRowExpandable } from '@/components/views/RunRowExpandable'
 import { evals, runs } from '@/data/demo'
+import type { PageId } from '@/components/views/Sidebar'
 
 const metrics: BarMetric[] = [
   {
@@ -59,7 +60,11 @@ const metrics: BarMetric[] = [
   },
 ]
 
-export function OverviewPage() {
+export interface OverviewPageProps {
+  onNavigate?: (id: PageId) => void
+}
+
+export function OverviewPage({ onNavigate }: OverviewPageProps) {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
@@ -79,10 +84,14 @@ export function OverviewPage() {
             <Heading as="h2" size="md" weight="semibold">
               Recent runs
             </Heading>
-            <Text size="sm" tone="muted" className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onNavigate?.('simulations')}
+              className="flex items-center gap-1 rounded-(--radius-sm) text-sm text-(--color-fg-muted) transition-colors hover:text-(--color-fg) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent)"
+            >
               View all
               <ArrowUpRight className="h-3.5 w-3.5" />
-            </Text>
+            </button>
           </div>
           <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
             <div className="overflow-x-auto">

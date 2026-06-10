@@ -103,85 +103,94 @@ export function MetricsBarChart({ metrics, className }: MetricsBarChartProps) {
 
   const baseY = MAX_H + 16  // y-coordinate of the ground line
 
+  // Each label column aligns with its bar's x position
+  const colWidth = BAR_W + GAP
+
   return (
     <Card
       variant="elevated"
       padding="lg"
       radius="sm"
-      className={cn('flex flex-col gap-4', className)}
+      className={cn('overflow-x-auto', className)}
     >
-      {/* Chart */}
-      <svg
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        width="100%"
-        height={svgHeight}
-        style={{ overflow: 'visible' }}
-        aria-hidden
-      >
-        {/* Baseline */}
-        <line
-          x1={0}
-          y1={baseY}
-          x2={svgWidth}
-          y2={baseY}
-          stroke="var(--color-border)"
-          strokeWidth={1}
-        />
+      {/* Single scrollable container so chart and labels move together */}
+      <div style={{ minWidth: svgWidth }}>
+        {/* Chart */}
+        <svg
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          width="100%"
+          height={svgHeight}
+          style={{ overflow: 'visible', display: 'block' }}
+          aria-hidden
+        >
+          {/* Baseline */}
+          <line
+            x1={0}
+            y1={baseY}
+            x2={svgWidth}
+            y2={baseY}
+            stroke="var(--color-border)"
+            strokeWidth={1}
+          />
 
-        {metrics.map((m, i) => {
-          const barH = Math.round((m.displayValue / 100) * MAX_H)
-          const x = i * (BAR_W + GAP) + 8
-          return (
-            <IsoBar
+          {metrics.map((m, i) => {
+            const barH = Math.round((m.displayValue / 100) * MAX_H)
+            const x = i * colWidth + 8
+            return (
+              <IsoBar
+                key={m.label}
+                x={x}
+                baseY={baseY}
+                height={barH}
+                width={BAR_W}
+                depth={DEPTH}
+                fill={m.barColor}
+                fillDark={m.barColorDark}
+                fillTop={m.barColorTop}
+              />
+            )
+          })}
+        </svg>
+
+        {/* Labels row — aligned to bars via fixed-width columns matching colWidth */}
+        <div className="mt-4 flex">
+          {metrics.map((m, i) => (
+            <div
               key={m.label}
-              x={x}
-              baseY={baseY}
-              height={barH}
-              width={BAR_W}
-              depth={DEPTH}
-              fill={m.barColor}
-              fillDark={m.barColorDark}
-              fillTop={m.barColorTop}
-            />
-          )
-        })}
-      </svg>
-
-      {/* Labels row */}
-      <div
-        className="grid"
-        style={{ gridTemplateColumns: `repeat(${count}, 1fr)` }}
-      >
-        {metrics.map((m) => (
-          <div key={m.label} className="flex flex-col gap-0.5 px-1">
-            <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide truncate">
-              {m.label}
-            </Text>
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl font-semibold text-(--color-text-base) tabular-nums">
-                {m.value}
-              </span>
-              {m.unit && (
-                <Text size="xs" tone="muted">
-                  {m.unit}
-                </Text>
+              className="flex flex-col gap-0.5 px-1 shrink-0"
+              style={{
+                width: i < count - 1 ? colWidth : BAR_W + DEPTH + 16,
+              }}
+            >
+              <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide whitespace-nowrap">
+                {m.label}
+              </Text>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-semibold text-(--color-text-base) tabular-nums">
+                  {m.value}
+                </span>
+                {m.unit && (
+                  <Text size="xs" tone="muted">
+                    {m.unit}
+                  </Text>
+                )}
+              </div>
+              {m.delta && (
+                <div
+                  className={cn(
+                    'flex items-center gap-0.5',
+                    sentimentClass[m.sentiment ?? 'neutral'],
+                  )}
+                >
+                  {trendIcon[m.trend ?? 'flat']}
+                  <Text size="xs" weight="medium" className="text-current whitespace-nowrap">
+                    {m.delta}
+                  </Text>
+                </div>
               )}
             </div>
-            {m.delta && (
-              <div
-                className={cn(
-                  'flex items-center gap-0.5',
-                  sentimentClass[m.sentiment ?? 'neutral'],
-                )}
-              >
-                {trendIcon[m.trend ?? 'flat']}
-                <Text size="xs" weight="medium" className="text-current truncate">
-                  {m.delta}
-                </Text>
-              </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </Card>
   )

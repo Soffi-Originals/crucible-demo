@@ -1,6 +1,6 @@
 # Crucible
 
-> Where agents are forged.
+> Where agents are forged. 
 
 A standalone B2B-style workspace app for early Soffi users to evaluate AI
 agents — review production runs, inspect simulations, manage tool connectors,

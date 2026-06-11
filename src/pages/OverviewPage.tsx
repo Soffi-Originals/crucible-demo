@@ -24,7 +24,7 @@ export function OverviewPage() {
         <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl text-[#57534E]">
           Production overview
         </Heading>
-        <Text size="sm" tone="muted">
+        <Text size="sm" tone="muted" className="text-(--color-danger)">
           How your agents are behaving across simulations and live traffic.
         </Text>
       </div>

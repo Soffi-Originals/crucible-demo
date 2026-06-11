@@ -9,56 +9,72 @@ import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
 
+// 7-day trailing sparkline data (oldest → newest)
+const sparklines = {
+  evalPassRate:    [91.4, 92.0, 91.8, 93.1, 93.6, 93.9, 94.2],
+  simulations:    [12_840, 12_710, 13_100, 12_950, 12_600, 12_530, 12_481],
+  p95Latency:     [1.9, 1.85, 1.95, 1.8, 1.82, 1.78, 1.8],
+  escalationRate: [3.9, 3.7, 3.6, 3.4, 3.3, 3.2, 3.1],
+}
+
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl text-[#57534E]">
           Production overview
         </Heading>
-        <Text size="sm" tone="muted">
+        <Text size="sm" tone="muted" className="text-(--color-danger)">
           How your agents are behaving across simulations and live traffic.
         </Text>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
+          emphasis="subtle"
           label="Eval pass rate"
           value="94.2"
           unit="%"
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={sparklines.evalPassRate}
         />
         <MetricTile
+          emphasis="subtle"
           label="Simulations / 24h"
           value="12,481"
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={sparklines.simulations}
         />
         <MetricTile
+          emphasis="subtle"
           label="P95 latency"
           value="1.8"
           unit="s"
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={sparklines.p95Latency}
         />
         <MetricTile
+          emphasis="subtle"
           label="Escalation rate"
           value="3.1"
           unit="%"
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={sparklines.escalationRate}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
+            <Heading as="h2" size="md" weight="semibold" tone="accent">
               Recent runs
             </Heading>
             <Text size="sm" tone="muted" className="flex items-center gap-1">
@@ -116,7 +132,7 @@ export function OverviewPage() {
 
       <Divider tone="subtle" />
 
-      <Text size="xs" tone="subtle">
+      <Text size="xs" tone="muted">
         Data shown is from the production workspace. Synced 38 seconds ago.
       </Text>
     </div>

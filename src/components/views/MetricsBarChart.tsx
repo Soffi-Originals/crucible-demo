@@ -96,6 +96,9 @@ interface MetricsBarChartProps {
   className?: string
 }
 
+// Minimum rendered width before the card scrolls horizontally on narrow screens
+const MIN_CONTENT_W = 360
+
 export function MetricsBarChart({ metrics, className }: MetricsBarChartProps) {
   const count = metrics.length
   const svgWidth = count * (BAR_W + GAP) + DEPTH + 16
@@ -114,17 +117,16 @@ export function MetricsBarChart({ metrics, className }: MetricsBarChartProps) {
       className={cn('overflow-hidden', className)}
     >
       {/*
-        The scroll container goes edge-to-edge inside the card so it can
-        actually scroll on narrow viewports without the card padding eating
-        into the available scroll width.
+        overflow-x-auto kicks in only when the card is narrower than
+        MIN_CONTENT_W. Above that the inner div grows to fill the card
+        and the SVG scales up via width="100%".
       */}
       <div className="overflow-x-auto">
-        {/* Inner content has its own padding so chart + labels are inset */}
-        <div className="px-7 py-7" style={{ minWidth: svgWidth + 56 }}>
-          {/* Chart */}
+        <div className="px-7 py-7" style={{ minWidth: MIN_CONTENT_W }}>
+          {/* SVG uses width="100%" so it fills whatever space is available */}
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            width={svgWidth}
+            width="100%"
             height={svgHeight}
             style={{ overflow: 'visible', display: 'block' }}
             aria-hidden
@@ -158,20 +160,17 @@ export function MetricsBarChart({ metrics, className }: MetricsBarChartProps) {
             })}
           </svg>
 
-          {/* Labels row — fixed-width columns that align with each bar */}
+          {/* Labels row — flex so columns distribute evenly at any width */}
           <div className="mt-4 flex">
-            {metrics.map((m, i) => (
+            {metrics.map((m) => (
               <div
                 key={m.label}
-                className="flex flex-col gap-0.5 px-1 shrink-0"
-                style={{
-                  width: i < count - 1 ? colWidth : BAR_W + DEPTH + 16,
-                }}
+                className="flex flex-1 flex-col gap-0.5 px-1 min-w-0"
               >
-                <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide whitespace-nowrap">
+                <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide truncate">
                   {m.label}
                 </Text>
-                <div className="flex items-baseline gap-1">
+                <div className="flex items-baseline gap-1 flex-wrap">
                   <span className="text-xl font-semibold text-(--color-text-base) tabular-nums">
                     {m.value}
                   </span>

@@ -109,87 +109,94 @@ export function MetricsBarChart({ metrics, className }: MetricsBarChartProps) {
   return (
     <Card
       variant="elevated"
-      padding="lg"
+      padding="none"
       radius="sm"
-      className={cn('overflow-x-auto', className)}
+      className={cn('overflow-hidden', className)}
     >
-      {/* Single scrollable container so chart and labels move together */}
-      <div style={{ minWidth: svgWidth }}>
-        {/* Chart */}
-        <svg
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          width="100%"
-          height={svgHeight}
-          style={{ overflow: 'visible', display: 'block' }}
-          aria-hidden
-        >
-          {/* Baseline */}
-          <line
-            x1={0}
-            y1={baseY}
-            x2={svgWidth}
-            y2={baseY}
-            stroke="var(--color-border)"
-            strokeWidth={1}
-          />
+      {/*
+        The scroll container goes edge-to-edge inside the card so it can
+        actually scroll on narrow viewports without the card padding eating
+        into the available scroll width.
+      */}
+      <div className="overflow-x-auto">
+        {/* Inner content has its own padding so chart + labels are inset */}
+        <div className="px-7 py-7" style={{ minWidth: svgWidth + 56 }}>
+          {/* Chart */}
+          <svg
+            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+            width={svgWidth}
+            height={svgHeight}
+            style={{ overflow: 'visible', display: 'block' }}
+            aria-hidden
+          >
+            {/* Baseline */}
+            <line
+              x1={0}
+              y1={baseY}
+              x2={svgWidth}
+              y2={baseY}
+              stroke="var(--color-border)"
+              strokeWidth={1}
+            />
 
-          {metrics.map((m, i) => {
-            const barH = Math.round((m.displayValue / 100) * MAX_H)
-            const x = i * colWidth + 8
-            return (
-              <IsoBar
+            {metrics.map((m, i) => {
+              const barH = Math.round((m.displayValue / 100) * MAX_H)
+              const x = i * colWidth + 8
+              return (
+                <IsoBar
+                  key={m.label}
+                  x={x}
+                  baseY={baseY}
+                  height={barH}
+                  width={BAR_W}
+                  depth={DEPTH}
+                  fill={m.barColor}
+                  fillDark={m.barColorDark}
+                  fillTop={m.barColorTop}
+                />
+              )
+            })}
+          </svg>
+
+          {/* Labels row — fixed-width columns that align with each bar */}
+          <div className="mt-4 flex">
+            {metrics.map((m, i) => (
+              <div
                 key={m.label}
-                x={x}
-                baseY={baseY}
-                height={barH}
-                width={BAR_W}
-                depth={DEPTH}
-                fill={m.barColor}
-                fillDark={m.barColorDark}
-                fillTop={m.barColorTop}
-              />
-            )
-          })}
-        </svg>
-
-        {/* Labels row — aligned to bars via fixed-width columns matching colWidth */}
-        <div className="mt-4 flex">
-          {metrics.map((m, i) => (
-            <div
-              key={m.label}
-              className="flex flex-col gap-0.5 px-1 shrink-0"
-              style={{
-                width: i < count - 1 ? colWidth : BAR_W + DEPTH + 16,
-              }}
-            >
-              <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide whitespace-nowrap">
-                {m.label}
-              </Text>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-semibold text-(--color-text-base) tabular-nums">
-                  {m.value}
-                </span>
-                {m.unit && (
-                  <Text size="xs" tone="muted">
-                    {m.unit}
-                  </Text>
+                className="flex flex-col gap-0.5 px-1 shrink-0"
+                style={{
+                  width: i < count - 1 ? colWidth : BAR_W + DEPTH + 16,
+                }}
+              >
+                <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide whitespace-nowrap">
+                  {m.label}
+                </Text>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xl font-semibold text-(--color-text-base) tabular-nums">
+                    {m.value}
+                  </span>
+                  {m.unit && (
+                    <Text size="xs" tone="muted">
+                      {m.unit}
+                    </Text>
+                  )}
+                </div>
+                {m.delta && (
+                  <div
+                    className={cn(
+                      'flex items-center gap-0.5',
+                      sentimentClass[m.sentiment ?? 'neutral'],
+                    )}
+                  >
+                    {trendIcon[m.trend ?? 'flat']}
+                    <Text size="xs" weight="medium" className="text-current whitespace-nowrap">
+                      {m.delta}
+                    </Text>
+                  </div>
                 )}
               </div>
-              {m.delta && (
-                <div
-                  className={cn(
-                    'flex items-center gap-0.5',
-                    sentimentClass[m.sentiment ?? 'neutral'],
-                  )}
-                >
-                  {trendIcon[m.trend ?? 'flat']}
-                  <Text size="xs" weight="medium" className="text-current whitespace-nowrap">
-                    {m.delta}
-                  </Text>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </Card>

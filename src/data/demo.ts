@@ -133,6 +133,26 @@ export const connectors: Connector[] = [
   },
 ]
 
+export type RunToolCall = {
+  tool: string
+  args: string
+  result: string
+  ok: boolean
+}
+
+export type RunEvalResult = {
+  name: string
+  passed: boolean
+}
+
+export type RunDetail = {
+  summary: string
+  toolCalls: RunToolCall[]
+  evals: RunEvalResult[]
+  model: string
+  tokens: number
+}
+
 export type Run = {
   runId: string
   agent: string
@@ -140,6 +160,7 @@ export type Run = {
   status: RunStatus
   duration: string
   startedAt: string
+  detail?: RunDetail
 }
 
 export const runs: Run[] = [
@@ -150,6 +171,22 @@ export const runs: Run[] = [
     status: 'passed',
     duration: '6.4s',
     startedAt: '2 min ago',
+    detail: {
+      summary:
+        'Customer requested a refund for a same-day cancellation. Agent located the booking, confirmed eligibility under the 24-hour policy, and issued a full $487 refund.',
+      toolCalls: [
+        { tool: 'lookup_booking', args: '#4892', result: 'Found — checked in 2024-06-10', ok: true },
+        { tool: 'check_refund_policy', args: 'cancellation_type=last_minute', result: 'Eligible — within 24h window', ok: true },
+        { tool: 'stripe.refund', args: '$487.00 → card ••4242', result: 'Refund issued · ref RF-8821', ok: true },
+      ],
+      evals: [
+        { name: 'Refund policy adherence', passed: true },
+        { name: 'PII handling', passed: true },
+        { name: 'Tone & de-escalation', passed: true },
+      ],
+      model: 'gpt-4o',
+      tokens: 1_840,
+    },
   },
   {
     runId: 'run_01HZ8PT4Q2',
@@ -158,6 +195,16 @@ export const runs: Run[] = [
     status: 'running',
     duration: '—',
     startedAt: '3 min ago',
+    detail: {
+      summary: 'Run is in progress. Agent is assessing the damage claim and checking the partial-refund policy.',
+      toolCalls: [
+        { tool: 'lookup_booking', args: '#5103', result: 'Found — checked in 2024-06-09', ok: true },
+        { tool: 'check_refund_policy', args: 'cancellation_type=damage_claim', result: 'Pending review…', ok: true },
+      ],
+      evals: [],
+      model: 'gpt-4o',
+      tokens: 920,
+    },
   },
   {
     runId: 'run_01HZ8PT4Q1',
@@ -166,6 +213,22 @@ export const runs: Run[] = [
     status: 'failed',
     duration: '11.2s',
     startedAt: '14 min ago',
+    detail: {
+      summary:
+        'Agent failed the escalation-triggers eval. It proceeded to quote enterprise pricing without first confirming company size, violating the qualification rubric.',
+      toolCalls: [
+        { tool: 'fetch_lead', args: 'email=j.torres@acme.io', result: 'Lead found — MQL score 72', ok: true },
+        { tool: 'fetch_crm_account', args: 'domain=acme.io', result: 'Account not found', ok: false },
+        { tool: 'send_pricing_email', args: 'tier=enterprise', result: 'Sent without size confirmation', ok: false },
+      ],
+      evals: [
+        { name: 'Qualification gate', passed: false },
+        { name: 'Escalation triggers', passed: false },
+        { name: 'Tone & de-escalation', passed: true },
+      ],
+      model: 'gpt-4o',
+      tokens: 3_210,
+    },
   },
   {
     runId: 'run_01HZ8PT4Q0',
@@ -174,6 +237,21 @@ export const runs: Run[] = [
     status: 'passed',
     duration: '4.1s',
     startedAt: '22 min ago',
+    detail: {
+      summary:
+        'Agent guided the user through inviting teammates, setting roles, and confirming email delivery for all three invitations.',
+      toolCalls: [
+        { tool: 'create_invite', args: 'email=alice@co.com role=admin', result: 'Invite sent', ok: true },
+        { tool: 'create_invite', args: 'email=bob@co.com role=member', result: 'Invite sent', ok: true },
+        { tool: 'create_invite', args: 'email=carol@co.com role=member', result: 'Invite sent', ok: true },
+      ],
+      evals: [
+        { name: 'Task completion', passed: true },
+        { name: 'Tone & de-escalation', passed: true },
+      ],
+      model: 'gpt-4o-mini',
+      tokens: 740,
+    },
   },
   {
     runId: 'run_01HZ8PT4PZ',
@@ -182,6 +260,16 @@ export const runs: Run[] = [
     status: 'cancelled',
     duration: '2.0s',
     startedAt: '1 hr ago',
+    detail: {
+      summary:
+        'Run was cancelled before completion. The account was flagged as churned in CRM mid-run and the workflow was aborted.',
+      toolCalls: [
+        { tool: 'fetch_crm_account', args: 'id=ACC-2291', result: 'Status: churned — run aborted', ok: false },
+      ],
+      evals: [],
+      model: 'gpt-4o',
+      tokens: 210,
+    },
   },
   {
     runId: 'run_01HZ8PT4PY',
@@ -198,6 +286,21 @@ export const runs: Run[] = [
     status: 'passed',
     duration: '5.8s',
     startedAt: '2 hr ago',
+    detail: {
+      summary:
+        'Loyalty member requested an out-of-window refund. Agent correctly identified the loyalty exception clause and issued a 50% partial refund as permitted.',
+      toolCalls: [
+        { tool: 'lookup_booking', args: '#3817', result: 'Found — loyalty tier Gold', ok: true },
+        { tool: 'check_refund_policy', args: 'loyalty_tier=gold cancellation_type=out_of_window', result: '50% exception applies', ok: true },
+        { tool: 'stripe.refund', args: '$213.00 → card ••9901', result: 'Refund issued · ref RF-8799', ok: true },
+      ],
+      evals: [
+        { name: 'Refund policy adherence', passed: true },
+        { name: 'PII handling', passed: true },
+      ],
+      model: 'gpt-4o',
+      tokens: 1_560,
+    },
   },
 ]
 

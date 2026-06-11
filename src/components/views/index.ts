@@ -41,6 +41,10 @@ export {
   type RunStatus,
 } from './RunRow'
 export {
+  RunRowExpandable,
+  type RunRowExpandableProps,
+} from './RunRowExpandable'
+export {
   SidebarNavItem,
   sidebarNavItemVariants,
   type SidebarNavItemProps,

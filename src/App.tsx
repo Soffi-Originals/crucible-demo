@@ -72,7 +72,7 @@ function App() {
         />
       }
     >
-      {page === 'overview' && <OverviewPage />}
+      {page === 'overview' && <OverviewPage onNavigate={handleNavigate} />}
       {page === 'agents' && <AgentsPage />}
       {page === 'simulations' && <SimulationsPage />}
       {page === 'evals' && <EvalsPage />}

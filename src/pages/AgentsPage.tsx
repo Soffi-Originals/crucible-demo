@@ -130,11 +130,11 @@ export function AgentsPage() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <Heading as="h3" size="md" weight="semibold">
+                <Heading as="span" size="md" weight="semibold" style={{ fontFamily: 'monospace' }}>
                   System prompt
                 </Heading>
                 <Card variant="subtle" padding="md" radius="lg" className="gap-2">
-                  <Text family="mono" size="sm" tone="muted" className="leading-5">
+                  <Text family="mono" size="sm" tone="muted" className="leading-5" style={{ fontSize: '14px' }}>
                     You are {agent.name}, a {agent.description.toLowerCase()} agent operating inside a regulated workspace.
                     Always cite the policy you applied. Never invent refund amounts.
                     When a customer's request exceeds your authority, escalate using

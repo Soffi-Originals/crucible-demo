@@ -19,19 +19,20 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Stamp a run with a "just arrived" time within the past 60 minutes
- * so the time-series chart always shows recent activity.
- * We spread arrivals realistically — newer runs cluster near "now",
- * older ones fill the past hour.
+ * Stamp a run so it looks like it just happened within the last 120 seconds.
+ * Runs are placed in the recent 120s window proportionally so the time series
+ * fills up naturally as the feed progresses.
  */
-function stampRun(run: RunRecord, seqId: number): RunRecord {
+function stampRun(run: RunRecord, seqId: number, totalSoFar: number): RunRecord {
   const nowMs = Date.now()
-  // Jitter 0–55 min back so the 60-min time-series always has content
-  const jitterMs = Math.floor(Math.random() * 55 * 60 * 1000)
+  // Spread arrivals across the last 120 seconds so the chart fills consistently
+  // Earlier runs in the session get older timestamps; newer runs cluster near now.
+  const maxJitterMs = 120 * 1000
+  const jitterMs = Math.max(0, maxJitterMs - (totalSoFar % 120) * 1000 - Math.random() * 2000)
   const startedAtMs = nowMs - jitterMs
 
-  const relMin = Math.floor(jitterMs / 60_000)
-  const startedAt = relMin < 1 ? 'just now' : `${relMin}m ago`
+  const relSec = Math.round(jitterMs / 1000)
+  const startedAt = relSec < 5 ? 'just now' : `${relSec}s ago`
 
   return {
     ...run,
@@ -76,8 +77,8 @@ export function useLiveFeed(): LiveFeedState {
       poolIdxRef.current++
       seqRef.current++
 
-      const run = stampRun(base, seqRef.current)
-      setArrived((prev) => [run, ...prev].slice(0, 200))
+      const run = stampRun(base, seqRef.current, seqRef.current)
+      setArrived((prev) => [run, ...prev].slice(0, 300))
     }, SPEED_MS[speed])
 
     return () => clearInterval(interval)

@@ -9,7 +9,6 @@ const SPEED_MS: Record<SpeedSetting, number> = {
   ludicrous: 300,
 }
 
-// Pool to draw from — shuffle once
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -19,15 +18,26 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-// Stamp a run with a fresh "just arrived" time so heatmap cell is today
+/**
+ * Stamp a run with a "just arrived" time within the past 60 minutes
+ * so the time-series chart always shows recent activity.
+ * We spread arrivals realistically — newer runs cluster near "now",
+ * older ones fill the past hour.
+ */
 function stampRun(run: RunRecord, seqId: number): RunRecord {
   const nowMs = Date.now()
-  const jitter = Math.floor(Math.random() * 60 * 60 * 1000) // up to 1h ago
+  // Jitter 0–55 min back so the 60-min time-series always has content
+  const jitterMs = Math.floor(Math.random() * 55 * 60 * 1000)
+  const startedAtMs = nowMs - jitterMs
+
+  const relMin = Math.floor(jitterMs / 60_000)
+  const startedAt = relMin < 1 ? 'just now' : `${relMin}m ago`
+
   return {
     ...run,
     runId: `run_live_${seqId.toString().padStart(4, '0')}`,
-    startedAtMs: nowMs - jitter,
-    startedAt: jitter < 60_000 ? 'just now' : `${Math.floor(jitter / 60_000)} min ago`,
+    startedAtMs,
+    startedAt,
   }
 }
 
@@ -45,7 +55,6 @@ export function useLiveFeed(): LiveFeedState {
   const [isPlaying, setIsPlaying] = React.useState(true)
   const [speed, setSpeed] = React.useState<SpeedSetting>('1x')
 
-  // Stable pool ref — cycle through shuffled history indefinitely
   const poolRef = React.useRef<RunRecord[]>([])
   const poolIdxRef = React.useRef(0)
   const seqRef = React.useRef(0)
@@ -68,7 +77,7 @@ export function useLiveFeed(): LiveFeedState {
       seqRef.current++
 
       const run = stampRun(base, seqRef.current)
-      setArrived((prev) => [run, ...prev].slice(0, 200)) // cap at 200
+      setArrived((prev) => [run, ...prev].slice(0, 200))
     }, SPEED_MS[speed])
 
     return () => clearInterval(interval)

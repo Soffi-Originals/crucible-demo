@@ -1,107 +1,170 @@
 import * as React from 'react'
-import { Pause, Play, X, Zap, Activity } from 'lucide-react'
+import {
+  Pause, Play, Zap, Activity, Bell, X, ChevronUp, ChevronDown,
+} from 'lucide-react'
 import { type RunRecord } from '@/data/runHistory'
 import { useLiveFeed, type SpeedSetting } from '@/hooks/useLiveFeed'
-import { HeatMap, type HeatMapCell } from '@/components/charts/HeatMap'
+import { CategoryHeatMap, type HeatCell } from '@/components/charts/CategoryHeatMap'
 import { AnimatedDonut, type DonutSegment } from '@/components/charts/AnimatedDonut'
-import { LiveToast, type ToastItem } from '@/components/views/LiveToast'
+import { TimeSeriesChart, type TimeSeriesPoint } from '@/components/charts/TimeSeriesChart'
+import { LogsExplorer, type LogEntry } from '@/components/views/LogsExplorer'
+import { NotificationDrawer, type Notification } from '@/components/views/NotificationDrawer'
 import { RunDetailPanel } from '@/components/views/RunDetailPanel'
-import { Badge } from '@/components/ui/Badge'
-import { cn } from '@/lib/cn'
 
-// ── colours ────────────────────────────────────────────────────────────────────
+// ── constants ─────────────────────────────────────────────────────────────────
 const AGENT_COLOR: Record<string, string> = {
   Navigator: '#60a5fa',
-  Explorer:  '#f87171',
-  Pioneer:   '#34d399',
-  Voyager:   '#fbbf24',
+  Explorer: '#f87171',
+  Pioneer: '#34d399',
+  Voyager: '#fbbf24',
 }
+
 const STATUS_COLOR: Record<string, string> = {
-  passed:    '#34d399',
-  failed:    '#f87171',
+  passed: '#34d399',
+  failed: '#f87171',
   cancelled: '#fbbf24',
-  running:   '#60a5fa',
-  queued:    '#737373',
+  running: '#60a5fa',
+  queued: '#737373',
 }
 
-// ── toast message generator ────────────────────────────────────────────────────
-let voyagerFails = 0
-function toastMessage(run: RunRecord): string {
-  if (run.status === 'passed') {
-    return `✅ ${run.agent} passed in ${(run.durationMs / 1000).toFixed(1)}s`
-  }
-  if (run.status === 'failed') {
-    if (run.agent === 'Voyager') {
-      voyagerFails++
-      if (voyagerFails >= 2) return `💀 Voyager is having a day. (${run.scenario})`
-    }
-    return `💀 ${run.agent} fumbled: ${run.scenario} (${(run.durationMs / 1000).toFixed(1)}s)`
-  }
-  if (run.status === 'cancelled') return `⚠️ ${run.agent} was cancelled mid-run`
-  return `⏳ ${run.agent} started: ${run.scenario}`
+// Scenario → category
+const SCENARIO_CATEGORY: Record<string, string> = {}
+function categorize(scenario: string): string {
+  if (SCENARIO_CATEGORY[scenario]) return SCENARIO_CATEGORY[scenario]
+  const s = scenario.toLowerCase()
+  if (s.startsWith('refund')) return 'Refund'
+  if (s.startsWith('renewal')) return 'Renewal'
+  if (s.startsWith('escalat')) return 'Escalation'
+  if (s.startsWith('onboard')) return 'Onboarding'
+  if (s.startsWith('qualify')) return 'Qualify'
+  return 'Other'
 }
 
-// ── heatmap builder ────────────────────────────────────────────────────────────
-const DAY_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const CATEGORIES = ['Refund', 'Renewal', 'Escalation', 'Onboarding', 'Qualify']
+const AGENTS = ['Navigator', 'Explorer', 'Pioneer', 'Voyager']
 
-function buildHeatCells(records: RunRecord[]): HeatMapCell[] {
-  const now = Date.now()
-  const buckets: Record<string, HeatMapCell> = {}
-
-  // Pre-fill 7 days × 8 time buckets so empty cells exist
-  for (let d = 6; d >= 0; d--) {
-    const dayMs = now - d * 86_400_000
-    const dayLabel = DAY_LABELS[new Date(dayMs).getDay()]
-    for (let h = 0; h < 24; h += 3) {
-      const key = `${dayLabel}-${h}`
-      if (!buckets[key]) buckets[key] = { day: dayLabel, hour: h, passed: 0, failed: 0, total: 0 }
-    }
-  }
-
+// ── data builders ─────────────────────────────────────────────────────────────
+function buildHeatCells(records: RunRecord[]): HeatCell[] {
+  const buckets: Record<string, HeatCell> = {}
   records.forEach((r) => {
-    const d = new Date(r.startedAtMs)
-    const dayLabel = DAY_LABELS[d.getDay()]
-    const hourBucket = Math.floor(d.getHours() / 3) * 3
-    const key = `${dayLabel}-${hourBucket}`
-    if (!buckets[key]) buckets[key] = { day: dayLabel, hour: hourBucket, passed: 0, failed: 0, total: 0 }
+    const row = r.agent
+    const col = categorize(r.scenario)
+    const key = `${row}|${col}`
+    if (!buckets[key]) buckets[key] = { rowKey: row, colKey: col, passed: 0, failed: 0, total: 0 }
     buckets[key].total++
     if (r.status === 'passed') buckets[key].passed++
     else if (r.status === 'failed') buckets[key].failed++
   })
-
   return Object.values(buckets)
 }
 
-function orderedDays(): string[] {
-  const now = new Date()
-  const days: string[] = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 86_400_000)
-    days.push(DAY_LABELS[d.getDay()])
-  }
-  return days
+function buildTimeSeries(records: RunRecord[]): TimeSeriesPoint[] {
+  if (records.length === 0) return []
+  // 30 buckets of ~2 min each over last hour
+  const now = Date.now()
+  const BUCKET_MS = 2 * 60 * 1000
+  const NUM_BUCKETS = 30
+  const buckets: TimeSeriesPoint[] = Array.from({ length: NUM_BUCKETS }, (_, i) => {
+    const t = now - (NUM_BUCKETS - 1 - i) * BUCKET_MS
+    const hh = new Date(t).getHours().toString().padStart(2, '0')
+    const mm = new Date(t).getMinutes().toString().padStart(2, '0')
+    return { label: `${hh}:${mm}`, passed: 0, failed: 0, total: 0 }
+  })
+  const startMs = now - NUM_BUCKETS * BUCKET_MS
+  records.forEach((r) => {
+    if (r.startedAtMs < startMs) return
+    const idx = Math.floor((r.startedAtMs - startMs) / BUCKET_MS)
+    const clamped = Math.min(idx, NUM_BUCKETS - 1)
+    buckets[clamped].total++
+    if (r.status === 'passed') buckets[clamped].passed++
+    else if (r.status === 'failed') buckets[clamped].failed++
+  })
+  return buckets
 }
 
-// ── filters ────────────────────────────────────────────────────────────────────
+// ── run → log entry ───────────────────────────────────────────────────────────
+let voyagerFailCount = 0
+
+function runToLogEntry(run: RunRecord): LogEntry {
+  const level = run.status === 'failed' ? 'error' : run.status === 'cancelled' ? 'warn' : 'info'
+  let message = ''
+  if (run.status === 'passed') message = `✓ ${run.scenario} completed in ${(run.durationMs / 1000).toFixed(1)}s`
+  else if (run.status === 'failed') message = `✗ ${run.scenario} — evaluation failed`
+  else if (run.status === 'cancelled') message = `⊘ ${run.scenario} — cancelled after ${(run.durationMs / 1000).toFixed(1)}s`
+  else message = `→ ${run.scenario} — ${run.status}`
+
+  return {
+    id: `log-${run.runId}`,
+    runId: run.runId,
+    agent: run.agent,
+    scenario: run.scenario,
+    status: run.status as LogEntry['status'],
+    level,
+    message,
+    timestamp: run.startedAtMs,
+    durationMs: run.durationMs,
+    steps: run.steps,
+    tokenCount: run.tokenCount,
+    evalScores: run.evalScores,
+  }
+}
+
+function runToNotification(run: RunRecord): Notification {
+  let title = ''
+  let body = ''
+
+  if (run.status === 'passed') {
+    title = `${run.agent} passed`
+    body = `${run.scenario} · ${(run.durationMs / 1000).toFixed(1)}s · ${run.steps} steps`
+  } else if (run.status === 'failed') {
+    if (run.agent === 'Voyager') {
+      voyagerFailCount++
+      if (voyagerFailCount >= 2) {
+        title = 'Voyager is having a day'
+        body = `Failed again: ${run.scenario}`
+      } else {
+        title = `${run.agent} failed`
+        body = run.scenario
+      }
+    } else {
+      title = `${run.agent} failed`
+      body = run.scenario
+    }
+  } else if (run.status === 'cancelled') {
+    title = `${run.agent} cancelled`
+    body = run.scenario
+  } else {
+    title = `${run.agent} ${run.status}`
+    body = run.scenario
+  }
+
+  return {
+    id: `notif-${run.runId}-${Date.now()}`,
+    type: run.status === 'passed' ? 'pass' : run.status === 'failed' ? 'fail' : run.status === 'cancelled' ? 'warn' : 'info',
+    title,
+    body,
+    timestamp: Date.now(),
+    read: false,
+  }
+}
+
+// ── filters ───────────────────────────────────────────────────────────────────
 function applyFilters(
   records: RunRecord[],
-  day: string | null,
-  status: string | null,
-  agent: string | null,
+  agentFilter: string | null,
+  categoryFilter: string | null,
+  statusFilter: string | null,
 ): RunRecord[] {
   return records.filter((r) => {
-    if (day) {
-      const d = new Date(r.startedAtMs)
-      if (DAY_LABELS[d.getDay()] !== day) return false
-    }
-    if (status && r.status !== status) return false
-    if (agent && r.agent !== agent) return false
+    if (agentFilter && r.agent !== agentFilter) return false
+    if (categoryFilter && categorize(r.scenario) !== categoryFilter) return false
+    if (statusFilter && r.status !== statusFilter) return false
     return true
   })
 }
 
-// ── rolling number animation ───────────────────────────────────────────────────
-function useRollingNumber(target: number, duration = 400) {
+// ── rolling number ────────────────────────────────────────────────────────────
+function useRollingNumber(target: number, duration = 350) {
   const [display, setDisplay] = React.useState(target)
   const rafRef = React.useRef<number | null>(null)
   const startRef = React.useRef<{ from: number; to: number; t: number } | null>(null)
@@ -109,26 +172,23 @@ function useRollingNumber(target: number, duration = 400) {
   React.useEffect(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     startRef.current = { from: display, to: target, t: performance.now() }
-
     function tick(now: number) {
       const s = startRef.current!
       const pct = Math.min((now - s.t) / duration, 1)
-      const eased = 1 - Math.pow(1 - pct, 3) // ease-out cubic
-      const val = Math.round(s.from + (s.to - s.from) * eased)
-      setDisplay(val)
+      const eased = 1 - (1 - pct) ** 3
+      setDisplay(Math.round(s.from + (s.to - s.from) * eased))
       if (pct < 1) rafRef.current = requestAnimationFrame(tick)
     }
-
     rafRef.current = requestAnimationFrame(tick)
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target])
 
   return display
 }
 
-// ── KPI card ───────────────────────────────────────────────────────────────────
-interface KpiCardProps {
+// ── KPI card ──────────────────────────────────────────────────────────────────
+interface KpiProps {
   label: string
   value: number
   unit?: string
@@ -136,25 +196,26 @@ interface KpiCardProps {
   shake?: boolean
   streak?: boolean
   sub?: string
+  trend?: 'up' | 'down' | 'flat'
 }
-function KpiCard({ label, value, unit, color, shake, streak, sub }: KpiCardProps) {
+
+function KpiCard({ label, value, unit, color, shake, streak, sub, trend }: KpiProps) {
   const display = useRollingNumber(value)
   const [isShaking, setIsShaking] = React.useState(false)
 
   React.useEffect(() => {
-    if (shake) {
-      setIsShaking(true)
-      const t = setTimeout(() => setIsShaking(false), 500)
-      return () => clearTimeout(t)
-    }
+    if (!shake) return
+    setIsShaking(true)
+    const t = setTimeout(() => setIsShaking(false), 500)
+    return () => clearTimeout(t)
   }, [shake, value])
 
   return (
     <div style={{
       backgroundColor: '#161616',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 12,
-      padding: '16px 20px',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 10,
+      padding: '14px 16px',
       display: 'flex',
       flexDirection: 'column',
       gap: 6,
@@ -164,19 +225,24 @@ function KpiCard({ label, value, unit, color, shake, streak, sub }: KpiCardProps
     }}>
       {streak && (
         <div style={{
-          position: 'absolute', top: 10, right: 12,
-          fontSize: 11, fontWeight: 700, color: '#fbbf24',
-          display: 'flex', alignItems: 'center', gap: 3,
+          position: 'absolute', top: 10, right: 10,
+          fontSize: 10, fontWeight: 700, color: '#fbbf24',
+          display: 'flex', alignItems: 'center', gap: 2,
+          background: 'rgba(251,191,36,0.1)',
+          border: '1px solid rgba(251,191,36,0.25)',
+          borderRadius: 5,
+          padding: '2px 6px',
         }}>
           🔥 streak
         </div>
       )}
-      <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
+      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
         {label}
       </span>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
         <span style={{
-          fontSize: 28, fontWeight: 700,
+          fontSize: 26,
+          fontWeight: 700,
           color: color ?? '#fafafa',
           fontVariantNumeric: 'tabular-nums',
           lineHeight: 1,
@@ -184,21 +250,22 @@ function KpiCard({ label, value, unit, color, shake, streak, sub }: KpiCardProps
         }}>
           {display}
         </span>
-        {unit && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>{unit}</span>}
+        {unit && <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{unit}</span>}
+        {trend && (
+          <div style={{ marginLeft: 4, display: 'flex', alignItems: 'center', color: trend === 'up' ? '#34d399' : trend === 'down' ? '#f87171' : 'rgba(255,255,255,0.3)' }}>
+            {trend === 'up' ? <ChevronUp size={14} /> : trend === 'down' ? <ChevronDown size={14} /> : null}
+          </div>
+        )}
       </div>
-      {sub && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{sub}</span>}
+      {sub && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{sub}</span>}
     </div>
   )
 }
 
-// ── live run row ───────────────────────────────────────────────────────────────
-interface LiveRunRowProps {
-  run: RunRecord
-  isNew: boolean
-  isSelected: boolean
-  onClick: () => void
-}
-function LiveRunRow({ run, isNew, isSelected, onClick }: LiveRunRowProps) {
+// ── run row ───────────────────────────────────────────────────────────────────
+function RunRow({
+  run, isNew, isSelected, onClick,
+}: { run: RunRecord; isNew: boolean; isSelected: boolean; onClick: () => void }) {
   const [mounted, setMounted] = React.useState(false)
   const [flashing, setFlashing] = React.useState(isNew)
 
@@ -217,186 +284,189 @@ function LiveRunRow({ run, isNew, isSelected, onClick }: LiveRunRowProps) {
   const agentColor = AGENT_COLOR[run.agent] ?? '#737373'
   const isPassed = run.status === 'passed'
   const isFailed = run.status === 'failed'
+  const cat = categorize(run.scenario)
 
   return (
     <div
       onClick={onClick}
       style={{
         display: 'grid',
-        gridTemplateColumns: '8px 1fr 120px 70px 80px 90px',
+        gridTemplateColumns: '8px 1fr 100px 60px 70px',
         alignItems: 'center',
-        gap: 12,
-        padding: '10px 16px',
+        gap: 10,
+        padding: '9px 14px',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
         cursor: 'pointer',
         backgroundColor: flashing
-          ? isPassed ? 'rgba(52,211,153,0.08)' : isFailed ? 'rgba(248,113,113,0.08)' : 'transparent'
+          ? isPassed ? 'rgba(52,211,153,0.07)' : isFailed ? 'rgba(248,113,113,0.07)' : 'transparent'
           : isSelected ? 'rgba(255,255,255,0.04)' : 'transparent',
-        boxShadow: isSelected ? 'inset 0 0 0 1px rgba(255,255,255,0.1)' : 'none',
         borderRadius: isSelected ? 6 : 0,
+        boxShadow: isSelected ? 'inset 0 0 0 1px rgba(255,255,255,0.1)' : 'none',
         opacity: mounted ? 1 : 0,
-        transform: mounted ? 'translateY(0)' : 'translateY(-6px)',
-        transition: flashing
-          ? 'background-color 0.8s ease, opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)'
-          : 'background-color 0.4s ease, opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s ease',
+        transform: mounted ? 'translateY(0)' : 'translateY(-4px)',
+        transition: 'background-color 0.5s ease, opacity 0.2s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
       }}
     >
-      {/* Status dot */}
       <div style={{
-        width: 7, height: 7, borderRadius: '50%',
+        width: 6, height: 6, borderRadius: '50%',
         backgroundColor: STATUS_COLOR[run.status] ?? '#737373',
-        boxShadow: isFailed ? '0 0 6px #f87171' : isPassed ? '0 0 4px #34d399' : 'none',
+        boxShadow: isFailed ? '0 0 5px #f87171' : isPassed ? '0 0 4px #34d399' : 'none',
         flexShrink: 0,
-        animation: run.status === 'running' ? 'pulse 1.5s ease-in-out infinite' : 'none',
       }} />
 
-      {/* Scenario + run ID */}
       <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: '#fafafa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: 12, fontWeight: 500, color: '#e8e8e8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {run.scenario}
         </span>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {run.runId}
-        </span>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+            {run.runId}
+          </span>
+          <span style={{
+            fontSize: 9,
+            fontWeight: 600,
+            padding: '1px 5px',
+            borderRadius: 3,
+            backgroundColor: 'rgba(255,255,255,0.06)',
+            color: 'rgba(255,255,255,0.3)',
+          }}>
+            {cat}
+          </span>
+        </div>
       </div>
 
-      {/* Agent */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: agentColor, flexShrink: 0 }} />
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {run.agent}
-        </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, justifyContent: 'flex-end' }}>
+        <div style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: agentColor, flexShrink: 0 }} />
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{run.agent}</span>
       </div>
 
-      {/* Duration */}
-      <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.35)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
         {run.durationMs > 0 ? `${(run.durationMs / 1000).toFixed(1)}s` : '—'}
       </span>
 
-      {/* Started */}
-      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'right' }}>
-        {run.startedAt}
+      <span style={{
+        fontSize: 10,
+        fontWeight: 600,
+        padding: '2px 7px',
+        borderRadius: 999,
+        textAlign: 'center',
+        backgroundColor: isPassed ? 'rgba(52,211,153,0.1)' : isFailed ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.05)',
+        color: isPassed ? '#34d399' : isFailed ? '#f87171' : 'rgba(255,255,255,0.4)',
+        border: `1px solid ${isPassed ? 'rgba(52,211,153,0.2)' : isFailed ? 'rgba(248,113,113,0.2)' : 'rgba(255,255,255,0.08)'}`,
+      }}>
+        {run.status}
       </span>
-
-      {/* Status badge */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <span style={{
-          fontSize: 11,
-          fontWeight: 600,
-          padding: '2px 8px',
-          borderRadius: 999,
-          backgroundColor: isPassed ? 'rgba(52,211,153,0.12)' : isFailed ? 'rgba(248,113,113,0.12)' : 'rgba(255,255,255,0.06)',
-          color: isPassed ? '#34d399' : isFailed ? '#f87171' : 'rgba(255,255,255,0.5)',
-          border: `1px solid ${isPassed ? 'rgba(52,211,153,0.25)' : isFailed ? 'rgba(248,113,113,0.25)' : 'rgba(255,255,255,0.1)'}`,
-        }}>
-          {run.status.charAt(0).toUpperCase() + run.status.slice(1)}
-        </span>
-      </div>
     </div>
   )
 }
 
-// ── chart panel wrapper ────────────────────────────────────────────────────────
-function ChartPanel({ title, sub, children, style }: {
-  title: string; sub?: string; children: React.ReactNode; style?: React.CSSProperties
-}) {
-  return (
-    <div style={{
-      backgroundColor: '#161616',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 12,
-      padding: '16px 18px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 12,
-      ...style,
-    }}>
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#fafafa', marginBottom: 2 }}>{title}</div>
-        {sub && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{sub}</div>}
-      </div>
-      {children}
-    </div>
-  )
-}
-
-// ── ripple overlay ─────────────────────────────────────────────────────────────
+// ── failure ripple ────────────────────────────────────────────────────────────
 function FailureRipple({ trigger }: { trigger: number }) {
   const [active, setActive] = React.useState(false)
-
   React.useEffect(() => {
     if (!trigger) return
     setActive(true)
     const t = setTimeout(() => setActive(false), 700)
     return () => clearTimeout(t)
   }, [trigger])
-
   if (!active) return null
-
   return (
     <div style={{
-      position: 'fixed',
-      inset: 0,
-      pointerEvents: 'none',
-      zIndex: 500,
-      border: '2px solid rgba(248,113,113,0.5)',
-      borderRadius: 0,
-      boxShadow: 'inset 0 0 60px rgba(248,113,113,0.15)',
+      position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 500,
+      border: '2px solid rgba(248,113,113,0.4)',
+      boxShadow: 'inset 0 0 60px rgba(248,113,113,0.1)',
       animation: 'rippleFade 0.7s ease-out forwards',
     }} />
   )
 }
 
-// ── main component ─────────────────────────────────────────────────────────────
+// ── chart section wrapper ─────────────────────────────────────────────────────
+function Panel({ title, sub, children, action }: {
+  title: string; sub?: string; children: React.ReactNode; action?: React.ReactNode
+}) {
+  return (
+    <div style={{
+      backgroundColor: '#161616',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 10,
+      padding: '14px 16px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: 2 }}>{title}</div>
+          {sub && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>{sub}</div>}
+        </div>
+        {action}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+// ── main ──────────────────────────────────────────────────────────────────────
 export function OverviewPage() {
   const { arrived, isPlaying, speed, isLudicrous, togglePlay, setSpeed } = useLiveFeed()
 
-  // Filters
-  const [dayFilter, setDayFilter] = React.useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = React.useState<string | null>(null)
+  // Filters: agent × category × status
   const [agentFilter, setAgentFilter] = React.useState<string | null>(null)
+  const [categoryFilter, setCategoryFilter] = React.useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = React.useState<string | null>(null)
 
   // Drill-down
   const [selectedRun, setSelectedRun] = React.useState<RunRecord | null>(null)
 
-  // Toasts
-  const [toasts, setToasts] = React.useState<ToastItem[]>([])
+  // Notifications drawer
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const [notifications, setNotifications] = React.useState<Notification[]>([])
 
-  // Failure ripple counter
+  // Failure ripple
   const [failRipple, setFailRipple] = React.useState(0)
 
-  // Streak tracking
+  // Streak
   const streakRef = React.useRef(0)
   const [streakCount, setStreakCount] = React.useState(0)
 
-  // Consecutive pass streak badge
-  const showStreak = streakCount >= 3
+  // Newest IDs for flash
+  const [newestRunId, setNewestRunId] = React.useState<string | null>(null)
+  const [newestLogId, setNewestLogId] = React.useState<string | null>(null)
 
-  // Track the newest run ID so we can flash its row
-  const [newestId, setNewestId] = React.useState<string | null>(null)
-
-  // Track heatmap flash key
+  // Heatmap flash
   const [hmFlashKey, setHmFlashKey] = React.useState<string | null>(null)
+
+  // Log entries
+  const [logEntries, setLogEntries] = React.useState<LogEntry[]>([])
+
+  // Shake trigger for failures KPI
+  const [shakeKey, setShakeKey] = React.useState(0)
 
   // React to new runs
   const prevLengthRef = React.useRef(0)
   React.useEffect(() => {
     if (arrived.length <= prevLengthRef.current) return
-    const run = arrived[0] // newest is always at index 0
+    const run = arrived[0]
     prevLengthRef.current = arrived.length
 
     // Flash row
-    setNewestId(run.runId)
-    setTimeout(() => setNewestId(null), 1000)
+    setNewestRunId(run.runId)
+    setTimeout(() => setNewestRunId(null), 1000)
 
-    // Toast
-    const msg = toastMessage(run)
-    const id = `toast-${Date.now()}-${Math.random()}`
-    setToasts((p) => [{ id, message: msg, passed: run.status === 'passed', timestamp: Date.now() }, ...p].slice(0, 6))
+    // Log entry
+    const entry = runToLogEntry(run)
+    setNewestLogId(entry.id)
+    setTimeout(() => setNewestLogId(null), 1000)
+    setLogEntries((p) => [entry, ...p].slice(0, 200))
 
-    // Failure ripple + streak reset
+    // Notification
+    const notif = runToNotification(run)
+    setNotifications((p) => [notif, ...p].slice(0, 60))
+
+    // Failure effects
     if (run.status === 'failed') {
       setFailRipple((n) => n + 1)
+      setShakeKey((k) => k + 1)
       streakRef.current = 0
       setStreakCount(0)
     } else if (run.status === 'passed') {
@@ -405,17 +475,16 @@ export function OverviewPage() {
     }
 
     // Heatmap flash
-    const d = new Date(run.startedAtMs)
-    const dayLabel = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]
-    const hourBucket = Math.floor(d.getHours() / 3) * 3
-    setHmFlashKey(`${dayLabel}-${hourBucket}`)
+    const row = run.agent
+    const col = categorize(run.scenario)
+    setHmFlashKey(`${row}|${col}`)
     setTimeout(() => setHmFlashKey(null), 900)
   }, [arrived.length])
 
   // Filtered data
   const filtered = React.useMemo(
-    () => applyFilters(arrived, dayFilter, statusFilter, agentFilter),
-    [arrived, dayFilter, statusFilter, agentFilter],
+    () => applyFilters(arrived, agentFilter, categoryFilter, statusFilter),
+    [arrived, agentFilter, categoryFilter, statusFilter],
   )
 
   // Metrics
@@ -425,24 +494,21 @@ export function OverviewPage() {
   const passRatePct = totalFinished === 0 ? 0 : Math.round((passCount / totalFinished) * 100)
   const avgDurS = React.useMemo(() => {
     const fin = filtered.filter((r) => r.durationMs > 0)
-    if (fin.length === 0) return 0
+    if (!fin.length) return 0
     return Math.round(fin.reduce((s, r) => s + r.durationMs, 0) / fin.length / 100) / 10
   }, [filtered])
 
-  // Heatmap cells (all arrived, filter by day is handled via opacity in chart)
   const heatCells = React.useMemo(() => buildHeatCells(arrived), [arrived])
-  const days = React.useMemo(() => orderedDays(), [])
+  const timeSeries = React.useMemo(() => buildTimeSeries(arrived), [arrived])
 
-  // Donut: status
   const statusSegments: DonutSegment[] = React.useMemo(() => {
     const counts: Record<string, number> = {}
     filtered.forEach((r) => { counts[r.status] = (counts[r.status] ?? 0) + 1 })
-    return (['passed','failed','cancelled','running','queued'] as const)
+    return (['passed', 'failed', 'cancelled', 'running', 'queued'] as const)
       .filter((s) => (counts[s] ?? 0) > 0)
       .map((s) => ({ key: s, label: s.charAt(0).toUpperCase() + s.slice(1), value: counts[s] ?? 0, color: STATUS_COLOR[s] }))
   }, [filtered])
 
-  // Donut: agent
   const agentSegments: DonutSegment[] = React.useMemo(() => {
     const counts: Record<string, number> = {}
     filtered.forEach((r) => { counts[r.agent] = (counts[r.agent] ?? 0) + 1 })
@@ -451,52 +517,46 @@ export function OverviewPage() {
     }))
   }, [filtered])
 
-  const hasFilter = dayFilter !== null || statusFilter !== null || agentFilter !== null
-  const clearFilters = () => { setDayFilter(null); setStatusFilter(null); setAgentFilter(null) }
+  const hasFilter = agentFilter !== null || categoryFilter !== null || statusFilter !== null
+  const clearFilters = () => { setAgentFilter(null); setCategoryFilter(null); setStatusFilter(null) }
 
+  const unreadNotifs = notifications.filter((n) => !n.read).length
   const isEmpty = arrived.length === 0
   const isPaused = !isPlaying
 
-  // Failure shake trigger for KPI card (changes value = new shake)
-  const [shakeKey, setShakeKey] = React.useState(0)
-  React.useEffect(() => {
-    if (failCount > 0) setShakeKey((k) => k + 1)
-  }, [failCount])
-
   return (
     <>
-      {/* Global keyframe animations injected once */}
       <style>{`
         @keyframes kpiShake {
           0%,100% { transform: translateX(0); }
-          15% { transform: translateX(-5px) rotate(-1deg); }
-          30% { transform: translateX(5px) rotate(1deg); }
-          45% { transform: translateX(-4px); }
-          60% { transform: translateX(4px); }
-          75% { transform: translateX(-2px); }
+          15% { transform: translateX(-4px) rotate(-0.8deg); }
+          30% { transform: translateX(4px) rotate(0.8deg); }
+          50% { transform: translateX(-3px); }
+          70% { transform: translateX(3px); }
+          90% { transform: translateX(-1px); }
         }
         @keyframes rippleFade {
           0% { opacity: 1; }
           100% { opacity: 0; }
         }
-        @keyframes pulse {
-          0%,100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(6px); }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
       `}</style>
 
       <FailureRipple trigger={failRipple} />
 
-      {/* Ludicrous glow */}
+      {/* Ludicrous edge glow */}
       {isLudicrous && (
         <div style={{
           position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 400,
-          boxShadow: 'inset 0 0 80px rgba(251,191,36,0.12)',
-          border: '1px solid rgba(251,191,36,0.08)',
+          boxShadow: 'inset 0 0 80px rgba(251,191,36,0.1)',
+          border: '1px solid rgba(251,191,36,0.07)',
         }} />
       )}
 
@@ -505,275 +565,269 @@ export function OverviewPage() {
         backgroundColor: '#0d0d0d',
         color: '#fafafa',
         fontFamily: 'Inter, ui-sans-serif, -apple-system, sans-serif',
-        padding: '24px 28px 40px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 20,
       }}>
 
-        {/* ── Header row ── */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <Activity size={16} color="#34d399" />
-              <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em' }}>
-                Production Overview
-              </h1>
-              {isLudicrous && (
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 4, padding: '2px 6px' }}>
-                  LUDICROUS
-                </span>
-              )}
-            </div>
-            <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+        {/* ══ TOP BAR ══ */}
+        <div style={{
+          padding: '12px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          backgroundColor: '#111111',
+          position: 'sticky',
+          top: 0,
+          zIndex: 200,
+          flexShrink: 0,
+        }}>
+          {/* Left: title + status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Activity size={15} color="#34d399" />
+            <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.02em' }}>Production Overview</span>
+            {isLudicrous && (
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 4, padding: '2px 6px' }}>
+                LUDICROUS
+              </span>
+            )}
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
               {isEmpty
-                ? isPaused ? "the agents are on a union-mandated break." : "agents are stretching..."
-                : `${arrived.length} run${arrived.length !== 1 ? 's' : ''} captured · live feed ${isPaused ? 'paused' : 'active'}`}
-            </p>
+                ? isPaused ? 'the agents are on a union-mandated break' : 'agents are stretching...'
+                : `${arrived.length} runs · ${isPaused ? 'paused' : 'live'}`}
+            </span>
           </div>
 
-          {/* Feed controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Speed buttons */}
-            {(['1x','2x','ludicrous'] as SpeedSetting[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSpeed(s)}
-                style={{
-                  padding: '5px 10px',
-                  borderRadius: 6,
-                  border: `1px solid ${speed === s ? 'rgba(96,165,250,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                  backgroundColor: speed === s ? 'rgba(96,165,250,0.12)' : 'transparent',
-                  color: speed === s ? '#60a5fa' : 'rgba(255,255,255,0.4)',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                }}
-              >
-                {s === 'ludicrous' && <Zap size={10} />}
-                {s}
-              </button>
-            ))}
+          {/* Right: controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Speed */}
+            <div style={{ display: 'flex', gap: 3 }}>
+              {(['1x', '2x', 'ludicrous'] as SpeedSetting[]).map((s) => (
+                <button key={s} type="button" onClick={() => setSpeed(s)} style={{
+                  padding: '4px 9px',
+                  borderRadius: 5,
+                  border: `1px solid ${speed === s ? 'rgba(96,165,250,0.45)' : 'rgba(255,255,255,0.08)'}`,
+                  backgroundColor: speed === s ? 'rgba(96,165,250,0.1)' : 'transparent',
+                  color: speed === s ? '#60a5fa' : 'rgba(255,255,255,0.35)',
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 3,
+                  transition: 'all 0.12s',
+                }}>
+                  {s === 'ludicrous' && <Zap size={9} />}
+                  {s}
+                </button>
+              ))}
+            </div>
 
-            {/* Play/pause */}
-            <button
-              type="button"
-              onClick={togglePlay}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.12)',
-                backgroundColor: isPlaying ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.04)',
-                color: isPlaying ? '#34d399' : 'rgba(255,255,255,0.5)',
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.15s',
-              }}
-            >
-              {isPlaying ? <Pause size={13} /> : <Play size={13} />}
+            {/* Play/Pause */}
+            <button type="button" onClick={togglePlay} style={{
+              padding: '5px 12px',
+              borderRadius: 7,
+              border: `1px solid ${isPlaying ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.1)'}`,
+              backgroundColor: isPlaying ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.04)',
+              color: isPlaying ? '#34d399' : 'rgba(255,255,255,0.45)',
+              fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5,
+              transition: 'all 0.15s',
+            }}>
+              {isPlaying ? <Pause size={11} /> : <Play size={11} />}
               {isPlaying ? 'Pause' : 'Resume'}
+            </button>
+
+            {/* Notification bell */}
+            <button type="button" onClick={() => setDrawerOpen(true)} style={{
+              position: 'relative',
+              padding: '5px 8px',
+              borderRadius: 7,
+              border: '1px solid rgba(255,255,255,0.08)',
+              backgroundColor: unreadNotifs > 0 ? 'rgba(248,113,113,0.07)' : 'rgba(255,255,255,0.03)',
+              color: 'rgba(255,255,255,0.45)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              transition: 'all 0.12s',
+            }}>
+              <Bell size={13} color={unreadNotifs > 0 ? '#f87171' : 'rgba(255,255,255,0.4)'} />
+              {unreadNotifs > 0 && (
+                <span style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: '#f87171',
+                  minWidth: 14,
+                  textAlign: 'center',
+                }}>
+                  {unreadNotifs > 9 ? '9+' : unreadNotifs}
+                </span>
+              )}
             </button>
           </div>
         </div>
 
-        {/* ── KPI tiles ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-          <KpiCard
-            label="Pass rate"
-            value={passRatePct}
-            unit="%"
-            color={passRatePct >= 80 ? '#34d399' : passRatePct >= 60 ? '#fbbf24' : '#f87171'}
-            streak={showStreak}
-            sub={totalFinished > 0 ? `${totalFinished} finished` : 'no finished runs yet'}
-          />
-          <KpiCard
-            label="Runs in view"
-            value={filtered.length}
-            color="#fafafa"
-            sub={hasFilter ? 'filtered view' : 'live total'}
-          />
-          <KpiCard
-            label="Avg duration"
-            value={avgDurS * 10}
-            unit="s ÷10"
-            color="#60a5fa"
-            sub="across finished runs"
-          />
-          <KpiCard
-            label="Failures"
-            value={failCount}
-            color={failCount > 0 ? '#f87171' : '#fafafa'}
-            shake={shakeKey > 0}
-            sub={totalFinished > 0 ? `${Math.round((failCount / totalFinished) * 100)}% fail rate` : 'none yet'}
-          />
-        </div>
+        {/* ══ BODY ══ */}
+        <div style={{ flex: 1, padding: '16px 20px 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-        {/* ── Active filter chips ── */}
-        {hasFilter && (
-          <div style={{
-            display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8,
-            animation: 'fadeSlideIn 0.2s ease',
-          }}>
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
-              Filters
-            </span>
-            {[
-              dayFilter && { label: `Day: ${dayFilter}`, clear: () => setDayFilter(null) },
-              statusFilter && { label: `Status: ${statusFilter}`, clear: () => setStatusFilter(null) },
-              agentFilter && { label: `Agent: ${agentFilter}`, clear: () => setAgentFilter(null) },
-            ].filter(Boolean).map((chip: any) => (
-              <button
-                key={chip.label}
-                type="button"
-                onClick={chip.clear}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
+          {/* ── KPI strip ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            <KpiCard
+              label="Pass rate"
+              value={passRatePct}
+              unit="%"
+              color={passRatePct >= 80 ? '#34d399' : passRatePct >= 60 ? '#fbbf24' : '#f87171'}
+              streak={streakCount >= 3}
+              sub={totalFinished > 0 ? `${totalFinished} finished runs` : 'no finished runs yet'}
+              trend={passRatePct >= 80 ? 'up' : passRatePct < 60 ? 'down' : 'flat'}
+            />
+            <KpiCard
+              label="Total runs"
+              value={filtered.length}
+              color="#fafafa"
+              sub={hasFilter ? `of ${arrived.length} total` : 'all runs captured'}
+            />
+            <KpiCard
+              label="Avg duration"
+              value={Math.round(avgDurS * 10) / 10}
+              unit="s"
+              color="#60a5fa"
+              sub="across finished runs"
+            />
+            <KpiCard
+              label="Failures"
+              value={failCount}
+              color={failCount > 0 ? '#f87171' : 'rgba(255,255,255,0.6)'}
+              shake={shakeKey > 0}
+              sub={totalFinished > 0 ? `${Math.round((failCount / totalFinished) * 100)}% fail rate` : 'none yet'}
+              trend={failCount > 3 ? 'down' : 'flat'}
+            />
+          </div>
+
+          {/* ── Filter chips ── */}
+          {hasFilter && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, animation: 'fadeIn 0.18s ease' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' }}>
+                Filters
+              </span>
+              {[
+                agentFilter && { label: `Agent: ${agentFilter}`, clear: () => setAgentFilter(null) },
+                categoryFilter && { label: `Category: ${categoryFilter}`, clear: () => setCategoryFilter(null) },
+                statusFilter && { label: `Status: ${statusFilter}`, clear: () => setStatusFilter(null) },
+              ].filter(Boolean).map((chip: any) => (
+                <button key={chip.label} type="button" onClick={chip.clear} style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
                   padding: '3px 10px',
                   borderRadius: 999,
                   border: '1px solid rgba(255,255,255,0.12)',
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  color: 'rgba(255,255,255,0.6)',
-                  fontSize: 12,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {chip.label} <X size={11} />
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={clearFilters}
-              style={{
-                padding: '3px 10px',
-                borderRadius: 999,
-                border: '1px solid rgba(255,255,255,0.08)',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  color: 'rgba(255,255,255,0.55)',
+                  fontSize: 11, cursor: 'pointer',
+                }}>
+                  {chip.label} <X size={10} />
+                </button>
+              ))}
+              <button type="button" onClick={clearFilters} style={{
+                padding: '3px 10px', borderRadius: 999,
+                border: '1px solid rgba(255,255,255,0.07)',
                 backgroundColor: 'transparent',
-                color: 'rgba(255,255,255,0.35)',
-                fontSize: 12,
-                cursor: 'pointer',
-              }}
-            >
-              Clear all
-            </button>
-          </div>
-        )}
-
-        {/* ── Charts row ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: 14 }}>
-          {/* Heatmap */}
-          <ChartPanel
-            title="Runs by day & time"
-            sub="Click a day header to filter · colour = pass/fail ratio"
-          >
-            {arrived.length === 0 ? (
-              <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
-                ⏳ waiting for agents to do something...
-              </div>
-            ) : (
-              <HeatMap
-                cells={heatCells}
-                days={days}
-                activeDay={dayFilter}
-                onDayClick={setDayFilter}
-                flashKey={hmFlashKey}
-              />
-            )}
-          </ChartPanel>
-
-          {/* Status donut */}
-          <ChartPanel title="Status breakdown" sub="Click to filter">
-            {arrived.length === 0 ? (
-              <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
-                ⏳ no data yet
-              </div>
-            ) : (
-              <AnimatedDonut
-                segments={statusSegments}
-                size={150}
-                thickness={22}
-                activeKey={statusFilter}
-                onSegmentClick={setStatusFilter}
-                centerSub="runs"
-              />
-            )}
-          </ChartPanel>
-
-          {/* Agent donut */}
-          <ChartPanel title="Runs by agent" sub="Click to filter">
-            {arrived.length === 0 ? (
-              <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
-                ⏳ no data yet
-              </div>
-            ) : (
-              <AnimatedDonut
-                segments={agentSegments}
-                size={150}
-                thickness={22}
-                activeKey={agentFilter}
-                onSegmentClick={setAgentFilter}
-                centerSub={agentFilter ? `${filtered.length} runs` : undefined}
-              />
-            )}
-          </ChartPanel>
-        </div>
-
-        {/* ── Run table + detail panel ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: selectedRun ? '1.6fr 1fr' : '1fr', gap: 16 }}>
-          {/* Table */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Runs</h2>
-                {hasFilter && filtered.length !== arrived.length && (
-                  <span style={{
-                    fontSize: 11, fontWeight: 600,
-                    padding: '2px 8px', borderRadius: 999,
-                    backgroundColor: 'rgba(96,165,250,0.12)',
-                    color: '#60a5fa',
-                    border: '1px solid rgba(96,165,250,0.25)',
-                  }}>
-                    {filtered.length} of {arrived.length}
-                  </span>
-                )}
-              </div>
-              {arrived.length > 0 && !isPlaying && (
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
-                  paused · {arrived.length} runs captured
-                </span>
-              )}
+                color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer',
+              }}>
+                Clear all
+              </button>
             </div>
+          )}
 
-            <div style={{
-              backgroundColor: '#161616',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 12,
-              overflow: 'hidden',
-            }}>
-              {/* Column headers */}
+          {/* ── Charts: 3-column row ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr', gap: 10 }}>
+
+            {/* Category heatmap */}
+            <Panel
+              title="Agent × Scenario heatmap"
+              sub="Colour intensity = volume · click row/column to cross-filter"
+            >
+              {arrived.length === 0 ? (
+                <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>
+                  ⏳ waiting for runs...
+                </div>
+              ) : (
+                <CategoryHeatMap
+                  cells={heatCells}
+                  rows={AGENTS}
+                  cols={CATEGORIES}
+                  activeRow={agentFilter}
+                  activeCol={categoryFilter}
+                  onRowClick={setAgentFilter}
+                  onColClick={setCategoryFilter}
+                  flashKey={hmFlashKey}
+                />
+              )}
+            </Panel>
+
+            {/* Status donut */}
+            <Panel title="Status breakdown" sub="Click to filter by status">
+              {arrived.length === 0 ? (
+                <div style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>
+                  ⏳ no data yet
+                </div>
+              ) : (
+                <AnimatedDonut
+                  segments={statusSegments}
+                  size={140}
+                  thickness={20}
+                  activeKey={statusFilter}
+                  onSegmentClick={setStatusFilter}
+                  centerSub="runs"
+                />
+              )}
+            </Panel>
+
+            {/* Agent donut */}
+            <Panel title="Runs by agent" sub="Click to filter by agent">
+              {arrived.length === 0 ? (
+                <div style={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>
+                  ⏳ no data yet
+                </div>
+              ) : (
+                <AnimatedDonut
+                  segments={agentSegments}
+                  size={140}
+                  thickness={20}
+                  activeKey={agentFilter}
+                  onSegmentClick={setAgentFilter}
+                  centerSub="agents"
+                />
+              )}
+            </Panel>
+          </div>
+
+          {/* ── Time series trend ── */}
+          <Panel
+            title="Run activity — last 60 min"
+            sub="2-min buckets · green = total runs · red = failures · hover for values"
+          >
+            <TimeSeriesChart points={timeSeries} height={90} />
+          </Panel>
+
+          {/* ── Bottom section: run table + detail ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: selectedRun ? '1.4fr 1fr' : '1fr', gap: 12, alignItems: 'start' }}>
+
+            {/* Run table */}
+            <Panel
+              title={`Runs${hasFilter && filtered.length !== arrived.length ? ` · ${filtered.length} of ${arrived.length}` : ''}`}
+              sub={isPaused && arrived.length > 0 ? 'paused · historical view' : undefined}
+            >
+              {/* Table header */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '8px 1fr 120px 70px 80px 90px',
-                alignItems: 'center',
-                gap: 12,
-                padding: '8px 16px',
+                gridTemplateColumns: '8px 1fr 100px 60px 70px',
+                gap: 10,
+                padding: '0 0 6px',
                 borderBottom: '1px solid rgba(255,255,255,0.06)',
               }}>
-                {['', 'Scenario', 'Agent', 'Duration', 'Started', 'Status'].map((h, i) => (
+                {['', 'Scenario', 'Agent', 'Duration', 'Status'].map((h, i) => (
                   <span key={i} style={{
-                    fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.25)',
-                    textAlign: i >= 3 && i <= 4 ? 'right' : 'left',
-                    justifySelf: i >= 3 && i <= 4 ? 'end' : 'start',
+                    fontSize: 9, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.22)',
+                    textAlign: i === 3 ? 'right' : 'left',
                   }}>
                     {h}
                   </span>
@@ -781,71 +835,86 @@ export function OverviewPage() {
               </div>
 
               {/* Rows */}
-              {filtered.length === 0 ? (
-                <div style={{
-                  padding: '48px 24px',
-                  textAlign: 'center',
-                  color: 'rgba(255,255,255,0.25)',
-                  fontSize: 13,
-                }}>
-                  {isEmpty
-                    ? isPaused
-                      ? "😴 agents are on a union-mandated break."
-                      : "⏳ agents are stretching... runs will appear here."
-                    : "No runs match the current filters."}
-                  {!isEmpty && hasFilter && (
-                    <div style={{ marginTop: 12 }}>
-                      <button type="button" onClick={clearFilters} style={{
-                        padding: '5px 14px', borderRadius: 6,
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        backgroundColor: 'rgba(255,255,255,0.04)',
-                        color: 'rgba(255,255,255,0.5)',
-                        fontSize: 12, cursor: 'pointer',
-                      }}>
-                        Clear filters
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-                  {filtered.slice(0, 30).map((run, i) => (
-                    <LiveRunRow
+              <div style={{
+                maxHeight: 320,
+                overflowY: 'auto',
+                margin: '0 -16px',
+                padding: '0 0px',
+              }}>
+                {filtered.length === 0 ? (
+                  <div style={{ padding: '40px 24px', textAlign: 'center', color: 'rgba(255,255,255,0.22)', fontSize: 12 }}>
+                    {isEmpty
+                      ? isPaused
+                        ? '😴 the agents are on a union-mandated break.'
+                        : '⏳ agents are warming up — runs will appear here shortly.'
+                      : 'No runs match the current filters.'}
+                    {!isEmpty && hasFilter && (
+                      <div style={{ marginTop: 10 }}>
+                        <button type="button" onClick={clearFilters} style={{
+                          padding: '4px 12px', borderRadius: 6,
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          backgroundColor: 'rgba(255,255,255,0.04)',
+                          color: 'rgba(255,255,255,0.45)', fontSize: 11, cursor: 'pointer',
+                        }}>
+                          Clear filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  filtered.slice(0, 40).map((run, i) => (
+                    <RunRow
                       key={run.runId}
                       run={run}
-                      isNew={i === 0 && run.runId === newestId}
+                      isNew={i === 0 && run.runId === newestRunId}
                       isSelected={selectedRun?.runId === run.runId}
-                      onClick={() => setSelectedRun((prev) => prev?.runId === run.runId ? null : run)}
+                      onClick={() => setSelectedRun((p) => p?.runId === run.runId ? null : run)}
                     />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Detail panel */}
-          {selectedRun && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Run detail</h2>
+                  ))
+                )}
               </div>
+            </Panel>
+
+            {/* Detail panel */}
+            {selectedRun && (
               <RunDetailPanel
                 run={selectedRun}
                 onClose={() => setSelectedRun(null)}
               />
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* ── Logs explorer ── */}
+          <LogsExplorer entries={logEntries} newestId={newestLogId} />
+
         </div>
 
-        {/* Footer */}
-        <div style={{ paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
-            Live feed · runs arrive every {speed === '1x' ? '1.8s' : speed === '2x' ? '0.9s' : '0.3s'} · data is synthetic demo data
-          </p>
+        {/* ── Footer ── */}
+        <div style={{
+          padding: '10px 20px',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)' }}>
+            Live feed · {speed === '1x' ? '1.8s' : speed === '2x' ? '0.9s' : '0.3s'} interval · synthetic demo data
+          </span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)' }}>
+            {arrived.length} runs · {logEntries.length} log entries
+          </span>
         </div>
       </div>
 
-      <LiveToast toasts={toasts} onDismiss={(id) => setToasts((p) => p.filter((t) => t.id !== id))} />
+      {/* Notification drawer */}
+      <NotificationDrawer
+        open={drawerOpen}
+        notifications={notifications}
+        onClose={() => setDrawerOpen(false)}
+        onDismiss={(id) => setNotifications((p) => p.filter((n) => n.id !== id))}
+        onMarkAllRead={() => setNotifications((p) => p.map((n) => ({ ...n, read: true })))}
+      />
     </>
   )
 }

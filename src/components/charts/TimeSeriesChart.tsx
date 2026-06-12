@@ -5,23 +5,24 @@ export interface TimeSeriesPoint {
   passed: number
   failed: number
   total: number
-  tsMs: number // epoch ms for this bucket
+  tsMs: number
 }
 
 interface TimeSeriesChartProps {
   points: TimeSeriesPoint[]
   height?: number
-  windowSec?: number // how many seconds of data to show
-  onBrush?: (from: number, to: number) => void // epoch ms range from brush
+  onBrush?: (from: number, to: number) => void
   brushRange?: [number, number] | null
 }
 
-// Catmull-Rom path builder (no NaN guard)
 function buildPath(values: number[], maxVal: number, w: number, h: number): string {
   if (values.length < 2 || w <= 0 || h <= 0) return ''
   const safe = maxVal > 0 ? maxVal : 1
   const step = w / Math.max(values.length - 1, 1)
-  const pts = values.map((v, i) => ({ x: i * step, y: h - (v / safe) * h }))
+  const pts = values.map((v, i) => ({
+    x: i * step,
+    y: h - Math.max(0, Math.min(1, v / safe)) * h,
+  }))
   let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[Math.max(0, i - 1)]
@@ -45,7 +46,6 @@ function buildArea(values: number[], maxVal: number, w: number, h: number): stri
   return `${line} L ${lastX} ${h.toFixed(2)} L 0 ${h.toFixed(2)} Z`
 }
 
-// Detect anomaly spikes (value > mean + 2σ)
 function anomalyIdxs(values: number[]): Set<number> {
   if (values.length < 4) return new Set()
   const mean = values.reduce((s, v) => s + v, 0) / values.length
@@ -53,11 +53,11 @@ function anomalyIdxs(values: number[]): Set<number> {
   const sigma = Math.sqrt(variance)
   const threshold = mean + 2 * sigma
   const out = new Set<number>()
-  values.forEach((v, i) => { if (v > threshold && sigma > 0) out.add(i) })
+  values.forEach((v, i) => { if (v > threshold && sigma > 0.5) out.add(i) })
   return out
 }
 
-export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: TimeSeriesChartProps) {
+export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: TimeSeriesChartProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const svgRef = React.useRef<SVGSVGElement>(null)
   const [svgW, setSvgW] = React.useState(600)
@@ -78,7 +78,7 @@ export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: T
     return () => ro.disconnect()
   }, [])
 
-  const PAD = { top: 10, right: 12, bottom: 28, left: 32 }
+  const PAD = { top: 12, right: 14, bottom: 32, left: 36 }
   const w = Math.max(svgW - PAD.left - PAD.right, 1)
   const h = Math.max(height - PAD.top - PAD.bottom, 1)
 
@@ -86,18 +86,18 @@ export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: T
   const fails = points.map((p) => p.failed)
   const maxVal = Math.max(...totals, 1)
 
+  const totalArea = buildArea(totals, maxVal, w, h)
   const totalPath = buildPath(totals, maxVal, w, h)
   const failPath = buildPath(fails, maxVal, w, h)
-  const totalArea = buildArea(totals, maxVal, w, h)
+  const failArea = buildArea(fails, maxVal, w, h)
 
   const yTicks = [0, Math.ceil(maxVal / 2), Math.ceil(maxVal)]
   const anomalies = anomalyIdxs(fails)
-
-  // Only label every Nth bucket to avoid crowding — show ~6 labels
   const step = w / Math.max(points.length - 1, 1)
+
+  // Show label every ~20 buckets so ~6 labels across 120
   const labelEvery = Math.max(1, Math.floor(points.length / 6))
 
-  // Convert pixel X to data index
   const xToIdx = (px: number) => {
     const rel = px - PAD.left
     return Math.max(0, Math.min(points.length - 1, Math.round((rel / w) * (points.length - 1))))
@@ -106,8 +106,7 @@ export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: T
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = svgRef.current!.getBoundingClientRect()
     const relX = e.clientX - rect.left
-    const idx = xToIdx(relX)
-    setHoverIdx(idx)
+    setHoverIdx(xToIdx(relX))
     if (isDragging && brushStart !== null) {
       setBrushEnd(relX - PAD.left)
     }
@@ -134,40 +133,36 @@ export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: T
     setBrushEnd(null)
   }
 
-  // Brush region from external brushRange prop
   const extBrushX1 = React.useMemo(() => {
     if (!brushRange || points.length < 2) return null
-    const [from] = brushRange
     const startMs = points[0].tsMs
     const endMs = points[points.length - 1].tsMs
     const span = endMs - startMs || 1
-    return ((from - startMs) / span) * w
+    return ((brushRange[0] - startMs) / span) * w
   }, [brushRange, points, w])
 
   const extBrushX2 = React.useMemo(() => {
     if (!brushRange || points.length < 2) return null
-    const [, to] = brushRange
     const startMs = points[0].tsMs
     const endMs = points[points.length - 1].tsMs
     const span = endMs - startMs || 1
-    return ((to - startMs) / span) * w
+    return ((brushRange[1] - startMs) / span) * w
   }, [brushRange, points, w])
 
   if (points.length < 2) {
     return (
       <div ref={containerRef} style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>waiting for data...</span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)' }}>waiting for data...</span>
       </div>
     )
   }
 
   const hoverPt = hoverIdx !== null ? points[hoverIdx] : null
   const hoverX = hoverIdx !== null ? hoverIdx * step : null
-  const hoverY = hoverIdx !== null && totals[hoverIdx] !== undefined
-    ? h - (totals[hoverIdx] / maxVal) * h
+  const hoverY = hoverIdx !== null && isFinite(totals[hoverIdx] ?? NaN)
+    ? h - (Math.min(totals[hoverIdx], maxVal) / maxVal) * h
     : null
 
-  // Drag brush pixel coords
   const dragBrushX1 = brushStart !== null ? Math.min(brushStart, brushEnd ?? brushStart) : null
   const dragBrushW = brushStart !== null && brushEnd !== null ? Math.abs(brushEnd - brushStart) : 0
 
@@ -185,101 +180,136 @@ export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: T
       >
         <defs>
           <linearGradient id="tsGradTotal" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#34d399" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+            <stop offset="0%" stopColor="#34d399" stopOpacity="0.25" />
+            <stop offset="80%" stopColor="#34d399" stopOpacity="0.02" />
           </linearGradient>
+          <linearGradient id="tsGradFail" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f87171" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#f87171" stopOpacity="0" />
+          </linearGradient>
+          <filter id="lineGlow">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
           <clipPath id="tsClip">
             <rect x={0} y={0} width={w} height={h} />
           </clipPath>
         </defs>
 
         <g transform={`translate(${PAD.left},${PAD.top})`}>
-          {/* Y grid + ticks */}
+          {/* Y grid */}
           {yTicks.map((tick) => {
             const yy = h - (tick / maxVal) * h
             return (
               <g key={tick}>
-                <line x1={0} y1={yy} x2={w} y2={yy} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
-                <text x={-6} y={yy + 4} textAnchor="end" fontSize={9} fill="rgba(255,255,255,0.25)" fontFamily="monospace">
+                <line x1={0} y1={yy} x2={w} y2={yy}
+                  stroke="rgba(255,255,255,0.04)" strokeWidth={1}
+                  strokeDasharray={tick === 0 ? 'none' : '4 6'}
+                />
+                <text x={-8} y={yy + 4} textAnchor="end" fontSize={9}
+                  fill="rgba(255,255,255,0.22)" fontFamily="monospace"
+                >
                   {tick}
                 </text>
               </g>
             )
           })}
 
-          {/* External brush region */}
+          {/* External brush */}
           {extBrushX1 !== null && extBrushX2 !== null && (
             <rect
-              x={Math.max(0, extBrushX1)}
-              y={0}
+              x={Math.max(0, extBrushX1)} y={0}
               width={Math.min(w, extBrushX2) - Math.max(0, extBrushX1)}
               height={h}
-              fill="rgba(96,165,250,0.08)"
-              stroke="rgba(96,165,250,0.25)"
-              strokeWidth={1}
-              rx={2}
+              fill="rgba(99,102,241,0.08)"
+              stroke="rgba(99,102,241,0.3)"
+              strokeWidth={1} rx={3}
             />
           )}
 
-          {/* Drag brush region */}
+          {/* Drag brush */}
           {dragBrushX1 !== null && dragBrushW > 4 && (
-            <rect
-              x={dragBrushX1}
-              y={0}
-              width={dragBrushW}
-              height={h}
-              fill="rgba(96,165,250,0.07)"
-              stroke="rgba(96,165,250,0.2)"
-              strokeWidth={1}
-              rx={2}
+            <rect x={dragBrushX1} y={0} width={dragBrushW} height={h}
+              fill="rgba(99,102,241,0.07)" stroke="rgba(99,102,241,0.2)"
+              strokeWidth={1} rx={3}
             />
           )}
 
-          {/* Area fill */}
+          {/* Total area */}
           {totalArea && (
             <path d={totalArea} fill="url(#tsGradTotal)" clipPath="url(#tsClip)" />
           )}
 
+          {/* Fail area */}
+          {failArea && (
+            <path d={failArea} fill="url(#tsGradFail)" clipPath="url(#tsClip)" />
+          )}
+
           {/* Total line */}
           {totalPath && (
-            <path d={totalPath} fill="none" stroke="#34d399" strokeWidth={1.5} strokeLinecap="round" clipPath="url(#tsClip)" />
+            <path d={totalPath} fill="none" stroke="#34d399" strokeWidth={2}
+              strokeLinecap="round" clipPath="url(#tsClip)"
+              filter="url(#lineGlow)"
+            />
           )}
 
-          {/* Failure line */}
+          {/* Fail line */}
           {failPath && (
-            <path d={failPath} fill="none" stroke="#f87171" strokeWidth={1.5} strokeLinecap="round" clipPath="url(#tsClip)" />
+            <path d={failPath} fill="none" stroke="#f87171" strokeWidth={1.5}
+              strokeLinecap="round" clipPath="url(#tsClip)"
+            />
           )}
 
-          {/* Anomaly markers on failure spikes */}
+          {/* Anomaly markers */}
           {[...anomalies].map((idx) => {
-            const safe = maxVal > 0 ? maxVal : 1
             const xx = idx * step
-            const yy = h - (fails[idx] / safe) * h
+            const safe = maxVal > 0 ? maxVal : 1
+            const yy = h - (Math.min(fails[idx], maxVal) / safe) * h
             if (!isFinite(xx) || !isFinite(yy)) return null
             return (
               <g key={`anom-${idx}`}>
-                <circle cx={xx} cy={yy} r={5} fill="none" stroke="#f87171" strokeWidth={1.5} opacity={0.7} />
-                <circle cx={xx} cy={yy} r={2} fill="#f87171" opacity={0.9} />
+                <circle cx={xx.toFixed(2)} cy={yy.toFixed(2)} r={6}
+                  fill="none" stroke="#f87171" strokeWidth={1.5} opacity={0.6}
+                />
+                <circle cx={xx.toFixed(2)} cy={yy.toFixed(2)} r={2.5} fill="#f87171" />
               </g>
             )
           })}
 
-          {/* X axis labels */}
+          {/* X axis: 1-second labels, show every labelEvery */}
           {points.map((pt, i) => {
             if (i % labelEvery !== 0 && i !== points.length - 1) return null
-            const xx = i * step
+            const xx = (i * step).toFixed(2)
             return (
-              <text key={i} x={xx} y={h + 18} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.22)" fontFamily="monospace">
+              <text key={i} x={xx} y={h + 20}
+                textAnchor="middle" fontSize={9}
+                fill="rgba(255,255,255,0.2)" fontFamily="monospace"
+              >
                 {pt.label}
               </text>
+            )
+          })}
+
+          {/* 1s tick marks */}
+          {points.map((_, i) => {
+            if (i % 10 !== 0) return null
+            const xx = (i * step).toFixed(2)
+            return (
+              <line key={`tick-${i}`} x1={xx} y1={h} x2={xx} y2={h + 4}
+                stroke="rgba(255,255,255,0.1)" strokeWidth={1}
+              />
             )
           })}
 
           {/* Hover crosshair */}
           {hoverX !== null && hoverY !== null && isFinite(hoverX) && isFinite(hoverY) && (
             <>
-              <line x1={hoverX} y1={0} x2={hoverX} y2={h} stroke="rgba(255,255,255,0.12)" strokeWidth={1} strokeDasharray="3 3" />
-              <circle cx={hoverX} cy={hoverY} r={3} fill="#34d399" />
+              <line x1={hoverX.toFixed(2)} y1={0} x2={hoverX.toFixed(2)} y2={h}
+                stroke="rgba(255,255,255,0.1)" strokeWidth={1} strokeDasharray="3 4"
+              />
+              <circle cx={hoverX.toFixed(2)} cy={hoverY.toFixed(2)} r={4}
+                fill="#34d399" stroke="#0d0d0d" strokeWidth={1.5}
+              />
             </>
           )}
         </g>
@@ -288,48 +318,54 @@ export function TimeSeriesChart({ points, height = 110, onBrush, brushRange }: T
       {/* Hover tooltip */}
       {hoverPt && hoverX !== null && (
         <div style={{
-          position: 'absolute',
-          top: 4,
-          left: Math.min(hoverX + PAD.left + 10, svgW - 120),
-          background: '#1a1a1a',
-          border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 6,
-          padding: '6px 10px',
-          pointerEvents: 'none',
-          zIndex: 10,
-          minWidth: 100,
+          position: 'absolute', top: 8,
+          left: Math.min(hoverX + PAD.left + 12, svgW - 130),
+          background: 'rgba(15,15,20,0.95)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 8, padding: '7px 11px',
+          pointerEvents: 'none', zIndex: 10, minWidth: 110,
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
         }}>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 4, fontFamily: 'monospace' }}>{hoverPt.label}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span style={{ fontSize: 12, color: '#34d399', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 5, fontFamily: 'monospace' }}>
+            {hoverPt.label}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <span style={{ fontSize: 13, color: '#34d399', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
               {hoverPt.total} runs
             </span>
             {hoverPt.failed > 0 && (
               <span style={{ fontSize: 11, color: '#f87171', fontWeight: 600 }}>
-                {hoverPt.failed} failed {anomalies.has(hoverIdx!) ? '⚠ spike' : ''}
+                {hoverPt.failed} failed {anomalies.has(hoverIdx!) ? '⚠' : ''}
+              </span>
+            )}
+            {hoverPt.passed > 0 && (
+              <span style={{ fontSize: 11, color: '#34d399', opacity: 0.7 }}>
+                {hoverPt.passed} passed
               </span>
             )}
           </div>
         </div>
       )}
 
-      {/* Legend + drag hint */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 4, paddingLeft: PAD.left }}>
+      {/* Legend */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 6, paddingLeft: PAD.left }}>
+        {[
+          { color: '#34d399', label: 'Total runs', dash: false },
+          { color: '#f87171', label: 'Failures', dash: false },
+        ].map(({ color, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 20, height: 2, backgroundColor: color, borderRadius: 1, boxShadow: `0 0 4px ${color}88` }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>{label}</span>
+          </div>
+        ))}
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 18, height: 2, backgroundColor: '#34d399', borderRadius: 1 }} />
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Total</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 18, height: 2, backgroundColor: '#f87171', borderRadius: 1 }} />
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Failures</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid #f87171', backgroundColor: 'transparent' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid #f87171' }} />
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Spike</span>
         </div>
         {onBrush && (
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)', marginLeft: 'auto' }}>
-            drag to select time window
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.16)', marginLeft: 'auto' }}>
+            drag to select window → analyse in Logs
           </span>
         )}
       </div>

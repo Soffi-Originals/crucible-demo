@@ -62,7 +62,7 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
           </span>
           <div className="flex min-w-0 flex-1 flex-col">
             <Text size="sm" weight="semibold" truncate>
-              Crucible
+              Crucible!
             </Text>
             <Text size="xs" tone="subtle" truncate>
               Acme · Production

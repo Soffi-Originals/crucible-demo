@@ -57,6 +57,12 @@ function anomalyIdxs(values: number[]): Set<number> {
   return out
 }
 
+/** Deduplicated y-axis ticks — avoids duplicate keys when maxVal is small */
+function buildYTicks(maxVal: number): number[] {
+  const raw = [0, Math.ceil(maxVal / 2), Math.ceil(maxVal)]
+  return [...new Set(raw)]
+}
+
 export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: TimeSeriesChartProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const svgRef = React.useRef<SVGSVGElement>(null)
@@ -88,28 +94,24 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
 
   const totalArea = buildArea(totals, maxVal, w, h)
   const totalPath = buildPath(totals, maxVal, w, h)
-  const failPath = buildPath(fails, maxVal, w, h)
-  const failArea = buildArea(fails, maxVal, w, h)
+  const failPath  = buildPath(fails, maxVal, w, h)
+  const failArea  = buildArea(fails, maxVal, w, h)
 
-  const yTicks = [0, Math.ceil(maxVal / 2), Math.ceil(maxVal)]
+  const yTicks   = buildYTicks(maxVal)
   const anomalies = anomalyIdxs(fails)
   const step = w / Math.max(points.length - 1, 1)
 
-  // Show label every ~20 buckets so ~6 labels across 120
+  // ~6 labels across 120 buckets
   const labelEvery = Math.max(1, Math.floor(points.length / 6))
 
-  const xToIdx = (px: number) => {
-    const rel = px - PAD.left
-    return Math.max(0, Math.min(points.length - 1, Math.round((rel / w) * (points.length - 1))))
-  }
+  const xToIdx = (px: number) =>
+    Math.max(0, Math.min(points.length - 1, Math.round(((px - PAD.left) / w) * (points.length - 1))))
 
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = svgRef.current!.getBoundingClientRect()
     const relX = e.clientX - rect.left
     setHoverIdx(xToIdx(relX))
-    if (isDragging && brushStart !== null) {
-      setBrushEnd(relX - PAD.left)
-    }
+    if (isDragging && brushStart !== null) setBrushEnd(relX - PAD.left)
   }
 
   const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -124,30 +126,22 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
       const i1 = xToIdx(brushStart + PAD.left)
       const i2 = xToIdx(brushEnd + PAD.left)
       const [lo, hi] = i1 <= i2 ? [i1, i2] : [i2, i1]
-      if (hi > lo && points[lo] && points[hi]) {
-        onBrush(points[lo].tsMs, points[hi].tsMs)
-      }
+      if (hi > lo && points[lo] && points[hi]) onBrush(points[lo].tsMs, points[hi].tsMs)
     }
     setIsDragging(false)
     setBrushStart(null)
     setBrushEnd(null)
   }
 
-  const extBrushX1 = React.useMemo(() => {
+  const toRelX = (tsMs: number) => {
     if (!brushRange || points.length < 2) return null
     const startMs = points[0].tsMs
-    const endMs = points[points.length - 1].tsMs
-    const span = endMs - startMs || 1
-    return ((brushRange[0] - startMs) / span) * w
-  }, [brushRange, points, w])
+    const span = (points[points.length - 1].tsMs - startMs) || 1
+    return ((tsMs - startMs) / span) * w
+  }
 
-  const extBrushX2 = React.useMemo(() => {
-    if (!brushRange || points.length < 2) return null
-    const startMs = points[0].tsMs
-    const endMs = points[points.length - 1].tsMs
-    const span = endMs - startMs || 1
-    return ((brushRange[1] - startMs) / span) * w
-  }, [brushRange, points, w])
+  const extBrushX1 = brushRange ? toRelX(brushRange[0]) : null
+  const extBrushX2 = brushRange ? toRelX(brushRange[1]) : null
 
   if (points.length < 2) {
     return (
@@ -158,13 +152,13 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
   }
 
   const hoverPt = hoverIdx !== null ? points[hoverIdx] : null
-  const hoverX = hoverIdx !== null ? hoverIdx * step : null
-  const hoverY = hoverIdx !== null && isFinite(totals[hoverIdx] ?? NaN)
+  const hoverX  = hoverIdx !== null ? hoverIdx * step : null
+  const hoverY  = hoverIdx !== null && isFinite(totals[hoverIdx] ?? NaN)
     ? h - (Math.min(totals[hoverIdx], maxVal) / maxVal) * h
     : null
 
   const dragBrushX1 = brushStart !== null ? Math.min(brushStart, brushEnd ?? brushStart) : null
-  const dragBrushW = brushStart !== null && brushEnd !== null ? Math.abs(brushEnd - brushStart) : 0
+  const dragBrushW  = brushStart !== null && brushEnd !== null ? Math.abs(brushEnd - brushStart) : 0
 
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
@@ -180,12 +174,12 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
       >
         <defs>
           <linearGradient id="tsGradTotal" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#34d399" stopOpacity="0.25" />
+            <stop offset="0%"  stopColor="#34d399" stopOpacity="0.25" />
             <stop offset="80%" stopColor="#34d399" stopOpacity="0.02" />
           </linearGradient>
           <linearGradient id="tsGradFail" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f87171" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#f87171" stopOpacity="0" />
+            <stop offset="0%"   stopColor="#f87171" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#f87171" stopOpacity="0"    />
           </linearGradient>
           <filter id="lineGlow">
             <feGaussianBlur stdDeviation="1.5" result="blur" />
@@ -197,14 +191,14 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
         </defs>
 
         <g transform={`translate(${PAD.left},${PAD.top})`}>
-          {/* Y grid */}
-          {yTicks.map((tick) => {
+          {/* Y grid — keyed by index to avoid duplicate-key warning when values collide */}
+          {yTicks.map((tick, ti) => {
             const yy = h - (tick / maxVal) * h
             return (
-              <g key={tick}>
+              <g key={`ytick-${ti}`}>
                 <line x1={0} y1={yy} x2={w} y2={yy}
                   stroke="rgba(255,255,255,0.04)" strokeWidth={1}
-                  strokeDasharray={tick === 0 ? 'none' : '4 6'}
+                  strokeDasharray={tick === 0 ? undefined : '4 6'}
                 />
                 <text x={-8} y={yy + 4} textAnchor="end" fontSize={9}
                   fill="rgba(255,255,255,0.22)" fontFamily="monospace"
@@ -219,10 +213,9 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
           {extBrushX1 !== null && extBrushX2 !== null && (
             <rect
               x={Math.max(0, extBrushX1)} y={0}
-              width={Math.min(w, extBrushX2) - Math.max(0, extBrushX1)}
+              width={Math.max(0, Math.min(w, extBrushX2) - Math.max(0, extBrushX1))}
               height={h}
-              fill="rgba(99,102,241,0.08)"
-              stroke="rgba(99,102,241,0.3)"
+              fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.3)"
               strokeWidth={1} rx={3}
             />
           )}
@@ -235,25 +228,16 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
             />
           )}
 
-          {/* Total area */}
-          {totalArea && (
-            <path d={totalArea} fill="url(#tsGradTotal)" clipPath="url(#tsClip)" />
-          )}
+          {/* Area fills */}
+          {totalArea && <path d={totalArea} fill="url(#tsGradTotal)" clipPath="url(#tsClip)" />}
+          {failArea  && <path d={failArea}  fill="url(#tsGradFail)"  clipPath="url(#tsClip)" />}
 
-          {/* Fail area */}
-          {failArea && (
-            <path d={failArea} fill="url(#tsGradFail)" clipPath="url(#tsClip)" />
-          )}
-
-          {/* Total line */}
+          {/* Lines */}
           {totalPath && (
             <path d={totalPath} fill="none" stroke="#34d399" strokeWidth={2}
-              strokeLinecap="round" clipPath="url(#tsClip)"
-              filter="url(#lineGlow)"
+              strokeLinecap="round" clipPath="url(#tsClip)" filter="url(#lineGlow)"
             />
           )}
-
-          {/* Fail line */}
           {failPath && (
             <path d={failPath} fill="none" stroke="#f87171" strokeWidth={1.5}
               strokeLinecap="round" clipPath="url(#tsClip)"
@@ -276,12 +260,12 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
             )
           })}
 
-          {/* X axis: 1-second labels, show every labelEvery */}
+          {/* X axis labels every `labelEvery` buckets */}
           {points.map((pt, i) => {
             if (i % labelEvery !== 0 && i !== points.length - 1) return null
             const xx = (i * step).toFixed(2)
             return (
-              <text key={i} x={xx} y={h + 20}
+              <text key={`xlbl-${i}`} x={xx} y={h + 20}
                 textAnchor="middle" fontSize={9}
                 fill="rgba(255,255,255,0.2)" fontFamily="monospace"
               >
@@ -290,7 +274,7 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
             )
           })}
 
-          {/* 1s tick marks */}
+          {/* Tick marks every 10 buckets */}
           {points.map((_, i) => {
             if (i % 10 !== 0) return null
             const xx = (i * step).toFixed(2)
@@ -308,7 +292,7 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
                 stroke="rgba(255,255,255,0.1)" strokeWidth={1} strokeDasharray="3 4"
               />
               <circle cx={hoverX.toFixed(2)} cy={hoverY.toFixed(2)} r={4}
-                fill="#34d399" stroke="#0d0d0d" strokeWidth={1.5}
+                fill="#34d399" stroke="#0a0a0a" strokeWidth={1.5}
               />
             </>
           )}
@@ -320,14 +304,14 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
         <div style={{
           position: 'absolute', top: 8,
           left: Math.min(hoverX + PAD.left + 12, svgW - 130),
-          background: 'rgba(15,15,20,0.95)',
+          background: 'rgba(12,12,18,0.96)',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 8, padding: '7px 11px',
           pointerEvents: 'none', zIndex: 10, minWidth: 110,
-          backdropFilter: 'blur(8px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
         }}>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 5, fontFamily: 'monospace' }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginBottom: 5, fontFamily: 'monospace' }}>
             {hoverPt.label}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -340,7 +324,7 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
               </span>
             )}
             {hoverPt.passed > 0 && (
-              <span style={{ fontSize: 11, color: '#34d399', opacity: 0.7 }}>
+              <span style={{ fontSize: 11, color: 'rgba(52,211,153,0.7)' }}>
                 {hoverPt.passed} passed
               </span>
             )}
@@ -350,21 +334,20 @@ export function TimeSeriesChart({ points, height = 130, onBrush, brushRange }: T
 
       {/* Legend */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 6, paddingLeft: PAD.left }}>
-        {[
-          { color: '#34d399', label: 'Total runs', dash: false },
-          { color: '#f87171', label: 'Failures', dash: false },
-        ].map(({ color, label }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 20, height: 2, backgroundColor: color, borderRadius: 1, boxShadow: `0 0 4px ${color}88` }} />
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>{label}</span>
-          </div>
-        ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 20, height: 2, backgroundColor: '#34d399', borderRadius: 1, boxShadow: '0 0 4px #34d39988' }} />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Total runs</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 20, height: 2, backgroundColor: '#f87171', borderRadius: 1, boxShadow: '0 0 4px #f8717188' }} />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Failures</span>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid #f87171' }} />
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>Spike</span>
         </div>
         {onBrush && (
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.16)', marginLeft: 'auto' }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.14)', marginLeft: 'auto' }}>
             drag to select window → analyse in Logs
           </span>
         )}

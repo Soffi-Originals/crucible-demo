@@ -31,6 +31,7 @@ export const textVariants = cva('', {
     family: {
       sans: 'font-sans',
       mono: 'font-mono',
+      serif: 'font-serif',
     },
     truncate: {
       true: 'truncate',

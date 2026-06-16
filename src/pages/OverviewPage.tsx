@@ -24,7 +24,7 @@ export function OverviewPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
           label="Eval pass rate"
-          value="94.2"
+          value="test"
           unit="%"
           delta="+1.4 vs. last week"
           trend="up"

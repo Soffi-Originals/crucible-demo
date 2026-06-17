@@ -9,6 +9,11 @@ import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
 
+const evalPassRateSparkline = [91.1, 92.0, 91.8, 93.0, 92.5, 93.8, 94.2]
+const simulationsSparkline   = [13100, 13400, 12900, 13200, 12800, 12600, 12481]
+const p95LatencySparkline    = [1.75, 1.82, 1.79, 1.80, 1.78, 1.81, 1.8]
+const escalationSparkline    = [3.9, 3.7, 3.5, 3.4, 3.3, 3.2, 3.1]
+
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
@@ -29,6 +34,7 @@ export function OverviewPage() {
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={evalPassRateSparkline}
         />
         <MetricTile
           label="Simulations / 24h"
@@ -36,6 +42,7 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={simulationsSparkline}
         />
         <MetricTile
           label="P95 latency"
@@ -44,6 +51,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={p95LatencySparkline}
         />
         <MetricTile
           label="Escalation rate"
@@ -52,6 +60,7 @@ export function OverviewPage() {
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={escalationSparkline}
         />
       </div>
 

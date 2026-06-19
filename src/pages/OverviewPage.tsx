@@ -9,6 +9,12 @@ import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
 
+// Normalized 0–1 sparkline series (14 days, left = oldest, right = today)
+const sparkEvalPassRate  = [0.88, 0.87, 0.89, 0.90, 0.88, 0.91, 0.90, 0.92, 0.91, 0.93, 0.92, 0.93, 0.94, 0.95]
+const sparkSimulations   = [0.72, 0.80, 0.85, 0.83, 0.88, 0.90, 0.86, 0.91, 0.87, 0.84, 0.82, 0.80, 0.79, 0.78]
+const sparkP95Latency    = [0.55, 0.60, 0.58, 0.62, 0.57, 0.61, 0.59, 0.60, 0.58, 0.61, 0.59, 0.58, 0.60, 0.59]
+const sparkEscalationRate = [0.70, 0.68, 0.65, 0.67, 0.63, 0.62, 0.60, 0.58, 0.57, 0.55, 0.54, 0.52, 0.51, 0.49]
+
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
@@ -29,6 +35,7 @@ export function OverviewPage() {
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={sparkEvalPassRate}
         />
         <MetricTile
           label="Simulations / 24h"
@@ -36,6 +43,7 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={sparkSimulations}
         />
         <MetricTile
           label="P95 latency"
@@ -44,6 +52,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={sparkP95Latency}
         />
         <MetricTile
           label="Escalation rate"
@@ -52,6 +61,7 @@ export function OverviewPage() {
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={sparkEscalationRate}
         />
       </div>
 

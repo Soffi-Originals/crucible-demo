@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
+import { Sparkline } from '@/components/ui/Sparkline'
 
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
@@ -29,6 +30,8 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  /** Normalized 0–1 data points for the sparkline, left to right */
+  sparkline?: number[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -55,6 +58,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,
@@ -64,8 +68,8 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         ref={ref}
         variant={emphasis === 'raised' ? 'raised' : 'default'}
         padding="md"
-        radius="lg"
-        className={cn(metricTileVariants({ emphasis }), className)}
+        radius="2xl"
+        className={cn('overflow-hidden', metricTileVariants({ emphasis }), className)}
         {...props}
       >
         <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide">
@@ -98,6 +102,11 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
                 {hint}
               </Text>
             ) : null}
+          </div>
+        )}
+        {sparkline && sparkline.length >= 2 && (
+          <div className="-mx-4 -mb-4 mt-1">
+            <Sparkline data={sparkline} tone={sentiment} height={44} />
           </div>
         )}
       </Card>

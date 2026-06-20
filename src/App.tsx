@@ -16,8 +16,8 @@ const pageMeta: Record<
   { title: string; description?: string; badge?: string }
 > = {
   overview: {
-    title: 'Overview',
-    description: 'Real-time agent health',
+    title: 'Dashboard',
+    description: 'Plan, prioritize, and accomplish your tasks with ease.',
   },
   agents: { title: 'Agents', description: '4 agents' },
   simulations: {
@@ -81,15 +81,6 @@ function App() {
           theme={theme}
           onToggleTheme={toggle}
           onMenuClick={() => setSidebarOpen(true)}
-          primaryAction={
-            page === 'agents'
-              ? { label: 'New agent' }
-              : page === 'simulations'
-                ? { label: 'New simulation' }
-                : page === 'evals'
-                  ? { label: 'New eval' }
-                  : undefined
-          }
         />
       }
     >

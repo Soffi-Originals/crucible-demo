@@ -5,58 +5,56 @@
 /* ---------------------------------------------------------------------------
  * Semantic tokens
  *
- * All visual values (color, border, type, radius, shadow, spacing scale) are
- * defined here as CSS custom properties and exposed to Tailwind via @theme.
- * Theme switching is class-driven: add `className="dark"` to <body> or any
- * ancestor and the .dark overrides below kick in.
- *
- * Edit token values here to retheme the entire app.
+ * Green-forward theme inspired by the Donezo reference palette.
+ * Primary / accent = deep forest green → bright emerald.
+ * All visual values are CSS custom properties exposed to Tailwind via @theme.
+ * Theme switching is class-driven: add `className="dark"` to <body>.
  * ---------------------------------------------------------------------------*/
 
 @theme {
   /* Color: surfaces */
-  --color-canvas: #f7f7f5;
+  --color-canvas: #f0f5f2;
   --color-surface: #ffffff;
   --color-surface-raised: #ffffff;
-  --color-surface-subtle: #f4f4f2;
-  --color-surface-muted: #ebebe8;
-  --color-surface-inverse: #18181b;
+  --color-surface-subtle: #f4faf7;
+  --color-surface-muted: #e8f2ec;
+  --color-surface-inverse: #0f2d1e;
 
   /* Color: borders */
-  --color-border: #e7e5e4;
-  --color-border-strong: #d6d3d1;
-  --color-border-subtle: #efeeec;
-  --color-border-focus: #2563eb;
+  --color-border: #d4e4da;
+  --color-border-strong: #b8d4c2;
+  --color-border-subtle: #e6f0ea;
+  --color-border-focus: #16a34a;
 
   /* Color: foreground (text/icons) */
-  --color-fg: #18181b;
-  --color-fg-muted: #57534e;
-  --color-fg-subtle: #8a8580;
-  --color-fg-inverse: #fafaf9;
+  --color-fg: #0f2d1e;
+  --color-fg-muted: #3d6b52;
+  --color-fg-subtle: #6b9e80;
+  --color-fg-inverse: #f0faf4;
   --color-fg-on-accent: #ffffff;
 
-  /* Color: brand / interactive */
-  --color-primary: #18181b;
-  --color-primary-hover: #27272a;
-  --color-primary-fg: #fafaf9;
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-accent-soft: #eff6ff;
+  /* Color: brand / interactive — deep green primary, emerald accent */
+  --color-primary: #14532d;
+  --color-primary-hover: #166534;
+  --color-primary-fg: #ffffff;
+  --color-accent: #16a34a;
+  --color-accent-hover: #15803d;
+  --color-accent-soft: #dcfce7;
   --color-accent-fg: #ffffff;
 
   /* Color: status */
-  --color-success: #10b981;
-  --color-success-soft: #ecfdf5;
-  --color-success-fg: #047857;
+  --color-success: #22c55e;
+  --color-success-soft: #f0fdf4;
+  --color-success-fg: #15803d;
   --color-warning: #f59e0b;
   --color-warning-soft: #fffbeb;
   --color-warning-fg: #b45309;
   --color-danger: #ef4444;
   --color-danger-soft: #fef2f2;
   --color-danger-fg: #b91c1c;
-  --color-info: #3b82f6;
-  --color-info-soft: #eff6ff;
-  --color-info-fg: #1d4ed8;
+  --color-info: #0ea5e9;
+  --color-info-soft: #f0f9ff;
+  --color-info-fg: #0369a1;
 
   /* Typography */
   --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont,
@@ -94,63 +92,63 @@
   --radius-full: 9999px;
 
   /* Shadow */
-  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06),
-    0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06),
-    0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  --shadow-xs: 0 1px 2px rgba(15, 45, 30, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 45, 30, 0.08), 0 1px 2px rgba(15, 45, 30, 0.05);
+  --shadow-md: 0 4px 8px -1px rgba(15, 45, 30, 0.08),
+    0 2px 4px -2px rgba(15, 45, 30, 0.05);
+  --shadow-lg: 0 10px 20px -3px rgba(15, 45, 30, 0.10),
+    0 4px 8px -4px rgba(15, 45, 30, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(22, 163, 74, 0.22);
 }
 
 /* Dark theme — class-driven. Add `.dark` to <body> (or any ancestor). */
 .dark {
-  --color-canvas: #0a0a0a;
-  --color-surface: #141414;
-  --color-surface-raised: #1c1c1c;
-  --color-surface-subtle: #1c1c1c;
-  --color-surface-muted: #262626;
-  --color-surface-inverse: #fafaf9;
+  --color-canvas: #071a0f;
+  --color-surface: #0e2318;
+  --color-surface-raised: #162d1f;
+  --color-surface-subtle: #162d1f;
+  --color-surface-muted: #1e3829;
+  --color-surface-inverse: #f0faf4;
 
-  --color-border: #262626;
-  --color-border-strong: #3f3f46;
-  --color-border-subtle: #1f1f1f;
-  --color-border-focus: #60a5fa;
+  --color-border: #1e3829;
+  --color-border-strong: #2d5240;
+  --color-border-subtle: #122419;
+  --color-border-focus: #4ade80;
 
-  --color-fg: #fafafa;
-  --color-fg-muted: #a3a3a3;
-  --color-fg-subtle: #737373;
-  --color-fg-inverse: #0a0a0a;
+  --color-fg: #f0faf4;
+  --color-fg-muted: #86c9a0;
+  --color-fg-subtle: #4d8a65;
+  --color-fg-inverse: #071a0f;
   --color-fg-on-accent: #ffffff;
 
-  --color-primary: #fafafa;
-  --color-primary-hover: #e5e5e5;
-  --color-primary-fg: #0a0a0a;
-  --color-accent: #60a5fa;
-  --color-accent-hover: #3b82f6;
-  --color-accent-soft: rgba(96, 165, 250, 0.12);
-  --color-accent-fg: #0a0a0a;
+  --color-primary: #f0faf4;
+  --color-primary-hover: #dcfce7;
+  --color-primary-fg: #0f2d1e;
+  --color-accent: #4ade80;
+  --color-accent-hover: #22c55e;
+  --color-accent-soft: rgba(74, 222, 128, 0.12);
+  --color-accent-fg: #0f2d1e;
 
-  --color-success: #34d399;
-  --color-success-soft: rgba(52, 211, 153, 0.12);
-  --color-success-fg: #6ee7b7;
+  --color-success: #4ade80;
+  --color-success-soft: rgba(74, 222, 128, 0.12);
+  --color-success-fg: #86efac;
   --color-warning: #fbbf24;
   --color-warning-soft: rgba(251, 191, 36, 0.12);
   --color-warning-fg: #fcd34d;
   --color-danger: #f87171;
   --color-danger-soft: rgba(248, 113, 113, 0.12);
   --color-danger-fg: #fca5a5;
-  --color-info: #60a5fa;
-  --color-info-soft: rgba(96, 165, 250, 0.12);
-  --color-info-fg: #93c5fd;
+  --color-info: #38bdf8;
+  --color-info-soft: rgba(56, 189, 248, 0.12);
+  --color-info-fg: #7dd3fc;
 
-  --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5),
-    0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
-    0 4px 6px -4px rgba(0, 0, 0, 0.4);
-  --shadow-focus: 0 0 0 3px rgba(96, 165, 250, 0.25);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.6),
+    0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.6),
+    0 4px 8px -4px rgba(0, 0, 0, 0.5);
+  --shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.25);
 }
 
 @layer base {

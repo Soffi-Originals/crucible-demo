@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {
   Pause, Play, Zap, Activity, Bell, X, ChevronUp, ChevronDown,
-  CheckCircle, XCircle, Timer, Users, Cpu, TrendingUp, LayoutDashboard,
-  Save, GripVertical, Maximize2, Minimize2,
+  CheckCircle, XCircle, Timer, Users, Cpu, TrendingUp,
+  Save, Maximize2, Minimize2,
 } from 'lucide-react'
 import { type RunRecord } from '@/data/runHistory'
 import { useLiveFeed, type SpeedSetting } from '@/hooks/useLiveFeed'
@@ -170,8 +170,8 @@ function KpiCard({ label, value, unit, color, icon, shake, streak, sub, trend, h
           : 'linear-gradient(135deg, rgba(18,18,24,0.85) 0%, rgba(13,13,18,0.9) 100%)',
         border: `1px solid ${hovered ? `${color}30` : hero ? `${color}20` : 'rgba(255,255,255,0.07)'}`,
         borderRadius: 14,
-        padding: hero ? '20px 22px' : '14px 18px',
-        display: 'flex', flexDirection: 'column', gap: hero ? 10 : 6,
+        padding: hero ? '16px 18px' : '12px 14px',
+        display: 'flex', flexDirection: 'column', gap: hero ? 8 : 5,
         position: 'relative', overflow: 'hidden',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
@@ -204,11 +204,11 @@ function KpiCard({ label, value, unit, color, icon, shake, streak, sub, trend, h
 
       {streak && (
         <div style={{
-          position: 'absolute', top: 10, right: 10,
-          fontSize: 10, fontWeight: 800, color: '#fbbf24',
+          position: 'absolute', top: 8, right: 8,
+          fontSize: 9, fontWeight: 800, color: '#fbbf24',
           background: 'rgba(251,191,36,0.12)',
           border: '1px solid rgba(251,191,36,0.3)',
-          borderRadius: 6, padding: '2px 7px',
+          borderRadius: 6, padding: '2px 6px',
           display: 'flex', alignItems: 'center', gap: 3,
           boxShadow: '0 0 12px rgba(251,191,36,0.2)',
           letterSpacing: '0.04em',
@@ -217,31 +217,31 @@ function KpiCard({ label, value, unit, color, icon, shake, streak, sub, trend, h
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
         <span style={{ color: `${color}70`, display: 'flex' }}>{icon}</span>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
+        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
           {label}
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
         <span style={{
-          fontSize: hero ? 36 : 26, fontWeight: 800,
+          fontSize: hero ? 30 : 22, fontWeight: 800,
           color, fontVariantNumeric: 'tabular-nums',
           lineHeight: 1, letterSpacing: '-0.035em',
           textShadow: `0 0 20px ${color}40`,
         }}>
           {display}
         </span>
-        {unit && <span style={{ fontSize: hero ? 16 : 13, color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>{unit}</span>}
+        {unit && <span style={{ fontSize: hero ? 14 : 12, color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>{unit}</span>}
         {trend && (
-          <div style={{ marginLeft: 3, color: trend === 'up' ? '#34d399' : '#f87171', display: 'flex', alignItems: 'center' }}>
-            {trend === 'up' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          <div style={{ marginLeft: 2, color: trend === 'up' ? '#34d399' : '#f87171', display: 'flex', alignItems: 'center' }}>
+            {trend === 'up' ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </div>
         )}
       </div>
 
-      {sub && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', fontWeight: 500, lineHeight: 1.4 }}>{sub}</span>}
+      {sub && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.22)', fontWeight: 500, lineHeight: 1.4 }}>{sub}</span>}
     </div>
   )
 }
@@ -325,17 +325,15 @@ function RunRow({ run, isNew, isSelected, onClick }: {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'grid',
-        gridTemplateColumns: '8px 1fr 90px 52px 70px',
-        alignItems: 'center', gap: 10,
-        padding: '9px 16px',
+        display: 'flex',
+        alignItems: 'center', gap: 8,
+        padding: '8px 12px',
         borderBottom: '1px solid rgba(255,255,255,0.03)',
         cursor: 'pointer',
         backgroundColor: flashing
           ? isPassed ? 'rgba(52,211,153,0.08)' : isFailed ? 'rgba(248,113,113,0.08)' : 'transparent'
           : isSelected ? 'rgba(99,102,241,0.08)' : hovered ? 'rgba(255,255,255,0.025)' : 'transparent',
         borderLeft: isSelected ? '2px solid rgba(99,102,241,0.6)' : '2px solid transparent',
-        paddingLeft: isSelected ? 14 : 14,
         opacity: mounted ? 1 : 0,
         transform: mounted ? 'translateY(0)' : 'translateY(-8px)',
         transition: 'background-color 0.5s ease, opacity 0.2s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1), border-left-color 0.2s ease',
@@ -349,7 +347,8 @@ function RunRow({ run, isNew, isSelected, onClick }: {
         transition: 'box-shadow 0.3s ease',
       }} />
 
-      <div style={{ minWidth: 0 }}>
+      {/* Scenario + id — takes remaining space */}
+      <div style={{ minWidth: 0, flex: 1 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: hovered ? '#fafafa' : '#d4d4d4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', transition: 'color 0.15s' }}>
           {run.scenario}
         </span>
@@ -361,17 +360,19 @@ function RunRow({ run, isNew, isSelected, onClick }: {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 5, justifyContent: 'flex-end' }}>
+      {/* Agent — hidden on very small screens */}
+      <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 5 }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: agentColor, boxShadow: `0 0 5px ${agentColor}80`, flexShrink: 0 }} />
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{run.agent}</span>
       </div>
 
-      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+      {/* Duration — hidden on very small screens */}
+      <span className="hidden sm:inline" style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', textAlign: 'right', fontVariantNumeric: 'tabular-nums', minWidth: 36 }}>
         {run.durationMs > 0 ? `${(run.durationMs / 1000).toFixed(1)}s` : '—'}
       </span>
 
       <span style={{
-        fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, textAlign: 'center',
+        fontSize: 10, fontWeight: 700, padding: '3px 7px', borderRadius: 999, textAlign: 'center', flexShrink: 0,
         backgroundColor: isPassed ? 'rgba(52,211,153,0.1)' : isFailed ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.05)',
         color: isPassed ? '#34d399' : isFailed ? '#f87171' : 'rgba(255,255,255,0.4)',
         border: `1px solid ${isPassed ? 'rgba(52,211,153,0.25)' : isFailed ? 'rgba(248,113,113,0.25)' : 'rgba(255,255,255,0.08)'}`,
@@ -408,30 +409,23 @@ function FailureRipple({ trigger }: { trigger: number }) {
 // ── glassmorphic panel ────────────────────────────────────────────────────────
 interface PanelProps {
   title: string; sub?: string; children: React.ReactNode
-  action?: React.ReactNode; accent?: string; draggable?: boolean
-  onDragStart?: (e: React.DragEvent) => void
-  onDragOver?: (e: React.DragEvent) => void
-  onDrop?: (e: React.DragEvent) => void
-  dragId?: string
+  action?: React.ReactNode; accent?: string
   noPad?: boolean
 }
 
-function Panel({ title, sub, children, action, accent, draggable, onDragStart, onDragOver, onDrop, dragId, noPad }: PanelProps) {
+function Panel({ title, sub, children, action, accent, noPad }: PanelProps) {
   const [hovered, setHovered] = React.useState(false)
 
   return (
     <div
-      data-drag-id={dragId}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
       style={{
         background: 'linear-gradient(135deg, rgba(16,17,24,0.92) 0%, rgba(11,12,18,0.95) 100%)',
         border: `1px solid ${hovered ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)'}`,
         borderRadius: 16,
-        padding: noPad ? 0 : '16px 18px',
-        display: 'flex', flexDirection: 'column', gap: 14,
+        padding: noPad ? 0 : '14px 16px',
+        display: 'flex', flexDirection: 'column', gap: 12,
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         boxShadow: hovered
@@ -446,38 +440,19 @@ function Panel({ title, sub, children, action, accent, draggable, onDragStart, o
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: accent, opacity: hovered ? 0.8 : 0.4, transition: 'opacity 0.3s' }} />
       )}
 
-      <div style={{ padding: noPad ? '16px 18px 0' : 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {draggable && (
-            <div
-              draggable
-              onDragStart={onDragStart}
-              style={{
-                cursor: 'grab', color: 'rgba(255,255,255,0.15)',
-                display: 'flex', alignItems: 'center',
-                ':hover': { color: 'rgba(255,255,255,0.4)' },
-              } as React.CSSProperties}
-            >
-              <GripVertical size={14} />
-            </div>
-          )}
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '-0.01em' }}>{title}</div>
-            {sub && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginTop: 2, letterSpacing: '0.01em' }}>{sub}</div>}
-          </div>
+      <div style={{ padding: noPad ? '14px 16px 0' : 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '-0.01em' }}>{title}</div>
+          {sub && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginTop: 2, letterSpacing: '0.01em' }}>{sub}</div>}
         </div>
         {action}
       </div>
       {noPad ? (
-        <div style={{ padding: '0 18px 16px' }}>{children}</div>
+        <div style={{ padding: '0 16px 14px' }}>{children}</div>
       ) : children}
     </div>
   )
 }
-
-// ── draggable widget order ────────────────────────────────────────────────────
-type WidgetId = 'heatmap' | 'donuts' | 'timeline' | 'runs' | 'logs'
-const DEFAULT_ORDER: WidgetId[] = ['heatmap', 'donuts', 'timeline', 'runs', 'logs']
 
 // ── main ──────────────────────────────────────────────────────────────────────
 export function OverviewPage() {
@@ -499,8 +474,6 @@ export function OverviewPage() {
   const [shakeKey,     setShakeKey]     = React.useState(0)
   const [chartBrush,   setChartBrush]   = React.useState<[number, number] | null>(null)
   const [timeSeries,   setTimeSeries]   = React.useState<TimeSeriesPoint[]>([])
-  const [widgetOrder,  setWidgetOrder]  = React.useState<WidgetId[]>(DEFAULT_ORDER)
-  const [dragWidget,   setDragWidget]   = React.useState<WidgetId | null>(null)
   const [logsExpanded, setLogsExpanded] = React.useState(false)
   const [savedLayout,  setSavedLayout]  = React.useState(false)
   const prevLengthRef = React.useRef(0)
@@ -584,222 +557,6 @@ export function OverviewPage() {
   const isPaused   = !isPlaying
   const unread     = notifications.filter((n) => !n.read).length
 
-  // Drag-to-reorder widgets
-  const handleDragStart = (id: WidgetId) => (e: React.DragEvent) => {
-    setDragWidget(id)
-    e.dataTransfer.effectAllowed = 'move'
-  }
-  const handleDrop = (targetId: WidgetId) => (e: React.DragEvent) => {
-    e.preventDefault()
-    if (!dragWidget || dragWidget === targetId) { setDragWidget(null); return }
-    setWidgetOrder((prev) => {
-      const next = [...prev]
-      const fi = next.indexOf(dragWidget)
-      const ti = next.indexOf(targetId)
-      if (fi < 0 || ti < 0) return prev
-      next.splice(fi, 1)
-      next.splice(ti, 0, dragWidget)
-      return next
-    })
-    setDragWidget(null)
-  }
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }
-
-  // ── widget renderers ─────────────────────────────────────────────────────
-  function renderHeatmap() {
-    return (
-      <Panel
-        key="heatmap"
-        title="Agent × Scenario heatmap"
-        sub="Colour = pass ratio · intensity = volume · click row/col to cross-filter"
-        accent="linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent)"
-        draggable
-        dragId="heatmap"
-        onDragStart={handleDragStart('heatmap')}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop('heatmap')}
-      >
-        {arrived.length === 0 ? (
-          <EmptyState message="waiting for runs to map..." />
-        ) : (
-          <CategoryHeatMap
-            cells={heatCells} rows={AGENTS} cols={CATEGORIES}
-            activeRow={agentFilter} activeCol={categoryFilter}
-            onRowClick={setAgentFilter} onColClick={setCategoryFilter}
-            flashKey={hmFlashKey}
-          />
-        )}
-      </Panel>
-    )
-  }
-
-  function renderDonuts() {
-    return (
-      <div key="donuts" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <Panel
-          title="By status"
-          sub="Click segment to filter"
-          accent="linear-gradient(90deg, transparent, rgba(52,211,153,0.5), transparent)"
-          draggable
-          dragId="donuts"
-          onDragStart={handleDragStart('donuts')}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop('donuts')}
-        >
-          {arrived.length === 0 ? <EmptyState message="⏳" small /> : (
-            <AnimatedDonut segments={statusSegs} size={120} thickness={18} activeKey={statusFilter} onSegmentClick={setStatusFilter} centerSub="runs" />
-          )}
-        </Panel>
-        <Panel
-          title="By agent"
-          sub="Click segment to filter"
-          accent="linear-gradient(90deg, transparent, rgba(96,165,250,0.5), transparent)"
-        >
-          {arrived.length === 0 ? <EmptyState message="⏳" small /> : (
-            <AnimatedDonut segments={agentSegs} size={120} thickness={18} activeKey={agentFilter} onSegmentClick={setAgentFilter} centerSub="agents" />
-          )}
-        </Panel>
-      </div>
-    )
-  }
-
-  function renderTimeline() {
-    return (
-      <Panel
-        key="timeline"
-        title="Run activity — last 120 seconds"
-        sub={chartBrush
-          ? `Selection: ${new Date(chartBrush[0]).toLocaleTimeString()} – ${new Date(chartBrush[1]).toLocaleTimeString()}`
-          : '1-second buckets · drag to select a window for log analysis'
-        }
-        accent="linear-gradient(90deg, transparent, rgba(52,211,153,0.4), rgba(248,113,113,0.4), transparent)"
-        draggable
-        dragId="timeline"
-        onDragStart={handleDragStart('timeline')}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop('timeline')}
-        action={chartBrush ? (
-          <button type="button" onClick={() => setChartBrush(null)} style={{
-            padding: '3px 10px', borderRadius: 6,
-            border: '1px solid rgba(99,102,241,0.4)',
-            background: 'rgba(99,102,241,0.1)', color: '#a78bfa',
-            fontSize: 11, fontWeight: 600, cursor: 'pointer',
-          }}>
-            Clear
-          </button>
-        ) : undefined}
-      >
-        <TimeSeriesChart points={timeSeries} height={130} onBrush={(a, b) => setChartBrush([a, b])} brushRange={chartBrush} />
-      </Panel>
-    )
-  }
-
-  function renderRuns() {
-    return (
-      <div key="runs" style={{ display: 'grid', gridTemplateColumns: selectedRun ? '1fr 0.85fr' : '1.4fr 0.6fr', gap: 12, transition: 'grid-template-columns 0.3s ease' }}>
-        {/* Run list */}
-        <Panel
-          title={`Runs${hasFilter && filtered.length !== arrived.length ? ` · ${filtered.length} of ${arrived.length}` : ''}`}
-          sub={isPaused && arrived.length > 0 ? 'paused · historical view' : undefined}
-          accent="linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)"
-          draggable
-          dragId="runs"
-          onDragStart={handleDragStart('runs')}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop('runs')}
-          noPad
-        >
-          {/* Header row */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '8px 1fr 90px 52px 70px',
-            gap: 10, padding: '14px 16px 8px',
-            borderBottom: '1px solid rgba(255,255,255,0.05)',
-          }}>
-            {['', 'Scenario', 'Agent', 'Dur', 'Status'].map((h, i) => (
-              <span key={i} style={{
-                fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.18)', textAlign: i >= 3 ? 'right' : 'left',
-              }}>{h}</span>
-            ))}
-          </div>
-          <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-            {filtered.length === 0 ? (
-              <div style={{ padding: '40px 24px', textAlign: 'center', color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>
-                {isEmpty
-                  ? isPaused
-                    ? '😴 the agents are on a union-mandated break.'
-                    : '⏳ agents are stretching...'
-                  : 'No runs match the current filters.'}
-                {!isEmpty && hasFilter && (
-                  <div style={{ marginTop: 10 }}>
-                    <button type="button" onClick={clearAll} style={{
-                      padding: '5px 14px', borderRadius: 7, border: '1px solid rgba(255,255,255,0.1)',
-                      background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', fontSize: 11, cursor: 'pointer',
-                    }}>Clear filters</button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              filtered.slice(0, 50).map((run, i) => (
-                <RunRow
-                  key={run.runId} run={run}
-                  isNew={i === 0 && run.runId === newestRunId}
-                  isSelected={selectedRun?.runId === run.runId}
-                  onClick={() => setSelectedRun((p) => p?.runId === run.runId ? null : run)}
-                />
-              ))
-            )}
-          </div>
-        </Panel>
-
-        {/* Detail or agent health */}
-        {selectedRun ? (
-          <RunDetailPanel run={selectedRun} onClose={() => setSelectedRun(null)} />
-        ) : (
-          <Panel
-            title="Agent health"
-            sub="Pass rate + avg duration · sorted by volume"
-            accent="linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent)"
-          >
-            {arrived.length === 0
-              ? <EmptyState message="no data yet" small />
-              : <AgentScoreboard records={filtered} />
-            }
-          </Panel>
-        )}
-      </div>
-    )
-  }
-
-  function renderLogs() {
-    return (
-      <div key="logs">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' }}>
-            Log explorer
-          </span>
-          <button type="button" onClick={() => setLogsExpanded((p) => !p)} style={{
-            background: 'none', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6,
-            padding: '3px 6px', cursor: 'pointer', color: 'rgba(255,255,255,0.3)',
-            display: 'flex', alignItems: 'center', gap: 4, fontSize: 10,
-          }}>
-            {logsExpanded ? <Minimize2 size={11} /> : <Maximize2 size={11} />}
-            {logsExpanded ? 'Collapse' : 'Expand'}
-          </button>
-        </div>
-        <LogsExplorer entries={logEntries} newestId={newestLogId} brushRange={chartBrush} />
-      </div>
-    )
-  }
-
-  const widgetMap: Record<WidgetId, () => React.ReactNode> = {
-    heatmap:  renderHeatmap,
-    donuts:   renderDonuts,
-    timeline: renderTimeline,
-    runs:     renderRuns,
-    logs:     renderLogs,
-  }
-
   return (
     <>
       <style>{`
@@ -814,10 +571,6 @@ export function OverviewPage() {
         @keyframes rippleFade {
           0% { opacity: 1; box-shadow: inset 0 0 120px rgba(248,113,113,0.12); }
           100% { opacity: 0; box-shadow: inset 0 0 0 rgba(248,113,113,0); }
-        }
-        @keyframes shimmerFade {
-          0% { opacity: 1; }
-          100% { opacity: 0; }
         }
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(6px); }
@@ -863,147 +616,105 @@ export function OverviewPage() {
         display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1,
       }}>
 
-        {/* ══ TOP NAV BAR ══ */}
+        {/* ══ TOP CONTROL BAR ══ */}
         <div style={{
-          padding: '0 24px',
+          padding: '0 12px',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
           background: 'linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,13,0.95) 100%)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          position: 'sticky', top: 0, zIndex: 300, flexShrink: 0, height: 52,
+          position: 'sticky', top: 0, zIndex: 300, flexShrink: 0,
           boxShadow: '0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.4)',
         }}>
-          {/* Left: logo + title */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 8,
-                background: 'linear-gradient(135deg, #34d399, #059669)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 16px rgba(52,211,153,0.4)',
-                flexShrink: 0,
-              }}>
-                <Activity size={14} color="#fff" strokeWidth={2.5} />
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: '-0.03em', color: '#fafafa', lineHeight: 1.1 }}>
-                  Soffi.ai
-                  <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400, marginLeft: 4 }}>|</span>
-                  <span style={{ color: '#34d399', marginLeft: 4 }}>Crucible</span>
-                </div>
-                <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)' }}>
-                  Acme Corp · Production
-                </div>
-              </div>
-            </div>
-
-            <div style={{ width: 1, height: 24, backgroundColor: 'rgba(255,255,255,0.06)' }} />
-
+          {/* Status row — always visible */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44, gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isPlaying ? '#34d399' : 'rgba(255,255,255,0.25)', boxShadow: isPlaying ? '0 0 8px #34d399' : 'none', animation: isPlaying ? 'pulseGlow 2s ease-in-out infinite' : 'none' }} />
+              <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isPlaying ? '#34d399' : 'rgba(255,255,255,0.25)', boxShadow: isPlaying ? '0 0 8px #34d399' : 'none', animation: isPlaying ? 'pulseGlow 2s ease-in-out infinite' : 'none', flexShrink: 0 }} />
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>
                 {isEmpty
                   ? isPaused ? 'agents on break' : 'agents stretching...'
                   : `${arrived.length} runs · ${isPaused ? 'paused' : 'live'}`}
               </span>
               {isLudicrous && (
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 5, padding: '2px 6px', boxShadow: '0 0 10px rgba(251,191,36,0.2)' }}>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 5, padding: '2px 6px' }}>
                   LUDICROUS
                 </span>
               )}
             </div>
-          </div>
 
-          {/* Right: controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {/* Customize layout */}
-            <button type="button" onClick={() => setWidgetOrder(DEFAULT_ORDER)} style={{
-              padding: '5px 10px', borderRadius: 8, cursor: 'pointer',
-              border: '1px solid rgba(255,255,255,0.07)',
-              background: 'rgba(255,255,255,0.03)',
-              color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 600,
-              display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s',
-            }}>
-              <LayoutDashboard size={11} /> Customize
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              {/* Speed selector */}
+              <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 3, border: '1px solid rgba(255,255,255,0.06)' }}>
+                {(['1x', '2x', 'ludicrous'] as SpeedSetting[]).map((s) => (
+                  <button key={s} type="button" onClick={() => setSpeed(s)} style={{
+                    padding: '3px 7px', borderRadius: 5, border: 'none',
+                    backgroundColor: speed === s ? (s === 'ludicrous' ? 'rgba(251,191,36,0.15)' : 'rgba(96,165,250,0.15)') : 'transparent',
+                    color: speed === s ? (s === 'ludicrous' ? '#fbbf24' : '#60a5fa') : 'rgba(255,255,255,0.28)',
+                    fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 2,
+                    transition: 'all 0.15s',
+                  }}>
+                    {s === 'ludicrous' && <Zap size={8} />}
+                    {s === 'ludicrous' ? '⚡' : s}
+                  </button>
+                ))}
+              </div>
 
-            {/* Save view */}
-            <button type="button" onClick={() => { setSavedLayout(true); setTimeout(() => setSavedLayout(false), 2000) }} style={{
-              padding: '5px 10px', borderRadius: 8, cursor: 'pointer',
-              border: `1px solid ${savedLayout ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.07)'}`,
-              background: savedLayout ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.03)',
-              color: savedLayout ? '#34d399' : 'rgba(255,255,255,0.35)',
-              fontSize: 11, fontWeight: 600,
-              display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.2s',
-            }}>
-              <Save size={11} /> {savedLayout ? 'Saved!' : 'Save view'}
-            </button>
+              {/* Play/pause */}
+              <button type="button" onClick={togglePlay} style={{
+                padding: '4px 10px', borderRadius: 8,
+                border: `1px solid ${isPlaying ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.1)'}`,
+                background: isPlaying ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.04)',
+                color: isPlaying ? '#34d399' : 'rgba(255,255,255,0.5)',
+                fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4,
+                transition: 'all 0.2s',
+              }}>
+                {isPlaying ? <Pause size={10} /> : <Play size={10} />}
+                <span className="hidden sm:inline">{isPlaying ? 'Pause' : 'Resume'}</span>
+              </button>
 
-            <div style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.06)' }} />
+              {/* Save view */}
+              <button type="button" onClick={() => { setSavedLayout(true); setTimeout(() => setSavedLayout(false), 2000) }} style={{
+                padding: '4px 10px', borderRadius: 8, cursor: 'pointer',
+                border: `1px solid ${savedLayout ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                background: savedLayout ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.03)',
+                color: savedLayout ? '#34d399' : 'rgba(255,255,255,0.35)',
+                fontSize: 11, fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.2s',
+              }}>
+                <Save size={10} />
+                <span className="hidden sm:inline">{savedLayout ? 'Saved!' : 'Save'}</span>
+              </button>
 
-            {/* Speed */}
-            <div style={{ display: 'flex', gap: 3, background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 3, border: '1px solid rgba(255,255,255,0.06)' }}>
-              {(['1x', '2x', 'ludicrous'] as SpeedSetting[]).map((s) => (
-                <button key={s} type="button" onClick={() => setSpeed(s)} style={{
-                  padding: '3px 9px', borderRadius: 6,
-                  border: 'none',
-                  backgroundColor: speed === s ? (s === 'ludicrous' ? 'rgba(251,191,36,0.15)' : 'rgba(96,165,250,0.15)') : 'transparent',
-                  color: speed === s ? (s === 'ludicrous' ? '#fbbf24' : '#60a5fa') : 'rgba(255,255,255,0.28)',
-                  fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 3,
-                  transition: 'all 0.15s',
-                  boxShadow: speed === s ? `0 0 10px ${s === 'ludicrous' ? 'rgba(251,191,36,0.2)' : 'rgba(96,165,250,0.15)'}` : 'none',
-                }}>
-                  {s === 'ludicrous' && <Zap size={9} />}
-                  {s}
-                </button>
-              ))}
+              {/* Bell */}
+              <button type="button" onClick={() => setDrawerOpen(true)} style={{
+                position: 'relative', padding: '4px 8px', borderRadius: 8,
+                border: `1px solid ${unread > 0 ? 'rgba(248,113,113,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                background: unread > 0 ? 'rgba(248,113,113,0.06)' : 'rgba(255,255,255,0.03)',
+                color: 'rgba(255,255,255,0.4)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
+              }}>
+                <Bell size={12} color={unread > 0 ? '#f87171' : 'rgba(255,255,255,0.35)'} />
+                {unread > 0 && (
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#f87171', fontVariantNumeric: 'tabular-nums' }}>
+                    {unread > 99 ? '99+' : unread}
+                  </span>
+                )}
+              </button>
             </div>
-
-            {/* Play/Pause */}
-            <button type="button" onClick={togglePlay} style={{
-              padding: '5px 14px', borderRadius: 8,
-              border: `1px solid ${isPlaying ? 'rgba(52,211,153,0.35)' : 'rgba(255,255,255,0.1)'}`,
-              background: isPlaying ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.04)',
-              color: isPlaying ? '#34d399' : 'rgba(255,255,255,0.5)',
-              fontSize: 11, fontWeight: 700, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 5,
-              transition: 'all 0.2s',
-              boxShadow: isPlaying ? '0 0 12px rgba(52,211,153,0.15)' : 'none',
-            }}>
-              {isPlaying ? <Pause size={11} /> : <Play size={11} />}
-              {isPlaying ? 'Pause' : 'Resume'}
-            </button>
-
-            {/* Notification bell */}
-            <button type="button" onClick={() => setDrawerOpen(true)} style={{
-              position: 'relative', padding: '5px 9px', borderRadius: 8,
-              border: `1px solid ${unread > 0 ? 'rgba(248,113,113,0.3)' : 'rgba(255,255,255,0.07)'}`,
-              background: unread > 0 ? 'rgba(248,113,113,0.06)' : 'rgba(255,255,255,0.03)',
-              color: 'rgba(255,255,255,0.4)', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s',
-              boxShadow: unread > 0 ? '0 0 12px rgba(248,113,113,0.15)' : 'none',
-            }}>
-              <Bell size={13} color={unread > 0 ? '#f87171' : 'rgba(255,255,255,0.35)'} />
-              {unread > 0 && (
-                <span style={{ fontSize: 10, fontWeight: 800, color: '#f87171', fontVariantNumeric: 'tabular-nums' }}>
-                  {unread > 99 ? '99+' : unread}
-                </span>
-              )}
-            </button>
           </div>
         </div>
 
         {/* ══ BODY ══ */}
-        <div style={{ flex: 1, padding: '20px 24px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="overview-body" style={{ flex: 1, padding: '14px 12px 40px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-          {/* ── KPI STRIP ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr 1fr', gap: 10, animation: 'fadeSlideIn 0.4s ease' }}>
+          {/* ── KPI STRIP: 2 cols on mobile, 3 on sm, 6 on lg ── */}
+          <div className="kpi-grid" style={{ animation: 'fadeSlideIn 0.4s ease' }}>
             <KpiCard
               label="Pass rate" value={passRatePct} unit="%"
               color={passRatePct >= 80 ? '#34d399' : passRatePct >= 60 ? '#fbbf24' : '#f87171'}
-              icon={<CheckCircle size={13} />}
+              icon={<CheckCircle size={12} />}
               streak={streakCount >= 3}
               sub={totalFin > 0 ? `${passCount} passed · ${failCount} failed` : 'no finished runs yet'}
               trend={passRatePct >= 80 ? 'up' : passRatePct < 60 && totalFin > 0 ? 'down' : null}
@@ -1013,7 +724,7 @@ export function OverviewPage() {
             <KpiCard
               label="Failures" value={failCount}
               color={failCount > 0 ? '#f87171' : 'rgba(255,255,255,0.4)'}
-              icon={<XCircle size={13} />}
+              icon={<XCircle size={12} />}
               shake={shakeKey > 0}
               sub={totalFin > 0 ? `${Math.round((failCount / totalFin) * 100)}% fail rate` : 'none yet'}
               trend={failCount > 5 ? 'down' : null}
@@ -1021,25 +732,25 @@ export function OverviewPage() {
             <KpiCard
               label="Total runs" value={filtered.length}
               color="#e2e8f0"
-              icon={<TrendingUp size={13} />}
+              icon={<TrendingUp size={12} />}
               sub={hasFilter ? `of ${arrived.length} total` : `${arrived.length} in feed`}
             />
             <KpiCard
               label="Avg duration" value={Math.round(avgDurS * 10) / 10} unit="s"
               color="#60a5fa"
-              icon={<Timer size={13} />}
+              icon={<Timer size={12} />}
               sub="across finished runs"
             />
             <KpiCard
               label="Avg tokens" value={avgTokens}
               color="#a78bfa"
-              icon={<Cpu size={13} />}
+              icon={<Cpu size={12} />}
               sub={`${totalTokens.toLocaleString()} total`}
             />
             <KpiCard
               label="Active agents" value={agentSegs.length}
               color="#fbbf24"
-              icon={<Users size={13} />}
+              icon={<Users size={12} />}
               sub="with runs in feed"
             />
           </div>
@@ -1048,7 +759,7 @@ export function OverviewPage() {
           {hasFilter && (
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, animation: 'fadeSlideIn 0.2s ease' }}>
               <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}>
-                Active filters
+                Filters
               </span>
               {[
                 agentFilter    && { label: `Agent: ${agentFilter}`,       clear: () => setAgentFilter(null) },
@@ -1057,62 +768,192 @@ export function OverviewPage() {
               ].filter(Boolean).map((chip: any) => (
                 <button key={chip.label} type="button" onClick={chip.clear} style={{
                   display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '4px 11px', borderRadius: 999,
+                  padding: '4px 10px', borderRadius: 999,
                   border: '1px solid rgba(99,102,241,0.3)',
                   background: 'rgba(99,102,241,0.1)',
                   color: '#a78bfa', fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                  transition: 'all 0.15s',
                 }}>
                   {chip.label} <X size={10} />
                 </button>
               ))}
               <button type="button" onClick={clearAll} style={{
-                padding: '4px 11px', borderRadius: 999,
+                padding: '4px 10px', borderRadius: 999,
                 border: '1px solid rgba(255,255,255,0.07)',
                 background: 'transparent', color: 'rgba(255,255,255,0.3)',
-                fontSize: 11, cursor: 'pointer', transition: 'all 0.15s',
+                fontSize: 11, cursor: 'pointer',
               }}>
                 Clear all
               </button>
             </div>
           )}
 
-          {/* ── MAIN CHART AREA: heatmap + donuts ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 0.7fr', gap: 12 }}>
-            {widgetMap['heatmap']()}
-            {widgetMap['donuts']()}
+          {/* ── HEATMAP + DONUTS: stack on mobile, side by side on lg ── */}
+          <div className="charts-grid">
+            <Panel
+              title="Agent × Scenario heatmap"
+              sub="Colour = pass ratio · click row/col to cross-filter"
+              accent="linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent)"
+            >
+              {arrived.length === 0 ? (
+                <EmptyState message="waiting for runs to map..." />
+              ) : (
+                <CategoryHeatMap
+                  cells={heatCells} rows={AGENTS} cols={CATEGORIES}
+                  activeRow={agentFilter} activeCol={categoryFilter}
+                  onRowClick={setAgentFilter} onColClick={setCategoryFilter}
+                  flashKey={hmFlashKey}
+                />
+              )}
+            </Panel>
+
+            {/* Donuts: row on mobile, column on lg */}
+            <div className="donuts-grid">
+              <Panel
+                title="By status"
+                sub="Click segment to filter"
+                accent="linear-gradient(90deg, transparent, rgba(52,211,153,0.5), transparent)"
+              >
+                {arrived.length === 0 ? <EmptyState message="⏳" small /> : (
+                  <AnimatedDonut segments={statusSegs} size={110} thickness={16} activeKey={statusFilter} onSegmentClick={setStatusFilter} centerSub="runs" />
+                )}
+              </Panel>
+              <Panel
+                title="By agent"
+                sub="Click segment to filter"
+                accent="linear-gradient(90deg, transparent, rgba(96,165,250,0.5), transparent)"
+              >
+                {arrived.length === 0 ? <EmptyState message="⏳" small /> : (
+                  <AnimatedDonut segments={agentSegs} size={110} thickness={16} activeKey={agentFilter} onSegmentClick={setAgentFilter} centerSub="agents" />
+                )}
+              </Panel>
+            </div>
           </div>
 
           {/* ── TIMELINE ── */}
-          {widgetMap['timeline']()}
+          <Panel
+            title="Run activity — last 120 seconds"
+            sub={chartBrush
+              ? `Selection: ${new Date(chartBrush[0]).toLocaleTimeString()} – ${new Date(chartBrush[1]).toLocaleTimeString()}`
+              : '1-second buckets · drag to select a window'
+            }
+            accent="linear-gradient(90deg, transparent, rgba(52,211,153,0.4), rgba(248,113,113,0.4), transparent)"
+            action={chartBrush ? (
+              <button type="button" onClick={() => setChartBrush(null)} style={{
+                padding: '3px 10px', borderRadius: 6,
+                border: '1px solid rgba(99,102,241,0.4)',
+                background: 'rgba(99,102,241,0.1)', color: '#a78bfa',
+                fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              }}>
+                Clear
+              </button>
+            ) : undefined}
+          >
+            <TimeSeriesChart points={timeSeries} height={110} onBrush={(a, b) => setChartBrush([a, b])} brushRange={chartBrush} />
+          </Panel>
 
           {/* ── RUNS TABLE + HEALTH ── */}
-          {widgetMap['runs']()}
+          {/* On mobile: full-width runs list, detail panel stacks below when open */}
+          <div className="runs-grid" style={{ transition: 'all 0.3s ease' }}>
+            <Panel
+              title={`Runs${hasFilter && filtered.length !== arrived.length ? ` · ${filtered.length} of ${arrived.length}` : ''}`}
+              sub={isPaused && arrived.length > 0 ? 'paused · historical view' : undefined}
+              accent="linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)"
+              noPad
+            >
+              {/* Header row — hide agent/dur cols on mobile */}
+              <div style={{
+                display: 'flex', alignItems: 'center',
+                gap: 8, padding: '12px 12px 8px',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+              }}>
+                <span style={{ width: 7, flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.18)' }}>Scenario</span>
+                <span className="hidden sm:inline" style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.18)', minWidth: 64 }}>Agent</span>
+                <span className="hidden sm:inline" style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.18)', minWidth: 36, textAlign: 'right' }}>Dur</span>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.18)', minWidth: 52, textAlign: 'center' }}>Status</span>
+              </div>
+              <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                {filtered.length === 0 ? (
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>
+                    {isEmpty
+                      ? isPaused ? '😴 the agents are on a union-mandated break.' : '⏳ agents are stretching...'
+                      : 'No runs match the current filters.'}
+                    {!isEmpty && hasFilter && (
+                      <div style={{ marginTop: 10 }}>
+                        <button type="button" onClick={clearAll} style={{
+                          padding: '5px 14px', borderRadius: 7, border: '1px solid rgba(255,255,255,0.1)',
+                          background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', fontSize: 11, cursor: 'pointer',
+                        }}>Clear filters</button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  filtered.slice(0, 50).map((run, i) => (
+                    <RunRow
+                      key={run.runId} run={run}
+                      isNew={i === 0 && run.runId === newestRunId}
+                      isSelected={selectedRun?.runId === run.runId}
+                      onClick={() => setSelectedRun((p) => p?.runId === run.runId ? null : run)}
+                    />
+                  ))
+                )}
+              </div>
+            </Panel>
+
+            {selectedRun ? (
+              <RunDetailPanel run={selectedRun} onClose={() => setSelectedRun(null)} />
+            ) : (
+              <Panel
+                title="Agent health"
+                sub="Pass rate + avg duration · sorted by volume"
+                accent="linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent)"
+              >
+                {arrived.length === 0
+                  ? <EmptyState message="no data yet" small />
+                  : <AgentScoreboard records={filtered} />
+                }
+              </Panel>
+            )}
+          </div>
 
           {/* ── LOGS EXPLORER ── */}
-          {widgetMap['logs']()}
-
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' }}>
+                Log explorer
+              </span>
+              <button type="button" onClick={() => setLogsExpanded((p) => !p)} style={{
+                background: 'none', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6,
+                padding: '3px 6px', cursor: 'pointer', color: 'rgba(255,255,255,0.3)',
+                display: 'flex', alignItems: 'center', gap: 4, fontSize: 10,
+              }}>
+                {logsExpanded ? <Minimize2 size={11} /> : <Maximize2 size={11} />}
+                {logsExpanded ? 'Collapse' : 'Expand'}
+              </button>
+            </div>
+            <LogsExplorer entries={logEntries} newestId={newestLogId} brushRange={chartBrush} />
+          </div>
         </div>
 
         {/* ── FOOTER ── */}
         <div style={{
-          padding: '10px 24px',
+          padding: '8px 12px',
           borderTop: '1px solid rgba(255,255,255,0.04)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6,
           flexShrink: 0,
           background: 'rgba(10,10,13,0.8)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>
-              Soffi.ai Crucible · Live feed · {speed === '1x' ? '1.8s' : speed === '2x' ? '0.9s' : '0.3s'} interval · synthetic demo
+              Crucible · Live feed · {speed === '1x' ? '1.8s' : speed === '2x' ? '0.9s' : '0.3s'} · synthetic demo
             </span>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
               {[
                 { label: 'Pass', color: '#34d399' },
                 { label: 'Fail', color: '#f87171' },
                 { label: 'Warn', color: '#fbbf24' },
               ].map(({ label, color }) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: color }} />
                   <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{label}</span>
                 </div>
@@ -1120,10 +961,54 @@ export function OverviewPage() {
             </div>
           </div>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontVariantNumeric: 'tabular-nums' }}>
-            {arrived.length} runs · {logEntries.length} log entries
+            {arrived.length} runs · {logEntries.length} logs
           </span>
         </div>
       </div>
+
+      {/* Responsive grid rules injected as a style tag to avoid Tailwind arbitrary-value limitations */}
+      <style>{`
+        .kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+        }
+        @media (min-width: 640px) {
+          .kpi-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+          .overview-body { padding: 16px 20px 40px; }
+        }
+        @media (min-width: 1024px) {
+          .kpi-grid { grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 1fr; gap: 10px; }
+          .overview-body { padding: 20px 24px 40px; }
+        }
+
+        .charts-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        @media (min-width: 1024px) {
+          .charts-grid { grid-template-columns: 2fr 0.7fr; }
+        }
+
+        .donuts-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        @media (min-width: 1024px) {
+          .donuts-grid { grid-template-columns: 1fr; }
+        }
+
+        .runs-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        @media (min-width: 768px) {
+          .runs-grid { grid-template-columns: 1.4fr 0.6fr; }
+        }
+      `}</style>
 
       <NotificationDrawer
         open={drawerOpen}

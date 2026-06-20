@@ -7,6 +7,7 @@ export interface AppShellProps {
   children: React.ReactNode
   sidebarOpen?: boolean
   onSidebarOpenChange?: (open: boolean) => void
+  sidebarCollapsed?: boolean
   className?: string
 }
 
@@ -16,6 +17,7 @@ export function AppShell({
   children,
   sidebarOpen = false,
   onSidebarOpenChange,
+  sidebarCollapsed = false,
   className,
 }: AppShellProps) {
   React.useEffect(() => {
@@ -44,8 +46,13 @@ export function AppShell({
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-(--color-border-subtle) bg-(--color-surface) shadow-(--shadow-lg) transition-transform duration-200 ease-out lg:static lg:z-auto lg:w-64 lg:shrink-0 lg:translate-x-0 lg:shadow-none',
+          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-(--color-border-subtle) bg-(--color-surface) shadow-(--shadow-lg) transition-[width,transform] duration-200 ease-out lg:static lg:z-auto lg:shrink-0 lg:shadow-none',
+          // mobile: slide in/out
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          // desktop: wide or narrow
+          sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
+          // mobile always full-width overlay
+          'w-72',
         )}
       >
         {sidebar}

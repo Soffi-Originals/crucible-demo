@@ -2,7 +2,7 @@ import * as React from 'react'
 import {
   Pause, Play, Zap, Activity, Bell, X, ChevronUp, ChevronDown,
   CheckCircle, XCircle, Timer, Users, Cpu, TrendingUp,
-  Save, Maximize2, Minimize2,
+  Save, Maximize2, Minimize2, GripVertical,
 } from 'lucide-react'
 import { type RunRecord } from '@/data/runHistory'
 import { useLiveFeed, type SpeedSetting } from '@/hooks/useLiveFeed'
@@ -140,15 +140,62 @@ function useRollingNumber(target: number, duration = 450) {
   return display
 }
 
+// ── KPI card definitions ──────────────────────────────────────────────────────
+type KpiId = 'passRate' | 'failures' | 'totalRuns' | 'avgDuration' | 'avgTokens' | 'activeAgents'
+
+const DEFAULT_KPI_ORDER: KpiId[] = [
+  'passRate', 'failures', 'totalRuns', 'avgDuration', 'avgTokens', 'activeAgents',
+]
+
+const STORAGE_KEY = 'crucible-kpi-order'
+
+function loadKpiOrder(): KpiId[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return DEFAULT_KPI_ORDER
+    const parsed = JSON.parse(raw) as KpiId[]
+    // Validate: must be a permutation of DEFAULT_KPI_ORDER
+    if (
+      Array.isArray(parsed) &&
+      parsed.length === DEFAULT_KPI_ORDER.length &&
+      DEFAULT_KPI_ORDER.every((id) => parsed.includes(id))
+    ) {
+      return parsed
+    }
+  } catch {
+    // ignore
+  }
+  return DEFAULT_KPI_ORDER
+}
+
+function saveKpiOrder(order: KpiId[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(order))
+  } catch {
+    // ignore
+  }
+}
+
 // ── glassmorphic KPI card ─────────────────────────────────────────────────────
 interface KpiProps {
   label: string; value: number; unit?: string; color: string
   icon: React.ReactNode; shake?: boolean; streak?: boolean
   sub?: string; trend?: 'up' | 'down' | null; hero?: boolean
   accentGradient?: string
+  // DnD props
+  dragging?: boolean
+  dragOver?: boolean
+  onDragStart?: (e: React.DragEvent) => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDragLeave?: (e: React.DragEvent) => void
+  onDrop?: (e: React.DragEvent) => void
+  onDragEnd?: (e: React.DragEvent) => void
 }
 
-function KpiCard({ label, value, unit, color, icon, shake, streak, sub, trend, hero, accentGradient }: KpiProps) {
+function KpiCard({
+  label, value, unit, color, icon, shake, streak, sub, trend, hero, accentGradient,
+  dragging, dragOver, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd,
+}: KpiProps) {
   const display = useRollingNumber(value)
   const [isShaking, setIsShaking] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
@@ -162,28 +209,61 @@ function KpiCard({ label, value, unit, color, icon, shake, streak, sub, trend, h
 
   return (
     <div
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         background: hero
           ? 'linear-gradient(135deg, rgba(22,26,35,0.9) 0%, rgba(16,20,28,0.95) 100%)'
           : 'linear-gradient(135deg, rgba(18,18,24,0.85) 0%, rgba(13,13,18,0.9) 100%)',
-        border: `1px solid ${hovered ? `${color}30` : hero ? `${color}20` : 'rgba(255,255,255,0.07)'}`,
+        border: dragOver
+          ? `1px solid ${color}80`
+          : `1px solid ${hovered ? `${color}30` : hero ? `${color}20` : 'rgba(255,255,255,0.07)'}`,
         borderRadius: 14,
         padding: hero ? '16px 18px' : '12px 14px',
         display: 'flex', flexDirection: 'column', gap: hero ? 8 : 5,
         position: 'relative', overflow: 'hidden',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        boxShadow: hovered
+        boxShadow: dragging
+          ? `0 20px 60px rgba(0,0,0,0.6), 0 0 0 2px ${color}40`
+          : dragOver
+          ? `0 0 0 2px ${color}40, 0 8px 32px rgba(0,0,0,0.4)`
+          : hovered
           ? `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px ${color}20, inset 0 1px 0 rgba(255,255,255,0.05)`
           : '0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04)',
-        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
-        transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+        transform: dragging
+          ? 'scale(1.03) rotate(1deg)'
+          : dragOver
+          ? 'scale(1.02)'
+          : hovered
+          ? 'translateY(-2px)'
+          : 'translateY(0)',
+        transition: dragging ? 'none' : 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
         animation: isShaking ? 'kpiShake 0.45s cubic-bezier(0.36,0.07,0.19,0.97)' : 'none',
-        cursor: 'default',
+        cursor: 'grab',
+        opacity: dragging ? 0.5 : 1,
+        outline: dragOver ? `2px dashed ${color}50` : 'none',
+        outlineOffset: dragOver ? '2px' : '0',
       }}
     >
+      {/* Drag handle — shows on hover */}
+      {hovered && !dragging && (
+        <div style={{
+          position: 'absolute', top: 7, right: 7,
+          color: 'rgba(255,255,255,0.2)',
+          display: 'flex', alignItems: 'center',
+          pointerEvents: 'none',
+        }}>
+          <GripVertical size={12} />
+        </div>
+      )}
+
       {/* Top accent line */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: hero ? 2 : 1,
@@ -347,7 +427,6 @@ function RunRow({ run, isNew, isSelected, onClick }: {
         transition: 'box-shadow 0.3s ease',
       }} />
 
-      {/* Scenario + id — takes remaining space */}
       <div style={{ minWidth: 0, flex: 1 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: hovered ? '#fafafa' : '#d4d4d4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', transition: 'color 0.15s' }}>
           {run.scenario}
@@ -360,13 +439,11 @@ function RunRow({ run, isNew, isSelected, onClick }: {
         </div>
       </div>
 
-      {/* Agent — hidden on very small screens */}
       <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 5 }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: agentColor, boxShadow: `0 0 5px ${agentColor}80`, flexShrink: 0 }} />
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{run.agent}</span>
       </div>
 
-      {/* Duration — hidden on very small screens */}
       <span className="hidden sm:inline" style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', textAlign: 'right', fontVariantNumeric: 'tabular-nums', minWidth: 36 }}>
         {run.durationMs > 0 ? `${(run.durationMs / 1000).toFixed(1)}s` : '—'}
       </span>
@@ -435,7 +512,6 @@ function Panel({ title, sub, children, action, accent, noPad }: PanelProps) {
         position: 'relative', overflow: 'hidden',
       }}
     >
-      {/* Top accent */}
       {accent && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: accent, opacity: hovered ? 0.8 : 0.4, transition: 'opacity 0.3s' }} />
       )}
@@ -452,6 +528,63 @@ function Panel({ title, sub, children, action, accent, noPad }: PanelProps) {
       ) : children}
     </div>
   )
+}
+
+// ── useDragOrder hook ─────────────────────────────────────────────────────────
+function useDragOrder(initial: KpiId[]) {
+  const [order, setOrder] = React.useState<KpiId[]>(initial)
+  const dragIdRef = React.useRef<KpiId | null>(null)
+  const [draggingId, setDraggingId] = React.useState<KpiId | null>(null)
+  const [overIndex, setOverIndex] = React.useState<number | null>(null)
+
+  const handlers = React.useCallback((id: KpiId, index: number) => ({
+    onDragStart: (e: React.DragEvent) => {
+      dragIdRef.current = id
+      setDraggingId(id)
+      e.dataTransfer.effectAllowed = 'move'
+      // Firefox requires data to be set
+      e.dataTransfer.setData('text/plain', id)
+    },
+    onDragOver: (e: React.DragEvent) => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      setOverIndex(index)
+    },
+    onDragLeave: (_e: React.DragEvent) => {
+      setOverIndex(null)
+    },
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault()
+      const fromId = dragIdRef.current
+      if (!fromId || fromId === id) {
+        setOverIndex(null)
+        return
+      }
+      setOrder((prev) => {
+        const next = [...prev]
+        const fromIdx = next.indexOf(fromId)
+        const toIdx = next.indexOf(id)
+        if (fromIdx === -1 || toIdx === -1) return prev
+        next.splice(fromIdx, 1)
+        next.splice(toIdx, 0, fromId)
+        saveKpiOrder(next)
+        return next
+      })
+      setOverIndex(null)
+    },
+    onDragEnd: (_e: React.DragEvent) => {
+      dragIdRef.current = null
+      setDraggingId(null)
+      setOverIndex(null)
+    },
+  }), [])
+
+  const resetOrder = React.useCallback(() => {
+    setOrder(DEFAULT_KPI_ORDER)
+    saveKpiOrder(DEFAULT_KPI_ORDER)
+  }, [])
+
+  return { order, draggingId, overIndex, handlers, resetOrder }
 }
 
 // ── main ──────────────────────────────────────────────────────────────────────
@@ -477,6 +610,11 @@ export function OverviewPage() {
   const [logsExpanded, setLogsExpanded] = React.useState(false)
   const [savedLayout,  setSavedLayout]  = React.useState(false)
   const prevLengthRef = React.useRef(0)
+
+  // KPI drag-and-drop order
+  const { order: kpiOrder, draggingId, overIndex, handlers: kpiHandlers, resetOrder } = useDragOrder(
+    React.useMemo(() => loadKpiOrder(), []),
+  )
 
   // 1-second time series refresh
   React.useEffect(() => {
@@ -557,6 +695,66 @@ export function OverviewPage() {
   const isPaused   = !isPlaying
   const unread     = notifications.filter((n) => !n.read).length
 
+  // KPI card render map
+  const passRateColor = passRatePct >= 80 ? '#34d399' : passRatePct >= 60 ? '#fbbf24' : '#f87171'
+
+  const kpiCards: Record<KpiId, React.ReactNode> = {
+    passRate: (
+      <KpiCard
+        label="Pass rate" value={passRatePct} unit="%"
+        color={passRateColor}
+        icon={<CheckCircle size={12} />}
+        streak={streakCount >= 3}
+        sub={totalFin > 0 ? `${passCount} passed · ${failCount} failed` : 'no finished runs yet'}
+        trend={passRatePct >= 80 ? 'up' : passRatePct < 60 && totalFin > 0 ? 'down' : null}
+        hero
+        accentGradient={`linear-gradient(90deg, transparent, ${passRateColor}80, transparent)`}
+      />
+    ),
+    failures: (
+      <KpiCard
+        label="Failures" value={failCount}
+        color={failCount > 0 ? '#f87171' : 'rgba(255,255,255,0.4)'}
+        icon={<XCircle size={12} />}
+        shake={shakeKey > 0}
+        sub={totalFin > 0 ? `${Math.round((failCount / totalFin) * 100)}% fail rate` : 'none yet'}
+        trend={failCount > 5 ? 'down' : null}
+      />
+    ),
+    totalRuns: (
+      <KpiCard
+        label="Total runs" value={filtered.length}
+        color="#e2e8f0"
+        icon={<TrendingUp size={12} />}
+        sub={hasFilter ? `of ${arrived.length} total` : `${arrived.length} in feed`}
+      />
+    ),
+    avgDuration: (
+      <KpiCard
+        label="Avg duration" value={Math.round(avgDurS * 10) / 10} unit="s"
+        color="#60a5fa"
+        icon={<Timer size={12} />}
+        sub="across finished runs"
+      />
+    ),
+    avgTokens: (
+      <KpiCard
+        label="Avg tokens" value={avgTokens}
+        color="#a78bfa"
+        icon={<Cpu size={12} />}
+        sub={`${totalTokens.toLocaleString()} total`}
+      />
+    ),
+    activeAgents: (
+      <KpiCard
+        label="Active agents" value={agentSegs.length}
+        color="#fbbf24"
+        icon={<Users size={12} />}
+        sub="with runs in feed"
+      />
+    ),
+  }
+
   return (
     <>
       <style>{`
@@ -590,7 +788,6 @@ export function OverviewPage() {
 
       <FailureRipple trigger={failRipple} />
 
-      {/* Ludicrous mode glow */}
       {isLudicrous && (
         <div style={{
           position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 400,
@@ -600,7 +797,6 @@ export function OverviewPage() {
         }} />
       )}
 
-      {/* Subtle grid background */}
       <div style={{
         position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
         backgroundImage: `
@@ -626,7 +822,6 @@ export function OverviewPage() {
           position: 'sticky', top: 0, zIndex: 300, flexShrink: 0,
           boxShadow: '0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.4)',
         }}>
-          {/* Status row — always visible */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44, gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isPlaying ? '#34d399' : 'rgba(255,255,255,0.25)', boxShadow: isPlaying ? '0 0 8px #34d399' : 'none', animation: isPlaying ? 'pulseGlow 2s ease-in-out infinite' : 'none', flexShrink: 0 }} />
@@ -709,50 +904,59 @@ export function OverviewPage() {
         {/* ══ BODY ══ */}
         <div className="overview-body" style={{ flex: 1, padding: '14px 12px 40px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-          {/* ── KPI STRIP: 2 cols on mobile, 3 on sm, 6 on lg ── */}
-          <div className="kpi-grid" style={{ animation: 'fadeSlideIn 0.4s ease' }}>
-            <KpiCard
-              label="Pass rate" value={passRatePct} unit="%"
-              color={passRatePct >= 80 ? '#34d399' : passRatePct >= 60 ? '#fbbf24' : '#f87171'}
-              icon={<CheckCircle size={12} />}
-              streak={streakCount >= 3}
-              sub={totalFin > 0 ? `${passCount} passed · ${failCount} failed` : 'no finished runs yet'}
-              trend={passRatePct >= 80 ? 'up' : passRatePct < 60 && totalFin > 0 ? 'down' : null}
-              hero
-              accentGradient={`linear-gradient(90deg, transparent, ${passRatePct >= 80 ? '#34d399' : passRatePct >= 60 ? '#fbbf24' : '#f87171'}80, transparent)`}
-            />
-            <KpiCard
-              label="Failures" value={failCount}
-              color={failCount > 0 ? '#f87171' : 'rgba(255,255,255,0.4)'}
-              icon={<XCircle size={12} />}
-              shake={shakeKey > 0}
-              sub={totalFin > 0 ? `${Math.round((failCount / totalFin) * 100)}% fail rate` : 'none yet'}
-              trend={failCount > 5 ? 'down' : null}
-            />
-            <KpiCard
-              label="Total runs" value={filtered.length}
-              color="#e2e8f0"
-              icon={<TrendingUp size={12} />}
-              sub={hasFilter ? `of ${arrived.length} total` : `${arrived.length} in feed`}
-            />
-            <KpiCard
-              label="Avg duration" value={Math.round(avgDurS * 10) / 10} unit="s"
-              color="#60a5fa"
-              icon={<Timer size={12} />}
-              sub="across finished runs"
-            />
-            <KpiCard
-              label="Avg tokens" value={avgTokens}
-              color="#a78bfa"
-              icon={<Cpu size={12} />}
-              sub={`${totalTokens.toLocaleString()} total`}
-            />
-            <KpiCard
-              label="Active agents" value={agentSegs.length}
-              color="#fbbf24"
-              icon={<Users size={12} />}
-              sub="with runs in feed"
-            />
+          {/* ── KPI STRIP with drag-and-drop ── */}
+          <div>
+            {/* Section header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)' }}>
+                  Key metrics
+                </span>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.14)', fontWeight: 500 }}>
+                  drag to reorder
+                </span>
+              </div>
+              {/* Reset button — only shown when order differs from default */}
+              {kpiOrder.join(',') !== DEFAULT_KPI_ORDER.join(',') && (
+                <button
+                  type="button"
+                  onClick={resetOrder}
+                  style={{
+                    padding: '3px 9px', borderRadius: 6, cursor: 'pointer',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'rgba(255,255,255,0.03)',
+                    color: 'rgba(255,255,255,0.3)',
+                    fontSize: 10, fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  Reset order
+                </button>
+              )}
+            </div>
+
+            {/* KPI grid */}
+            <div className="kpi-grid" style={{ animation: 'fadeSlideIn 0.4s ease' }}>
+              {kpiOrder.map((id, index) => {
+                const h = kpiHandlers(id, index)
+                const isDragging = draggingId === id
+                const isOver = overIndex === index && draggingId !== null && draggingId !== id
+
+                // Clone the card element to inject DnD + state props
+                const card = kpiCards[id] as React.ReactElement<KpiProps>
+                return React.cloneElement(card, {
+                  key: id,
+                  dragging: isDragging,
+                  dragOver: isOver,
+                  onDragStart: h.onDragStart,
+                  onDragOver: h.onDragOver,
+                  onDragLeave: h.onDragLeave,
+                  onDrop: h.onDrop,
+                  onDragEnd: h.onDragEnd,
+                })
+              })}
+            </div>
           </div>
 
           {/* ── FILTER CHIPS ── */}
@@ -787,7 +991,7 @@ export function OverviewPage() {
             </div>
           )}
 
-          {/* ── HEATMAP + DONUTS: stack on mobile, side by side on lg ── */}
+          {/* ── HEATMAP + DONUTS ── */}
           <div className="charts-grid">
             <Panel
               title="Agent × Scenario heatmap"
@@ -806,7 +1010,6 @@ export function OverviewPage() {
               )}
             </Panel>
 
-            {/* Donuts: row on mobile, column on lg */}
             <div className="donuts-grid">
               <Panel
                 title="By status"
@@ -852,7 +1055,6 @@ export function OverviewPage() {
           </Panel>
 
           {/* ── RUNS TABLE + HEALTH ── */}
-          {/* On mobile: full-width runs list, detail panel stacks below when open */}
           <div className="runs-grid" style={{ transition: 'all 0.3s ease' }}>
             <Panel
               title={`Runs${hasFilter && filtered.length !== arrived.length ? ` · ${filtered.length} of ${arrived.length}` : ''}`}
@@ -860,7 +1062,6 @@ export function OverviewPage() {
               accent="linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)"
               noPad
             >
-              {/* Header row — hide agent/dur cols on mobile */}
               <div style={{
                 display: 'flex', alignItems: 'center',
                 gap: 8, padding: '12px 12px 8px',
@@ -966,7 +1167,7 @@ export function OverviewPage() {
         </div>
       </div>
 
-      {/* Responsive grid rules injected as a style tag to avoid Tailwind arbitrary-value limitations */}
+      {/* Responsive grid rules */}
       <style>{`
         .kpi-grid {
           display: grid;

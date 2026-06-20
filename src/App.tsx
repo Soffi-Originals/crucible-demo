@@ -30,9 +30,18 @@ const pageMeta: Record<
   plans: { title: 'Plans & billing' },
 }
 
+function getInitialCollapsed(): boolean {
+  try {
+    return localStorage.getItem('crucible-sidebar-collapsed') === 'true'
+  } catch {
+    return false
+  }
+}
+
 function App() {
   const [page, setPage] = useState<PageId>('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(getInitialCollapsed)
   const { theme, toggle } = useTheme()
 
   const handleNavigate = (id: PageId) => {
@@ -40,15 +49,27 @@ function App() {
     setSidebarOpen(false)
   }
 
+  const handleCollapsedChange = (collapsed: boolean) => {
+    setSidebarCollapsed(collapsed)
+    try {
+      localStorage.setItem('crucible-sidebar-collapsed', String(collapsed))
+    } catch {
+      // ignore
+    }
+  }
+
   return (
     <AppShell
       sidebarOpen={sidebarOpen}
       onSidebarOpenChange={setSidebarOpen}
+      sidebarCollapsed={sidebarCollapsed}
       sidebar={
         <Sidebar
           current={page}
           onNavigate={handleNavigate}
           onClose={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
+          onCollapsedChange={handleCollapsedChange}
         />
       }
       header={

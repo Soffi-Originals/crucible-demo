@@ -35,31 +35,38 @@ export function AppShell({
         className,
       )}
     >
+      {/* Mobile overlay */}
       {sidebarOpen ? (
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-20 bg-black/40 backdrop-blur-sm lg:hidden"
           onClick={() => onSidebarOpenChange?.(false)}
         />
       ) : null}
 
+      {/* Sidebar — always dark slate */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-(--color-border-subtle) bg-(--color-surface) shadow-(--shadow-lg) transition-[width,transform] duration-200 ease-out lg:static lg:z-auto lg:shrink-0 lg:shadow-none',
-          // mobile: slide in/out
+          'fixed inset-y-0 left-0 z-30 flex flex-col transition-[width,transform] duration-200 ease-out lg:static lg:z-auto lg:shrink-0',
+          // Mobile: slide in/out
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          // desktop: wide or narrow
+          // Desktop width
           sidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
-          // mobile always full-width overlay
+          // Mobile always full-width overlay
           'w-72',
         )}
+        style={{ backgroundColor: 'var(--color-sidebar-bg)' }}
       >
         {sidebar}
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b border-(--color-border-subtle) bg-(--color-surface) px-4 sm:px-6">
+      {/* Main content */}
+      <main className="flex min-w-0 flex-1 flex-col bg-(--color-canvas)">
+        <header
+          className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b border-(--color-border) bg-(--color-surface) px-4 sm:px-6"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+        >
           {header}
         </header>
         <div className="flex-1 overflow-auto">{children}</div>

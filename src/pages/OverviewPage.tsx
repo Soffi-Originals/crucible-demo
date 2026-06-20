@@ -2,7 +2,7 @@ import * as React from 'react'
 import {
   ArrowDown, ArrowUp, CheckCircle2, Clock, GripVertical,
   Pause, Play, RotateCcw, Users, Zap, XCircle, Activity,
-  TrendingUp, AlertTriangle,
+  TrendingUp, AlertTriangle, Filter,
 } from 'lucide-react'
 import { type RunRecord } from '@/data/runHistory'
 import { useLiveFeed } from '@/hooks/useLiveFeed'
@@ -14,6 +14,7 @@ import { LogsExplorer, type LogEntry } from '@/components/views/LogsExplorer'
 // ── constants ─────────────────────────────────────────────────────────────────
 
 const AGENTS = ['Navigator', 'Explorer', 'Pioneer', 'Voyager'] as const
+
 const SCENARIOS = ['Refund', 'Renewal', 'Escalation', 'Onboarding', 'Qualify'] as const
 
 const AGENT_COLOR: Record<string, string> = {
@@ -34,11 +35,11 @@ const AGENT_INITIALS: Record<string, string> = {
 
 function categorize(scenario: string): string {
   const s = scenario.toLowerCase()
-  if (s.startsWith('refund'))    return 'Refund'
-  if (s.startsWith('renewal'))   return 'Renewal'
-  if (s.startsWith('escalat'))   return 'Escalation'
-  if (s.startsWith('onboard'))   return 'Onboarding'
-  if (s.startsWith('qualify'))   return 'Qualify'
+  if (s.startsWith('refund'))   return 'Refund'
+  if (s.startsWith('renewal'))  return 'Renewal'
+  if (s.startsWith('escalat'))  return 'Escalation'
+  if (s.startsWith('onboard'))  return 'Onboarding'
+  if (s.startsWith('qualify'))  return 'Qualify'
   return 'Other'
 }
 
@@ -182,42 +183,60 @@ function KpiCard({
       {...bindProps}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative overflow-hidden rounded-2xl bg-white p-5 transition-all duration-200 select-none"
+      className="relative overflow-hidden rounded-2xl bg-white select-none"
       style={{
-        border: dragOver ? '2px dashed #10B981' : '1px solid #E2E8F0',
+        border: dragOver ? '2px dashed #10B981' : '1px solid #E8EDF2',
         boxShadow: dragging
-          ? '0 16px 40px rgba(0,0,0,0.14)'
+          ? '0 20px 48px rgba(15,23,42,0.16)'
           : hovered
-          ? '0 6px 20px rgba(15,23,42,0.09)'
-          : '0 1px 3px rgba(15,23,42,0.06)',
-        transform: dragging ? 'scale(1.04) rotate(0.6deg)' : dragOver ? 'scale(1.01)' : 'none',
-        opacity: dragging ? 0.55 : 1,
+          ? '0 8px 24px rgba(15,23,42,0.10)'
+          : '0 2px 8px rgba(15,23,42,0.06)',
+        transform: dragging ? 'scale(1.04) rotate(0.8deg)' : dragOver ? 'scale(1.02)' : 'none',
+        opacity: dragging ? 0.5 : 1,
         cursor: 'grab',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+        padding: '18px 20px',
       }}
     >
+      {/* Grip handle */}
       {hovered && !dragging && (
-        <div className="absolute right-3 top-3">
-          <GripVertical className="h-3.5 w-3.5 text-slate-300" />
+        <div className="absolute right-3 top-3 opacity-40">
+          <GripVertical className="h-3.5 w-3.5 text-slate-400" />
         </div>
       )}
 
       <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">{label}</p>
-          <p className="text-3xl font-extrabold leading-none tabular-nums text-slate-900">{shown}</p>
+        <div className="flex flex-col gap-2.5 min-w-0">
+          <p
+            className="text-xs font-bold uppercase tracking-widest"
+            style={{ color: '#6B7280', letterSpacing: '0.08em' }}
+          >
+            {label}
+          </p>
+          <p
+            className="text-3xl font-extrabold leading-none tabular-nums"
+            style={{ color: '#111827' }}
+          >
+            {shown}
+          </p>
           {trend && trendLabel && (
-            <div className={`flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
-              (trend === 'up') === trendGood
-                ? 'bg-emerald-50 text-emerald-600'
-                : 'bg-red-50 text-red-500'
-            }`}>
-              {trend === 'up' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+            <div
+              className="flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
+              style={{
+                backgroundColor: (trend === 'up') === trendGood ? '#ECFDF5' : '#FEF2F2',
+                color: (trend === 'up') === trendGood ? '#059669' : '#DC2626',
+              }}
+            >
+              {trend === 'up'
+                ? <ArrowUp className="h-3 w-3" />
+                : <ArrowDown className="h-3 w-3" />}
               {trendLabel}
             </div>
           )}
         </div>
+
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
           style={{ backgroundColor: iconBg }}
         >
           <span style={{ color: iconColor }}>{icon}</span>
@@ -227,38 +246,77 @@ function KpiCard({
   )
 }
 
-// ── Section wrapper ───────────────────────────────────────────────────────────
+// ── Card shell ────────────────────────────────────────────────────────────────
 
-function Section({
-  title, subtitle, right, children, dark = false,
+function Card({
+  title,
+  subtitle,
+  right,
+  children,
+  noPad = false,
 }: {
   title: string
   subtitle?: string
   right?: React.ReactNode
   children: React.ReactNode
-  dark?: boolean
+  noPad?: boolean
+}) {
+  return (
+    <div
+      className="overflow-hidden rounded-2xl bg-white"
+      style={{
+        border: '1px solid #E8EDF2',
+        boxShadow: '0 2px 8px rgba(15,23,42,0.06)',
+      }}
+    >
+      <div
+        className="flex items-start justify-between gap-4 px-5 py-4"
+        style={{ borderBottom: '1px solid #F1F5F9' }}
+      >
+        <div>
+          <h3 className="text-sm font-bold" style={{ color: '#111827' }}>{title}</h3>
+          {subtitle && (
+            <p className="mt-0.5 text-xs" style={{ color: '#9CA3AF' }}>{subtitle}</p>
+          )}
+        </div>
+        {right && <div className="flex shrink-0 items-center gap-2">{right}</div>}
+      </div>
+      <div className={noPad ? '' : 'p-5'}>{children}</div>
+    </div>
+  )
+}
+
+// ── Dark card shell (for components with baked-in dark styling) ───────────────
+
+function DarkCard({
+  title,
+  subtitle,
+  right,
+  children,
+}: {
+  title: string
+  subtitle?: string
+  right?: React.ReactNode
+  children: React.ReactNode
 }) {
   return (
     <div
       className="overflow-hidden rounded-2xl"
       style={{
-        background: dark ? '#0F1117' : 'white',
-        border: dark ? '1px solid rgba(255,255,255,0.07)' : '1px solid #E2E8F0',
-        boxShadow: dark
-          ? '0 4px 20px rgba(0,0,0,0.25)'
-          : '0 1px 3px rgba(15,23,42,0.06)',
+        background: '#0F1117',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
       }}
     >
+      {/* Header with light styling so it reads well */}
       <div
         className="flex items-start justify-between gap-4 px-5 py-4"
-        style={{
-          borderBottom: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F1F5F9',
-        }}
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
       >
         <div>
-          <h3 className={`text-sm font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
+          <h3 className="text-sm font-bold text-white">{title}</h3>
           {subtitle && (
-            <p className={`mt-0.5 text-xs ${dark ? 'text-slate-500' : 'text-slate-400'}`}>{subtitle}</p>
+            <p className="mt-0.5 text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{subtitle}</p>
           )}
         </div>
         {right && <div className="flex shrink-0 items-center gap-2">{right}</div>}
@@ -270,14 +328,19 @@ function Section({
 
 // ── Live pulse dot ────────────────────────────────────────────────────────────
 
-function LiveDot() {
+function LiveDot({ dark = false }: { dark?: boolean }) {
   return (
     <div className="flex items-center gap-1.5">
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
       </span>
-      <span className="text-xs font-semibold text-emerald-600">Live</span>
+      <span
+        className="text-xs font-semibold"
+        style={{ color: dark ? '#34D399' : '#059669' }}
+      >
+        Live
+      </span>
     </div>
   )
 }
@@ -285,18 +348,18 @@ function LiveDot() {
 // ── Status badge ──────────────────────────────────────────────────────────────
 
 function StatusPill({ status }: { status: string }) {
-  const styles: Record<string, { bg: string; color: string }> = {
-    passed:    { bg: '#D1FAE5', color: '#059669' },
-    failed:    { bg: '#FEE2E2', color: '#DC2626' },
-    running:   { bg: '#DBEAFE', color: '#1D4ED8' },
-    queued:    { bg: '#FEF3C7', color: '#B45309' },
-    cancelled: { bg: '#F1F5F9', color: '#64748B' },
+  const styles: Record<string, { bg: string; color: string; border: string }> = {
+    passed:    { bg: '#ECFDF5', color: '#059669', border: '#A7F3D0' },
+    failed:    { bg: '#FEF2F2', color: '#DC2626', border: '#FECACA' },
+    running:   { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
+    queued:    { bg: '#FFFBEB', color: '#B45309', border: '#FDE68A' },
+    cancelled: { bg: '#F8FAFC', color: '#64748B', border: '#E2E8F0' },
   }
   const s = styles[status] ?? styles.cancelled
   return (
     <span
-      className="rounded-full px-2 py-0.5 text-xs font-semibold"
-      style={{ backgroundColor: s.bg, color: s.color }}
+      className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
+      style={{ backgroundColor: s.bg, color: s.color, border: `1px solid ${s.border}` }}
     >
       {status}
     </span>
@@ -311,52 +374,62 @@ function AgentHealthBar({
   agent: string; passed: number; failed: number; total: number; color: string
 }) {
   const rate = total > 0 ? Math.round((passed / total) * 100) : 0
-  const failing = total > 0 ? Math.round((failed / total) * 100) : 0
+  const failPct = total > 0 ? Math.round((failed / total) * 100) : 0
+  const statusColor = rate >= 80 ? '#10B981' : rate >= 60 ? '#F59E0B' : '#EF4444'
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-white p-4">
+    <div
+      className="flex flex-col gap-2.5 rounded-xl p-4"
+      style={{ background: '#F8FAFC', border: '1px solid #E8EDF2' }}
+    >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
             style={{ backgroundColor: color }}
           >
             {AGENT_INITIALS[agent] ?? agent[0]}
           </div>
-          <span className="text-sm font-semibold text-slate-800">{agent}</span>
+          <span className="text-sm font-semibold" style={{ color: '#111827' }}>{agent}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold tabular-nums text-slate-700">{rate}%</span>
+          <span className="text-sm font-bold tabular-nums" style={{ color: statusColor }}>
+            {rate}%
+          </span>
           <div
             className="h-2 w-2 rounded-full"
             style={{
-              backgroundColor: rate >= 80 ? '#10B981' : rate >= 60 ? '#F59E0B' : '#EF4444',
-              boxShadow: `0 0 5px ${rate >= 80 ? 'rgba(16,185,129,0.5)' : rate >= 60 ? 'rgba(245,158,11,0.5)' : 'rgba(239,68,68,0.5)'}`,
+              backgroundColor: statusColor,
+              boxShadow: `0 0 6px ${statusColor}88`,
             }}
           />
         </div>
       </div>
 
       {/* Stacked bar */}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+      <div className="h-2.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: '#E5E7EB' }}>
         <div className="flex h-full">
           <div
             className="h-full transition-all duration-700"
             style={{ width: `${rate}%`, backgroundColor: color }}
           />
-          {failing > 0 && (
+          {failPct > 0 && (
             <div
               className="h-full transition-all duration-700"
-              style={{ width: `${failing}%`, backgroundColor: '#FCA5A5' }}
+              style={{ width: `${failPct}%`, backgroundColor: '#FCA5A5' }}
             />
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-slate-400">
-        <span className="tabular-nums"><span className="font-semibold text-emerald-600">{passed}</span> passed</span>
-        <span className="tabular-nums"><span className="font-semibold text-red-500">{failed}</span> failed</span>
-        <span className="tabular-nums text-slate-300">{total} total</span>
+      <div className="flex items-center gap-4 text-xs">
+        <span style={{ color: '#6B7280' }}>
+          <span className="font-semibold" style={{ color: '#059669' }}>{passed}</span> passed
+        </span>
+        <span style={{ color: '#6B7280' }}>
+          <span className="font-semibold" style={{ color: '#DC2626' }}>{failed}</span> failed
+        </span>
+        <span className="ml-auto font-medium" style={{ color: '#9CA3AF' }}>{total} total</span>
       </div>
     </div>
   )
@@ -413,7 +486,7 @@ function toLogEntry(r: RunRecord): LogEntry {
   const level: LogEntry['level'] =
     r.status === 'failed' ? 'error' :
     r.status === 'cancelled' ? 'warn' :
-    r.status === 'running' || r.status === 'queued' ? 'info' : 'info'
+    'info'
 
   const message =
     r.status === 'passed'    ? `[done] ${r.scenario} — passed in ${fmtMs(r.durationMs)}` :
@@ -438,12 +511,28 @@ function toLogEntry(r: RunRecord): LogEntry {
   }
 }
 
+// ── Section label ─────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <div className="h-3.5 w-0.5 rounded-full" style={{ backgroundColor: '#10B981' }} />
+      <span
+        className="text-xs font-bold uppercase tracking-widest"
+        style={{ color: '#6B7280' }}
+      >
+        {children}
+      </span>
+    </div>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function OverviewPage() {
   const { arrived, isPlaying, speed, setSpeed, togglePlay } = useLiveFeed()
 
-  // Track newest run for highlights
+  // Newest run highlight
   const [newestId, setNewestId] = React.useState<string | null>(null)
   const prevLen = React.useRef(0)
   React.useEffect(() => {
@@ -454,7 +543,7 @@ export function OverviewPage() {
     return () => clearTimeout(t)
   }, [arrived.length])
 
-  // Heatmap flash key for newest run
+  // Heatmap flash key
   const heatFlashKey = React.useMemo(() => {
     if (!arrived[0] || arrived[0].runId !== newestId) return null
     const col = categorize(arrived[0].scenario)
@@ -468,14 +557,14 @@ export function OverviewPage() {
   const [heatRow, setHeatRow] = React.useState<string | null>(null)
   const [heatCol, setHeatCol] = React.useState<string | null>(null)
 
-  // Donut filter
+  // Donut filters
   const [activeStatusKey, setActiveStatusKey] = React.useState<string | null>(null)
   const [activeAgentKey, setActiveAgentKey] = React.useState<string | null>(null)
 
   // Derived stats
-  const total = arrived.length
-  const passed = arrived.filter((r) => r.status === 'passed').length
-  const failed = arrived.filter((r) => r.status === 'failed').length
+  const total   = arrived.length
+  const passed  = arrived.filter((r) => r.status === 'passed').length
+  const failed  = arrived.filter((r) => r.status === 'failed').length
   const running = arrived.filter((r) => r.status === 'running' || r.status === 'queued').length
   const passRate = total > 0 ? Math.round((passed / total) * 100) : 0
 
@@ -497,7 +586,7 @@ export function OverviewPage() {
     return new Set(arrived.filter((r) => r.status === 'running').map((r) => r.agent)).size
   }, [arrived])
 
-  // Per-agent stats for health bars
+  // Per-agent stats
   const agentStats = React.useMemo(() => {
     return AGENTS.map((agent) => {
       const runs = arrived.filter((r) => r.agent === agent)
@@ -510,15 +599,15 @@ export function OverviewPage() {
   // Time series
   const timePoints = React.useMemo(() => buildTimeSeries(arrived), [arrived])
 
-  // Heatmap
+  // Heatmap cells
   const heatCells = React.useMemo(() => buildHeatCells(arrived), [arrived])
 
   // Donut slices
   const statusSlices = [
-    { key: 'passed',  label: 'Passed',   value: passed,  color: '#10B981' },
-    { key: 'failed',  label: 'Failed',   value: failed,  color: '#EF4444' },
-    { key: 'running', label: 'Running',  value: running, color: '#3B82F6' },
-    { key: 'other',   label: 'Other',    value: Math.max(0, total - passed - failed - running), color: '#94A3B8' },
+    { key: 'passed',  label: 'Passed',  value: passed,  color: '#10B981' },
+    { key: 'failed',  label: 'Failed',  value: failed,  color: '#EF4444' },
+    { key: 'running', label: 'Running', value: running, color: '#3B82F6' },
+    { key: 'other',   label: 'Other',   value: Math.max(0, total - passed - failed - running), color: '#94A3B8' },
   ].filter((s) => s.value > 0)
 
   const agentSlices = AGENTS.map((agent) => ({
@@ -529,10 +618,7 @@ export function OverviewPage() {
   })).filter((s) => s.value > 0)
 
   // Log entries
-  const logEntries = React.useMemo(
-    () => arrived.map(toLogEntry),
-    [arrived],
-  )
+  const logEntries = React.useMemo(() => arrived.map(toLogEntry), [arrived])
 
   // KPI drag-and-drop
   const kpiInit = React.useMemo(() => loadOrder(), [])
@@ -555,7 +641,7 @@ export function OverviewPage() {
       rawValue: passRate,
       display: `${passRate}%`,
       icon: <CheckCircle2 className="h-5 w-5" />,
-      iconBg: '#D1FAE5',
+      iconBg: '#ECFDF5',
       iconColor: '#059669',
       trend: passRate >= 80 ? 'up' : 'down',
       trendLabel: passRate >= 80 ? 'On target' : 'Below target',
@@ -565,7 +651,7 @@ export function OverviewPage() {
       label: 'Failures',
       rawValue: failed,
       icon: <XCircle className="h-5 w-5" />,
-      iconBg: '#FEE2E2',
+      iconBg: '#FEF2F2',
       iconColor: '#DC2626',
       trend: failed > 5 ? 'up' : undefined,
       trendLabel: failed > 5 ? `${failed} failures` : undefined,
@@ -575,10 +661,10 @@ export function OverviewPage() {
       label: 'Total Runs',
       rawValue: total,
       icon: <Activity className="h-5 w-5" />,
-      iconBg: '#EDE9FE',
+      iconBg: '#F5F3FF',
       iconColor: '#7C3AED',
       trend: total > 0 ? 'up' : undefined,
-      trendLabel: total > 0 ? `${running} running` : undefined,
+      trendLabel: total > 0 ? `${running} active` : undefined,
       trendGood: true,
     },
     avgDuration: {
@@ -586,7 +672,7 @@ export function OverviewPage() {
       rawValue: Math.round(avgDur / 100),
       display: fmtMs(avgDur),
       icon: <Clock className="h-5 w-5" />,
-      iconBg: '#DBEAFE',
+      iconBg: '#EFF6FF',
       iconColor: '#1D4ED8',
     },
     avgTokens: {
@@ -594,15 +680,15 @@ export function OverviewPage() {
       rawValue: Math.round(avgTokens / 10),
       display: avgTokens > 0 ? fmtK(avgTokens) : '—',
       icon: <Zap className="h-5 w-5" />,
-      iconBg: '#FEF3C7',
+      iconBg: '#FFFBEB',
       iconColor: '#B45309',
     },
     activeAgents: {
       label: 'Active Agents',
       rawValue: activeAgentCount,
       icon: <Users className="h-5 w-5" />,
-      iconBg: '#F0FDF4',
-      iconColor: '#15803D',
+      iconBg: '#ECFDF5',
+      iconColor: '#059669',
       trend: activeAgentCount > 0 ? 'up' : undefined,
       trendLabel: activeAgentCount > 0 ? `${activeAgentCount} live` : undefined,
       trendGood: true,
@@ -610,29 +696,34 @@ export function OverviewPage() {
   }
 
   return (
-    <div className="min-h-full bg-slate-50/60 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-full px-5 py-6 sm:px-7 lg:px-8" style={{ background: '#F8FAFC' }}>
 
-      {/* ── Page header ─────────────────────────────────────────────────── */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      {/* ── Page header ──────────────────────────────────────────────────── */}
+      <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900">Dashboard</h2>
-          <p className="mt-0.5 text-sm text-slate-400">
+          <h2 className="text-xl font-extrabold" style={{ color: '#111827' }}>
+            Dashboard
+          </h2>
+          <p className="mt-0.5 text-sm" style={{ color: '#6B7280' }}>
             Realtime agent evaluation — pass rates, failures, and run activity.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Speed selector */}
-          <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1">
+          <div
+            className="flex items-center gap-1 rounded-xl p-1"
+            style={{ background: 'white', border: '1px solid #E5E7EB' }}
+          >
             {(['1x', '2x', 'ludicrous'] as const).map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setSpeed(s)}
-                className="rounded-lg px-2.5 py-1 text-xs font-semibold transition-all"
+                className="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all"
                 style={{
                   backgroundColor: speed === s ? '#10B981' : 'transparent',
-                  color: speed === s ? 'white' : '#94A3B8',
+                  color: speed === s ? 'white' : '#9CA3AF',
                 }}
               >
                 {s}
@@ -644,21 +735,27 @@ export function OverviewPage() {
             <button
               type="button"
               onClick={kpiReset}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm transition-colors hover:bg-slate-50"
+              className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-slate-100"
+              style={{
+                background: 'white',
+                border: '1px solid #E5E7EB',
+                color: '#6B7280',
+                boxShadow: '0 1px 3px rgba(15,23,42,0.06)',
+              }}
             >
-              <RotateCcw className="h-3 w-3" /> Reset
+              <RotateCcw className="h-3 w-3" /> Reset order
             </button>
           )}
 
           <button
             type="button"
             onClick={togglePlay}
-            className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all"
+            className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all"
             style={{
               background: isPlaying
-                ? 'linear-gradient(135deg,#10B981,#059669)'
-                : 'linear-gradient(135deg,#64748B,#475569)',
-              boxShadow: isPlaying ? '0 4px 14px rgba(16,185,129,0.35)' : 'none',
+                ? 'linear-gradient(135deg, #10B981, #059669)'
+                : 'linear-gradient(135deg, #6B7280, #4B5563)',
+              boxShadow: isPlaying ? '0 4px 16px rgba(16,185,129,0.35)' : '0 2px 8px rgba(0,0,0,0.1)',
             }}
           >
             {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -667,12 +764,9 @@ export function OverviewPage() {
         </div>
       </div>
 
-      {/* ── KPI strip ───────────────────────────────────────────────────── */}
-      <div className="mb-1.5 flex items-center gap-2">
-        <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Key Metrics</span>
-        <span className="text-xs text-slate-300">· drag to reorder</span>
-      </div>
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      {/* ── KPI strip ────────────────────────────────────────────────────── */}
+      <SectionLabel>Key Metrics · drag to reorder</SectionLabel>
+      <div className="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {kpiOrder.map((id) => {
           const d = kpiDefs[id]
           return (
@@ -696,21 +790,25 @@ export function OverviewPage() {
       </div>
 
       {/* ── Row 1: Heatmap + Donuts ──────────────────────────────────────── */}
-      <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <SectionLabel>Agent × Scenario Analysis</SectionLabel>
+      <div className="mb-7 grid grid-cols-1 gap-4 xl:grid-cols-3">
 
-        {/* Heatmap — spans 2 cols */}
+        {/* Heatmap — spans 2 cols, dark card because component has dark internals */}
         <div className="xl:col-span-2">
-          <Section
-            dark
+          <DarkCard
             title="Agent × Scenario Heatmap"
-            subtitle="Pass/fail rate for each agent across all scenario types — click rows or columns to filter"
+            subtitle="Pass/fail rate per agent across all scenario types — click rows or columns to filter"
             right={
               (heatRow || heatCol) ? (
                 <button
                   type="button"
                   onClick={() => { setHeatRow(null); setHeatCol(null) }}
-                  className="rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors"
+                  style={{ color: '#9CA3AF', border: '1px solid rgba(255,255,255,0.12)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'white'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF'; e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
+                  <Filter className="h-3 w-3" />
                   Clear filter
                 </button>
               ) : null
@@ -728,61 +826,60 @@ export function OverviewPage() {
                 flashKey={heatFlashKey}
               />
             </div>
-          </Section>
+          </DarkCard>
         </div>
 
-        {/* Donuts */}
+        {/* Donuts — light cards */}
         <div className="flex flex-col gap-4">
-          {/* By Status */}
-          <Section title="By Status" subtitle="Run outcomes">
-            <div className="flex justify-center py-5">
+          <Card title="By Status" subtitle="Run outcome distribution">
+            <div className="flex justify-center py-3">
               <DonutChart
-                slices={statusSlices.length > 0 ? statusSlices : [{ key: 'empty', label: 'No data', value: 1, color: '#E2E8F0' }]}
-                size={130}
-                thickness={20}
+                slices={statusSlices.length > 0 ? statusSlices : [{ key: 'empty', label: 'No data', value: 1, color: '#E5E7EB' }]}
+                size={140}
+                thickness={22}
                 activeKey={activeStatusKey}
                 onSliceClick={setActiveStatusKey}
                 centerLabel={total > 0 ? `${passRate}%` : '—'}
                 centerSub="pass rate"
               />
             </div>
-          </Section>
+          </Card>
 
-          {/* By Agent */}
-          <Section title="By Agent" subtitle="Run distribution">
-            <div className="flex justify-center py-5">
+          <Card title="By Agent" subtitle="Run distribution across agents">
+            <div className="flex justify-center py-3">
               <DonutChart
-                slices={agentSlices.length > 0 ? agentSlices : [{ key: 'empty', label: 'No data', value: 1, color: '#E2E8F0' }]}
-                size={130}
-                thickness={20}
+                slices={agentSlices.length > 0 ? agentSlices : [{ key: 'empty', label: 'No data', value: 1, color: '#E5E7EB' }]}
+                size={140}
+                thickness={22}
                 activeKey={activeAgentKey}
                 onSliceClick={setActiveAgentKey}
                 centerLabel={total > 0 ? String(total) : '—'}
                 centerSub="total runs"
               />
             </div>
-          </Section>
+          </Card>
         </div>
       </div>
 
-      {/* ── Row 2: Run Activity chart ────────────────────────────────────── */}
-      <div className="mb-4">
-        <Section
-          dark
-          title="Run Activity — Last 120s"
-          subtitle="Realtime pass/fail counts per second — drag to select a window for log analysis"
+      {/* ── Row 2: Run Activity chart ─────────────────────────────────────── */}
+      <SectionLabel>Run Activity — Last 120s</SectionLabel>
+      <div className="mb-7">
+        <DarkCard
+          title="Run Activity"
+          subtitle="Realtime pass/fail counts — drag to select a window and analyse it in the Logs Explorer"
           right={
             <div className="flex items-center gap-3">
               {brushRange && (
                 <button
                   type="button"
                   onClick={() => setBrushRange(null)}
-                  className="rounded-lg px-2.5 py-1 text-xs font-semibold text-blue-400 transition-colors hover:bg-white/10"
+                  className="rounded-lg px-2.5 py-1 text-xs font-semibold"
+                  style={{ color: '#60A5FA', border: '1px solid rgba(96,165,250,0.3)' }}
                 >
                   Clear selection
                 </button>
               )}
-              <LiveDot />
+              <LiveDot dark />
             </div>
           }
         >
@@ -794,64 +891,102 @@ export function OverviewPage() {
               brushRange={brushRange}
             />
           </div>
-        </Section>
+        </DarkCard>
       </div>
 
-      {/* ── Row 3: Live Runs + Agent Health ─────────────────────────────── */}
-      <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {/* ── Row 3: Live Runs + Agent Health ──────────────────────────────── */}
+      <SectionLabel>Live Data</SectionLabel>
+      <div className="mb-7 grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-        {/* Live Runs table */}
-        <Section
+        {/* Live Runs */}
+        <Card
           title="Live Runs"
-          subtitle={`${total} total`}
+          subtitle={`${total} total runs`}
           right={<LiveDot />}
+          noPad
         >
           <div className="max-h-80 overflow-y-auto">
             {arrived.length === 0 ? (
-              <div className="flex items-center justify-center py-12 text-xs text-slate-300">
+              <div
+                className="flex items-center justify-center py-14 text-sm"
+                style={{ color: '#9CA3AF' }}
+              >
                 Waiting for runs…
               </div>
             ) : (
-              <table className="w-full text-xs">
+              <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-50">
-                    <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Scenario</th>
-                    <th className="hidden px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 sm:table-cell">Agent</th>
-                    <th className="hidden px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-400 md:table-cell">Duration</th>
-                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">Status</th>
+                  <tr style={{ borderBottom: '1px solid #F3F4F6' }}>
+                    <th
+                      className="px-5 py-2.5 text-left text-xs font-bold uppercase tracking-wider"
+                      style={{ color: '#9CA3AF', backgroundColor: '#F9FAFB' }}
+                    >
+                      Scenario
+                    </th>
+                    <th
+                      className="hidden px-4 py-2.5 text-left text-xs font-bold uppercase tracking-wider sm:table-cell"
+                      style={{ color: '#9CA3AF', backgroundColor: '#F9FAFB' }}
+                    >
+                      Agent
+                    </th>
+                    <th
+                      className="hidden px-4 py-2.5 text-right text-xs font-bold uppercase tracking-wider md:table-cell"
+                      style={{ color: '#9CA3AF', backgroundColor: '#F9FAFB' }}
+                    >
+                      Duration
+                    </th>
+                    <th
+                      className="px-5 py-2.5 text-right text-xs font-bold uppercase tracking-wider"
+                      style={{ color: '#9CA3AF', backgroundColor: '#F9FAFB' }}
+                    >
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {arrived.slice(0, 50).map((run, i) => {
+                  {arrived.slice(0, 60).map((run, i) => {
                     const isNew = run.runId === newestId
                     const color = AGENT_COLOR[run.agent] ?? '#94A3B8'
                     return (
                       <tr
                         key={run.runId}
-                        className="border-b border-slate-50 transition-colors last:border-0"
                         style={{
+                          borderBottom: '1px solid #F9FAFB',
                           backgroundColor: isNew
                             ? run.status === 'passed'
-                              ? 'rgba(16,185,129,0.05)'
+                              ? 'rgba(16,185,129,0.06)'
                               : run.status === 'failed'
-                              ? 'rgba(239,68,68,0.05)'
+                              ? 'rgba(239,68,68,0.06)'
                               : 'transparent'
-                            : i % 2 === 0 ? 'transparent' : 'rgba(248,250,252,0.5)',
+                            : i % 2 === 0 ? 'transparent' : '#FAFAFA',
+                          transition: 'background-color 0.4s ease',
                         }}
                       >
-                        <td className="px-4 py-2.5">
-                          <p className="max-w-[180px] truncate font-medium text-slate-700">{run.scenario}</p>
+                        <td className="px-5 py-3">
+                          <p
+                            className="max-w-[180px] truncate text-sm font-medium"
+                            style={{ color: '#111827' }}
+                          >
+                            {run.scenario}
+                          </p>
                         </td>
-                        <td className="hidden px-3 py-2.5 sm:table-cell">
-                          <div className="flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                            <span className="text-slate-500">{run.agent}</span>
+                        <td className="hidden px-4 py-3 sm:table-cell">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="h-2 w-2 shrink-0 rounded-full"
+                              style={{ backgroundColor: color }}
+                            />
+                            <span className="text-sm" style={{ color: '#4B5563' }}>
+                              {run.agent}
+                            </span>
                           </div>
                         </td>
-                        <td className="hidden px-3 py-2.5 text-right tabular-nums text-slate-400 md:table-cell">
-                          {fmtMs(run.durationMs)}
+                        <td className="hidden px-4 py-3 text-right md:table-cell">
+                          <span className="text-sm tabular-nums" style={{ color: '#6B7280' }}>
+                            {fmtMs(run.durationMs)}
+                          </span>
                         </td>
-                        <td className="px-4 py-2.5 text-right">
+                        <td className="px-5 py-3 text-right">
                           <StatusPill status={run.status} />
                         </td>
                       </tr>
@@ -861,20 +996,25 @@ export function OverviewPage() {
               </table>
             )}
           </div>
-        </Section>
+        </Card>
 
         {/* Agent Health */}
-        <Section
+        <Card
           title="Agent Health"
           subtitle="Pass rate and run counts per agent"
           right={
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1.5">
-              <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
-              <span className="text-xs font-semibold text-slate-600">All time</span>
+            <div
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5"
+              style={{ background: '#F0FDF4', border: '1px solid #A7F3D0' }}
+            >
+              <TrendingUp className="h-3.5 w-3.5" style={{ color: '#059669' }} />
+              <span className="text-xs font-semibold" style={{ color: '#059669' }}>
+                All time
+              </span>
             </div>
           }
         >
-          <div className="flex flex-col gap-3 p-4">
+          <div className="flex flex-col gap-2.5">
             {agentStats.map(({ agent, passed: p, failed: f, total: t }) => (
               <AgentHealthBar
                 key={agent}
@@ -886,41 +1026,53 @@ export function OverviewPage() {
               />
             ))}
             {agentStats.every((a) => a.total === 0) && (
-              <div className="flex items-center justify-center py-8 text-xs text-slate-300">
+              <div
+                className="flex items-center justify-center py-10 text-sm"
+                style={{ color: '#9CA3AF' }}
+              >
                 Waiting for agent runs…
               </div>
             )}
           </div>
-        </Section>
+        </Card>
       </div>
 
-      {/* ── Row 4: Failure alert banner (conditional) ────────────────────── */}
+      {/* ── Failure alert banner (conditional) ───────────────────────────── */}
       {failed > 0 && passRate < 70 && (
         <div
-          className="mb-4 flex items-center gap-3 rounded-2xl px-5 py-3.5"
+          className="mb-7 flex items-center gap-4 rounded-2xl px-5 py-4"
           style={{
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.06), rgba(239,68,68,0.02))',
-            border: '1px solid rgba(239,68,68,0.15)',
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
           }}
         >
-          <AlertTriangle className="h-4 w-4 shrink-0 text-red-500" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-red-700">
+          <div
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: '#FEE2E2' }}
+          >
+            <AlertTriangle className="h-4.5 w-4.5" style={{ color: '#DC2626' }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold" style={{ color: '#991B1B' }}>
               Pass rate is {passRate}% — below the 70% threshold
             </p>
-            <p className="text-xs text-red-400">
+            <p className="text-xs mt-0.5" style={{ color: '#EF4444' }}>
               {failed} failures detected · Review the Logs Explorer below for details
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex shrink-0 flex-wrap gap-2">
             {AGENTS.filter((a) => {
               const s = agentStats.find((x) => x.agent === a)
               return s && s.total > 0 && s.failed / s.total > 0.4
             }).map((a) => (
               <span
                 key={a}
-                className="rounded-full px-2 py-0.5 text-xs font-semibold"
-                style={{ backgroundColor: `${AGENT_COLOR[a]}20`, color: AGENT_COLOR[a] }}
+                className="rounded-full px-2.5 py-1 text-xs font-semibold"
+                style={{
+                  backgroundColor: `${AGENT_COLOR[a]}18`,
+                  color: AGENT_COLOR[a],
+                  border: `1px solid ${AGENT_COLOR[a]}40`,
+                }}
               >
                 {a}
               </span>
@@ -929,29 +1081,33 @@ export function OverviewPage() {
         </div>
       )}
 
-      {/* ── Row 5: Logs Explorer ─────────────────────────────────────────── */}
-      <div>
-        <div className="mb-2 flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Logs Explorer</span>
-          {brushRange && (
-            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">
-              Chart selection active
-            </span>
-          )}
-        </div>
-        <LogsExplorer
-          entries={logEntries}
-          newestId={newestId}
-          brushRange={brushRange}
-        />
-      </div>
+      {/* ── Logs Explorer ────────────────────────────────────────────────── */}
+      <SectionLabel>
+        Logs Explorer
+        {brushRange && (
+          <span
+            className="ml-2 rounded-full px-2 py-0.5 text-xs font-semibold"
+            style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE' }}
+          >
+            Chart selection active
+          </span>
+        )}
+      </SectionLabel>
+      <LogsExplorer
+        entries={logEntries}
+        newestId={newestId}
+        brushRange={brushRange}
+      />
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs tabular-nums text-slate-300">
-          {total} runs · {isPlaying ? 'live feed' : 'paused'} · synthetic demo data
+      <div
+        className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-5"
+        style={{ borderColor: '#E5E7EB' }}
+      >
+        <p className="text-xs tabular-nums" style={{ color: '#9CA3AF' }}>
+          {total} runs · {isPlaying ? 'live feed active' : 'feed paused'} · synthetic demo data
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           {[
             { color: '#10B981', label: 'Passed' },
             { color: '#EF4444', label: 'Failed' },
@@ -960,7 +1116,7 @@ export function OverviewPage() {
           ].map(({ color, label }) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs text-slate-400">{label}</span>
+              <span className="text-xs" style={{ color: '#6B7280' }}>{label}</span>
             </div>
           ))}
         </div>

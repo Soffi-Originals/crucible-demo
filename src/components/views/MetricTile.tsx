@@ -30,6 +30,7 @@ export interface MetricTileProps
   trend?: TrendDirection
   sentiment?: TrendSentiment
   variant?: CardProps['variant']
+  sparkline?: number[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -42,6 +43,67 @@ const sentimentColor: Record<TrendSentiment, string> = {
   positive: 'text-(--color-success-fg)',
   negative: 'text-(--color-danger-fg)',
   neutral: 'text-(--color-fg-muted)',
+}
+
+const sparklineStroke: Record<TrendSentiment, string> = {
+  positive: 'var(--color-success)',
+  negative: 'var(--color-danger)',
+  neutral: 'var(--color-fg-subtle)',
+}
+
+const sparklineFill: Record<TrendSentiment, string> = {
+  positive: 'var(--color-success)',
+  negative: 'var(--color-danger)',
+  neutral: 'var(--color-fg-subtle)',
+}
+
+function Sparkline({
+  data,
+  sentiment = 'neutral',
+}: {
+  data: number[]
+  sentiment?: TrendSentiment
+}) {
+  if (data.length < 2) return null
+
+  const W = 200
+  const H = 40
+  const pad = 2
+
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+
+  const points = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (W - pad * 2)
+    const y = H - pad - ((v - min) / range) * (H - pad * 2)
+    return [x, y] as [number, number]
+  })
+
+  const linePath = points
+    .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`)
+    .join(' ')
+
+  const areaPath =
+    linePath +
+    ` L${points[points.length - 1][0].toFixed(1)},${(H - pad).toFixed(1)}` +
+    ` L${points[0][0].toFixed(1)},${(H - pad).toFixed(1)} Z`
+
+  const stroke = sparklineStroke[sentiment]
+  const fill = sparklineFill[sentiment]
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="w-full"
+      style={{ height: 40 }}
+      aria-hidden
+    >
+      <path d={areaPath} fill={fill} opacity={0.12} />
+      <path d={linePath} fill="none" stroke={stroke} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  )
 }
 
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
@@ -57,6 +119,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,
@@ -69,7 +132,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         variant={cardVariant}
         padding="md"
         radius="lg"
-        className={cn(metricTileVariants({ emphasis }), className)}
+        className={cn('flex flex-col gap-2', metricTileVariants({ emphasis }), className)}
         {...props}
       >
         <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide">
@@ -85,6 +148,13 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
             </Text>
           ) : null}
         </div>
+
+        {sparkline && sparkline.length >= 2 && (
+          <div className="-mx-1">
+            <Sparkline data={sparkline} sentiment={sentiment} />
+          </div>
+        )}
+
         {(delta || hint) && (
           <div className="flex items-center justify-between">
             {delta ? (

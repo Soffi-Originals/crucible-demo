@@ -55,62 +55,60 @@ export function OverviewPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
-              Recent runs
-            </Heading>
-            <Text size="sm" tone="muted" className="flex items-center gap-1">
-              View all
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Text>
-          </div>
-          <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="min-w-[640px]">
-                <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
-                  <span />
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Scenario
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Agent
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Duration
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Started
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Status
-                  </Text>
-                </div>
-                <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-                  {runs.map((run) => (
-                    <RunRow key={run.runId} {...run} />
-                  ))}
-                </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <Heading as="h2" size="md" weight="semibold">
+            Recent runs
+          </Heading>
+          <Text size="sm" tone="muted" className="flex items-center gap-1">
+            View all
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Text>
+        </div>
+        <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
+              <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
+                <span />
+                <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                  Scenario
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                  Agent
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                  Duration
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                  Started
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                  Status
+                </Text>
+              </div>
+              <div className="flex flex-col divide-y divide-(--color-border-subtle)">
+                {runs.map((run) => (
+                  <RunRow key={run.runId} {...run} />
+                ))}
               </div>
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
+      </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
-              Eval health
-            </Heading>
-            <Badge variant="warning" size="sm" shape="pill">
-              2 regressing
-            </Badge>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            {evals.map((evalEntry) => (
-              <EvalScoreCard key={evalEntry.id} {...evalEntry} />
-            ))}
-          </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <Heading as="h2" size="md" weight="semibold">
+            Eval health
+          </Heading>
+          <Badge variant="warning" size="sm" shape="pill">
+            2 regressing
+          </Badge>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {evals.map((evalEntry) => (
+            <EvalScoreCard key={evalEntry.id} {...evalEntry} />
+          ))}
         </div>
       </div>
 

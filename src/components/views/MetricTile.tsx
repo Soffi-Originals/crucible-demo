@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { Card } from '@/components/ui/Card'
+import { Card, type CardProps } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
 
@@ -29,6 +29,7 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  variant?: CardProps['variant']
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -48,6 +49,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
     {
       className,
       emphasis,
+      variant,
       label,
       value,
       unit,
@@ -59,10 +61,12 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
     },
     ref,
   ) {
+    const cardVariant = variant ?? (emphasis === 'raised' ? 'raised' : 'default')
+
     return (
       <Card
         ref={ref}
-        variant={emphasis === 'raised' ? 'raised' : 'default'}
+        variant={cardVariant}
         padding="md"
         radius="lg"
         className={cn(metricTileVariants({ emphasis }), className)}

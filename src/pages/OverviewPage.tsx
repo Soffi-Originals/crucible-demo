@@ -9,6 +9,12 @@ import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
 
+// 14-day sparkline data for each metric
+const evalPassRateData = [91.2, 90.8, 91.5, 92.0, 91.8, 92.4, 92.1, 93.0, 93.4, 93.1, 93.8, 94.0, 93.9, 94.2]
+const simulationsData  = [13100, 12900, 13200, 12750, 13050, 12800, 12600, 12900, 12700, 12550, 12400, 12600, 12500, 12481]
+const latencyData      = [1.9, 2.1, 1.95, 1.85, 2.0, 1.9, 1.75, 1.85, 1.8, 1.9, 1.75, 1.8, 1.85, 1.8]
+const escalationData   = [3.9, 4.1, 3.8, 3.7, 3.9, 3.6, 3.5, 3.7, 3.4, 3.5, 3.3, 3.2, 3.2, 3.1]
+
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
@@ -23,94 +29,100 @@ export function OverviewPage() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
+          variant="subtle"
           label="Eval pass rate"
           value="94.2"
           unit="%"
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={evalPassRateData}
         />
         <MetricTile
+          variant="subtle"
           label="Simulations / 24h"
           value="12,481"
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={simulationsData}
         />
         <MetricTile
+          variant="subtle"
           label="P95 latency"
           value="1.8"
           unit="s"
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={latencyData}
         />
         <MetricTile
+          variant="subtle"
           label="Escalation rate"
           value="3.1"
           unit="%"
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={escalationData}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
-              Recent runs
-            </Heading>
-            <Text size="sm" tone="muted" className="flex items-center gap-1">
-              View all
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Text>
-          </div>
-          <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="min-w-[640px]">
-                <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
-                  <span />
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Scenario
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Agent
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Duration
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Started
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Status
-                  </Text>
-                </div>
-                <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-                  {runs.map((run) => (
-                    <RunRow key={run.runId} {...run} />
-                  ))}
-                </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <Heading as="h2" size="md" weight="semibold">
+            Recent runs
+          </Heading>
+          <Text size="sm" tone="muted" className="flex items-center gap-1">
+            View all
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Text>
+        </div>
+        <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
+              <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
+                <span />
+                <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                  Scenario
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
+                  Agent
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                  Duration
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                  Started
+                </Text>
+                <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
+                  Status
+                </Text>
+              </div>
+              <div className="flex flex-col divide-y divide-(--color-border-subtle)">
+                {runs.map((run) => (
+                  <RunRow key={run.runId} {...run} />
+                ))}
               </div>
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
+      </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
-              Eval health
-            </Heading>
-            <Badge variant="warning" size="sm" shape="pill">
-              2 regressing
-            </Badge>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            {evals.map((evalEntry) => (
-              <EvalScoreCard key={evalEntry.id} {...evalEntry} />
-            ))}
-          </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <Heading as="h2" size="md" weight="semibold">
+            Eval health
+          </Heading>
+          <Badge variant="warning" size="sm" shape="pill">
+            2 regressing
+          </Badge>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {evals.map((evalEntry) => (
+            <EvalScoreCard key={evalEntry.id} {...evalEntry} />
+          ))}
         </div>
       </div>
 

@@ -23,6 +23,7 @@ export function OverviewPage() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
+          variant="subtle"
           label="Eval pass rate"
           value="94.2"
           unit="%"
@@ -31,6 +32,7 @@ export function OverviewPage() {
           sentiment="positive"
         />
         <MetricTile
+          variant="subtle"
           label="Simulations / 24h"
           value="12,481"
           delta="−2.1 vs. last week"
@@ -38,6 +40,7 @@ export function OverviewPage() {
           sentiment="negative"
         />
         <MetricTile
+          variant="subtle"
           label="P95 latency"
           value="1.8"
           unit="s"
@@ -46,6 +49,7 @@ export function OverviewPage() {
           sentiment="neutral"
         />
         <MetricTile
+          variant="subtle"
           label="Escalation rate"
           value="3.1"
           unit="%"

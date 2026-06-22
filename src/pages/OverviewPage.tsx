@@ -9,6 +9,12 @@ import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { evals, runs } from '@/data/demo'
 
+// 14-day sparkline data for each metric
+const evalPassRateData = [91.2, 90.8, 91.5, 92.0, 91.8, 92.4, 92.1, 93.0, 93.4, 93.1, 93.8, 94.0, 93.9, 94.2]
+const simulationsData  = [13100, 12900, 13200, 12750, 13050, 12800, 12600, 12900, 12700, 12550, 12400, 12600, 12500, 12481]
+const latencyData      = [1.9, 2.1, 1.95, 1.85, 2.0, 1.9, 1.75, 1.85, 1.8, 1.9, 1.75, 1.8, 1.85, 1.8]
+const escalationData   = [3.9, 4.1, 3.8, 3.7, 3.9, 3.6, 3.5, 3.7, 3.4, 3.5, 3.3, 3.2, 3.2, 3.1]
+
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
@@ -30,6 +36,7 @@ export function OverviewPage() {
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={evalPassRateData}
         />
         <MetricTile
           variant="subtle"
@@ -38,6 +45,7 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={simulationsData}
         />
         <MetricTile
           variant="subtle"
@@ -47,6 +55,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={latencyData}
         />
         <MetricTile
           variant="subtle"
@@ -56,6 +65,7 @@ export function OverviewPage() {
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={escalationData}
         />
       </div>
 

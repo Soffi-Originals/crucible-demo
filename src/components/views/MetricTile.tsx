@@ -91,6 +91,8 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  /** Optional 7-point (or any length) series rendered as a sparkline */
+  sparkline?: number[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {

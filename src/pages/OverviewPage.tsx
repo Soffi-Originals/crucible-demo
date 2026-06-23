@@ -14,7 +14,7 @@ export function OverviewPage() {
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
         <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
-          Production overview
+          HHII
         </Heading>
         <Text size="sm" tone="muted">
           How your agents are behaving across simulations and live traffic.

@@ -119,6 +119,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,

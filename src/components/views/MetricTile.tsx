@@ -6,6 +6,68 @@ import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
 
+// ---------------------------------------------------------------------------
+// Sparkline
+// ---------------------------------------------------------------------------
+
+interface SparklineProps {
+  data: number[]
+  sentiment: TrendSentiment
+  className?: string
+}
+
+const sparklineFill: Record<TrendSentiment, string> = {
+  positive: 'var(--color-success)',
+  negative: 'var(--color-danger)',
+  neutral: 'var(--color-fg-muted)',
+}
+
+function Sparkline({ data, sentiment, className }: SparklineProps) {
+  if (data.length < 2) return null
+
+  const w = 120
+  const h = 36
+  const pad = 2
+
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+
+  const xs = data.map((_, i) => pad + (i / (data.length - 1)) * (w - pad * 2))
+  const ys = data.map((v) => pad + (1 - (v - min) / range) * (h - pad * 2))
+
+  const linePath = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x},${ys[i]}`).join(' ')
+  const areaPath = `${linePath} L${xs[xs.length - 1]},${h - pad} L${xs[0]},${h - pad} Z`
+
+  const color = sparklineFill[sentiment]
+
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className={cn('w-full', className)}
+      style={{ height: h }}
+    >
+      <defs>
+        <linearGradient id={`sg-${sentiment}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#sg-${sentiment})`} />
+      <path
+        d={linePath}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
     emphasis: {

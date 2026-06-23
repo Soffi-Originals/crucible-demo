@@ -76,7 +76,7 @@ export const EvalScoreCard = React.forwardRef<
             </Text>
           ) : null}
         </div>
-        <Badge variant={severityBadge[severity ?? 'pass']} size="sm" shape="pill">
+        <Badge variant="success" size="sm" shape="pill">
           {severityLabel[severity ?? 'pass']}
         </Badge>
       </div>

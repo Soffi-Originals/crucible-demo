@@ -12,7 +12,7 @@ export const sidebarNavItemVariants = cva(
         default:
           'text-(--color-fg-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
         active:
-          'bg-(--color-surface-subtle) text-(--color-fg) ring-1 ring-(--color-border)',
+          'bg-(--color-accent-soft) text-(--color-accent) font-medium ring-1 ring-(--color-accent)/20',
         muted: 'opacity-50',
       },
       size: {
@@ -56,7 +56,7 @@ export const SidebarNavItem = React.forwardRef<
         {label}
       </Text>
       {typeof count === 'number' ? (
-        <Badge variant="neutral" size="sm">
+        <Badge variant={state === 'active' ? 'accent' : 'neutral'} size="sm">
           {count}
         </Badge>
       ) : null}

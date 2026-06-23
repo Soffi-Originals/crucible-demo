@@ -38,20 +38,20 @@ export function OverviewPage() {
           sentiment="negative"
         />
         <MetricTile
-          label="P95 latency"
-          value="1.8"
-          unit="s"
-          delta="flat"
-          trend="flat"
-          sentiment="neutral"
-        />
-        <MetricTile
           label="Escalation rate"
           value="3.1"
           unit="%"
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+        />
+        <MetricTile
+          label="P95 latency"
+          value="1.8"
+          unit="s"
+          delta="flat"
+          trend="flat"
+          sentiment="neutral"
         />
       </div>
 

@@ -29,6 +29,7 @@ export function OverviewPage() {
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={metricSparklines.evalPassRate}
         />
         <MetricTile
           label="Simulations / 24h"
@@ -36,6 +37,7 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={metricSparklines.simulations}
         />
         <MetricTile
           label="Escalation rate"
@@ -44,6 +46,7 @@ export function OverviewPage() {
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={metricSparklines.escalationRate}
         />
         <MetricTile
           label="P95 latency"
@@ -52,6 +55,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={metricSparklines.p95Latency}
         />
       </div>
 

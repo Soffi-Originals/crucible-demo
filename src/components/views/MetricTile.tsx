@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
+import type { SparkPoint } from '@/data/demo'
 
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
@@ -29,6 +30,7 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  sparkline?: SparkPoint[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -43,6 +45,94 @@ const sentimentColor: Record<TrendSentiment, string> = {
   neutral: 'text-(--color-fg-muted)',
 }
 
+// Stroke colors per sentiment, using CSS vars directly so dark mode works
+const sparklineStroke: Record<TrendSentiment, string> = {
+  positive: 'var(--color-success)',
+  negative: 'var(--color-danger)',
+  neutral: 'var(--color-fg-subtle)',
+}
+
+const sparklineFill: Record<TrendSentiment, string> = {
+  positive: 'var(--color-success)',
+  negative: 'var(--color-danger)',
+  neutral: 'var(--color-fg-subtle)',
+}
+
+function Sparkline({
+  points,
+  sentiment,
+}: {
+  points: SparkPoint[]
+  sentiment: TrendSentiment
+}) {
+  const W = 100
+  const H = 36
+  const PAD = 2
+
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+  const rangeX = maxX - minX || 1
+  const rangeY = maxY - minY || 1
+
+  const toSvg = (p: SparkPoint) => ({
+    sx: PAD + ((p.x - minX) / rangeX) * (W - PAD * 2),
+    sy: H - PAD - ((p.y - minY) / rangeY) * (H - PAD * 2),
+  })
+
+  const coords = points.map(toSvg)
+
+  // Smooth polyline using cubic bezier control points
+  const d = coords.reduce((acc, pt, i) => {
+    if (i === 0) return `M ${pt.sx} ${pt.sy}`
+    const prev = coords[i - 1]
+    const cpx = (prev.sx + pt.sx) / 2
+    return `${acc} C ${cpx} ${prev.sy}, ${cpx} ${pt.sy}, ${pt.sx} ${pt.sy}`
+  }, '')
+
+  // Area fill path (close down to bottom)
+  const last = coords[coords.length - 1]
+  const first = coords[0]
+  const fillD = `${d} L ${last.sx} ${H} L ${first.sx} ${H} Z`
+
+  const stroke = sparklineStroke[sentiment]
+  const fill = sparklineFill[sentiment]
+  const gradId = `spark-grad-${sentiment}`
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="w-full"
+      style={{ height: H }}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={fill} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={fill} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      {/* Area fill */}
+      <path d={fillD} fill={`url(#${gradId})`} stroke="none" />
+      {/* Line */}
+      <path
+        d={d}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Terminal dot */}
+      <circle cx={last.sx} cy={last.sy} r="2.5" fill={stroke} />
+    </svg>
+  )
+}
+
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
   function MetricTile(
     {
@@ -55,6 +145,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,
@@ -81,6 +172,13 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
             </Text>
           ) : null}
         </div>
+
+        {sparkline && sparkline.length > 1 && (
+          <div className="-mx-1 mt-1">
+            <Sparkline points={sparkline} sentiment={sentiment} />
+          </div>
+        )}
+
         {(delta || hint) && (
           <div className="flex items-center justify-between">
             {delta ? (

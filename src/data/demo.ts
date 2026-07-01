@@ -250,6 +250,48 @@ export const evals: Eval[] = [
   },
 ]
 
+export type SparkPoint = { x: number; y: number }
+
+// 7-day sparkline series for each metric tile (x: 0–6, y: normalized 0–100)
+export const metricSparklines: Record<string, SparkPoint[]> = {
+  evalPassRate: [
+    { x: 0, y: 88 },
+    { x: 1, y: 90 },
+    { x: 2, y: 89 },
+    { x: 3, y: 91 },
+    { x: 4, y: 93 },
+    { x: 5, y: 92 },
+    { x: 6, y: 94 },
+  ],
+  simulations: [
+    { x: 0, y: 82 },
+    { x: 1, y: 88 },
+    { x: 2, y: 85 },
+    { x: 3, y: 90 },
+    { x: 4, y: 87 },
+    { x: 5, y: 84 },
+    { x: 6, y: 78 },
+  ],
+  escalationRate: [
+    { x: 0, y: 72 },
+    { x: 1, y: 68 },
+    { x: 2, y: 65 },
+    { x: 3, y: 60 },
+    { x: 4, y: 55 },
+    { x: 5, y: 50 },
+    { x: 6, y: 44 },
+  ],
+  p95Latency: [
+    { x: 0, y: 52 },
+    { x: 1, y: 50 },
+    { x: 2, y: 54 },
+    { x: 3, y: 51 },
+    { x: 4, y: 53 },
+    { x: 5, y: 50 },
+    { x: 6, y: 52 },
+  ],
+}
+
 export type SimulationStepEntry = {
   label: string
   state: SimulationStepState

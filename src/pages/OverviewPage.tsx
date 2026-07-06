@@ -16,7 +16,7 @@ export function OverviewPage() {
         <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
           Overview
         </Heading>
-        <Text size="sm" tone="muted" style={{ color: '#2563EB' }}>
+        <Text size="sm" tone="muted" style={{ color: '#18181B', fontSize: '12px' }}>
           How your agents are behaving across simulations and live traffic.
         </Text>
       </div>

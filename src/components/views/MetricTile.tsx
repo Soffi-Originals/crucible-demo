@@ -52,11 +52,6 @@ const sparklineStroke: Record<TrendSentiment, string> = {
   neutral: 'var(--color-fg-subtle)',
 }
 
-const sparklineFill: Record<TrendSentiment, string> = {
-  positive: 'var(--color-success)',
-  negative: 'var(--color-danger)',
-  neutral: 'var(--color-fg-subtle)',
-}
 
 function Sparkline({
   points,

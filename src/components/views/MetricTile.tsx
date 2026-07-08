@@ -60,6 +60,8 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
+      sparklineColor,
       ...props
     },
     ref,
@@ -103,6 +105,15 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
                 {hint}
               </Text>
             ) : null}
+          </div>
+        )}
+        {sparkline && sparkline.length >= 2 && (
+          <div className="mt-1 w-full overflow-visible">
+            <SparklineAutoWidth
+              points={sparkline}
+              color={sparklineColor}
+              height={36}
+            />
           </div>
         )}
       </Card>

@@ -1,3 +1,4 @@
+import type { SparklinePoint } from '@/components/ui/Sparkline'
 import type { AgentTone } from '@/components/views/AgentRow'
 import type { ConnectorState } from '@/components/views/ConnectorCard'
 import type { RunStatus } from '@/components/views/RunRow'

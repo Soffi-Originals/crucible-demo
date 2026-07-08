@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { Heading } from '@/components/ui/Heading'
 import { Text } from '@/components/ui/Text'
 import { PlanCard } from '@/components/views/PlanCard'

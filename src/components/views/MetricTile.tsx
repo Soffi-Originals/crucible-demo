@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
+import { Sparkline, type SparklinePoint } from '@/components/ui/Sparkline'
 
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {

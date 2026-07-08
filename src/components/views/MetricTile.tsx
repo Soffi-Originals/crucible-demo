@@ -30,6 +30,10 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  /** Optional sparkline series rendered at the bottom of the card */
+  sparkline?: SparklinePoint[]
+  /** Color for the sparkline line and fill (CSS value). Defaults to the accent color. */
+  sparklineColor?: string
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {

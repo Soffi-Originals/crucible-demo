@@ -85,22 +85,14 @@ function Sparkline({
 
   const coords = points.map(toSvg)
 
-  // Smooth polyline using cubic bezier control points
-  const d = coords.reduce((acc, pt, i) => {
-    if (i === 0) return `M ${pt.sx} ${pt.sy}`
-    const prev = coords[i - 1]
-    const cpx = (prev.sx + pt.sx) / 2
-    return `${acc} C ${cpx} ${prev.sy}, ${cpx} ${pt.sy}, ${pt.sx} ${pt.sy}`
-  }, '')
+  // Straight-line polyline — sharp corners, no bezier smoothing
+  const d = coords
+    .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.sx.toFixed(2)} ${pt.sy.toFixed(2)}`)
+    .join(' ')
 
-  // Area fill path (close down to bottom)
   const last = coords[coords.length - 1]
-  const first = coords[0]
-  const fillD = `${d} L ${last.sx} ${H} L ${first.sx} ${H} Z`
-
   const stroke = sparklineStroke[sentiment]
-  const fill = sparklineFill[sentiment]
-  const gradId = `spark-grad-${sentiment}`
+  const TICK = 3
 
   return (
     <svg
@@ -110,25 +102,25 @@ function Sparkline({
       style={{ height: H }}
       aria-hidden="true"
     >
-      <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={fill} stopOpacity="0.18" />
-          <stop offset="100%" stopColor={fill} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      {/* Area fill */}
-      <path d={fillD} fill={`url(#${gradId})`} stroke="none" />
-      {/* Line */}
+      {/* Polyline */}
       <path
         d={d}
         fill="none"
         stroke={stroke}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeWidth="1.25"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
       />
-      {/* Terminal dot */}
-      <circle cx={last.sx} cy={last.sy} r="2.5" fill={stroke} />
+      {/* Terminal crosshair tick */}
+      <line
+        x1={last.sx}
+        y1={last.sy - TICK}
+        x2={last.sx}
+        y2={last.sy + TICK}
+        stroke={stroke}
+        strokeWidth="1.25"
+        strokeLinecap="square"
+      />
     </svg>
   )
 }

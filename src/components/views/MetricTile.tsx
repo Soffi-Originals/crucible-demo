@@ -48,6 +48,38 @@ const sentimentColor: Record<TrendSentiment, string> = {
   neutral: 'text-(--color-fg-muted)',
 }
 
+// A width-responsive wrapper for Sparkline — measures its container and passes
+// the pixel width down so the SVG fills the card.
+function SparklineAutoWidth({
+  points,
+  color,
+  height,
+}: {
+  points: SparklinePoint[]
+  color?: string
+  height: number
+}) {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const [width, setWidth] = React.useState(0)
+
+  React.useLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    setWidth(el.clientWidth)
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  return (
+    <div ref={containerRef} style={{ width: '100%' }}>
+      {width > 0 && (
+        <Sparkline points={points} color={color} width={width} height={height} />
+      )}
+    </div>
+  )
+}
+
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
   function MetricTile(
     {

@@ -31,3 +31,4 @@ export {
 } from './ProgressBar'
 export { Skeleton, skeletonVariants, type SkeletonProps } from './Skeleton'
 export { Toggle, toggleVariants, type ToggleProps } from './Toggle'
+export { Sparkline, type SparklineProps, type SparklinePoint } from './Sparkline'

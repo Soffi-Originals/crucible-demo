@@ -68,7 +68,7 @@ export const EvalScoreCard = React.forwardRef<
       variant="default"
       padding="md"
       radius="lg"
-      className={cn(evalScoreCardVariants({ severity }), className)}
+      className={cn(evalScoreCardVariants({ severity }), severityBg[severity ?? 'pass'], className)}
       {...props}
     >
       <div className="flex items-start justify-between gap-3">

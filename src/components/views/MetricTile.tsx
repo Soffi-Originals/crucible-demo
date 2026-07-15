@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
 
-export const metricTileVariants = cva('flex flex-col gap-2', {
+export const metricTileVariants = cva('flex flex-col gap-2 border-t-2', {
   variants: {
     emphasis: {
       default: '',
@@ -15,6 +15,12 @@ export const metricTileVariants = cva('flex flex-col gap-2', {
   },
   defaultVariants: { emphasis: 'default' },
 })
+
+const sentimentTopBorder: Record<TrendSentiment, string> = {
+  positive: 'border-t-(--color-success)',
+  negative: 'border-t-(--color-danger)',
+  neutral: 'border-t-(--color-border-strong)',
+}
 
 export type TrendDirection = 'up' | 'down' | 'flat'
 export type TrendSentiment = 'positive' | 'negative' | 'neutral'

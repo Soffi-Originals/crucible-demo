@@ -46,3 +46,10 @@ export {
   type SidebarNavItemProps,
 } from './SidebarNavItem'
 export { PlanCard, planCardVariants, type PlanCardProps } from './PlanCard'
+export {
+  RunsFilterBar,
+  type RunsFilterBarProps,
+  type RunsFilters,
+  AGENT_OPTIONS,
+  STATUS_OPTIONS,
+} from './RunsFilterBar'

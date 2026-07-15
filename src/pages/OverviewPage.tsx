@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Heading } from '@/components/ui/Heading'
 import { Text } from '@/components/ui/Text'
@@ -7,9 +8,85 @@ import { Badge } from '@/components/ui/Badge'
 import { MetricTile } from '@/components/views/MetricTile'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
+import { RunsFilterBar, type RunsFilters } from '@/components/views/RunsFilterBar'
 import { evals, runs } from '@/data/demo'
+import type { RunStatus } from '@/components/views/RunRow'
+
+// ─── URL param helpers ─────────────────────────────────────────────────────────
+
+function getParam(params: URLSearchParams, key: string): string {
+  return params.get(key) ?? ''
+}
+
+function getParamList(params: URLSearchParams, key: string): string[] {
+  const val = params.get(key)
+  return val ? val.split(',').filter(Boolean) : []
+}
+
+function filtersToParams(filters: RunsFilters): URLSearchParams {
+  const p = new URLSearchParams()
+  if (filters.search) p.set('q', filters.search)
+  if (filters.agents.length) p.set('agent', filters.agents.join(','))
+  if (filters.statuses.length) p.set('status', filters.statuses.join(','))
+  return p
+}
+
+// ─── OverviewPage ──────────────────────────────────────────────────────────────
 
 export function OverviewPage() {
+  // Initialise from URL params on mount
+  const [filters, setFilters] = React.useState<RunsFilters>(() => {
+    const p = new URLSearchParams(window.location.search)
+    return {
+      search: getParam(p, 'q'),
+      agents: getParamList(p, 'agent'),
+      statuses: getParamList(p, 'status') as RunStatus[],
+    }
+  })
+
+  // Debounced search value (300 ms)
+  const [debouncedSearch, setDebouncedSearch] = React.useState(filters.search)
+  React.useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(filters.search), 300)
+    return () => clearTimeout(t)
+  }, [filters.search])
+
+  // Sync URL params whenever filters change (uses debounced search for URL too)
+  React.useEffect(() => {
+    const effective: RunsFilters = { ...filters, search: debouncedSearch }
+    const params = filtersToParams(effective)
+    const search = params.toString()
+    const url = search ? `?${search}` : window.location.pathname
+    window.history.replaceState(null, '', url)
+  }, [debouncedSearch, filters])
+
+  // Filtered runs
+  const filteredRuns = React.useMemo(() => {
+    return runs.filter((run) => {
+      const matchSearch =
+        debouncedSearch === '' ||
+        run.scenario.toLowerCase().includes(debouncedSearch.toLowerCase())
+      const matchAgent =
+        filters.agents.length === 0 || filters.agents.includes(run.agent)
+      const matchStatus =
+        filters.statuses.length === 0 || filters.statuses.includes(run.status)
+      return matchSearch && matchAgent && matchStatus
+    })
+  }, [debouncedSearch, filters.agents, filters.statuses])
+
+  function handleSearchChange(value: string) {
+    setFilters((f) => ({ ...f, search: value }))
+  }
+  function handleAgentsChange(agents: string[]) {
+    setFilters((f) => ({ ...f, agents }))
+  }
+  function handleStatusesChange(statuses: RunStatus[]) {
+    setFilters((f) => ({ ...f, statuses }))
+  }
+  function handleClearAll() {
+    setFilters({ search: '', agents: [], statuses: [] })
+  }
+
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
@@ -70,6 +147,17 @@ export function OverviewPage() {
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Text>
           </div>
+
+          <RunsFilterBar
+            filters={filters}
+            totalCount={runs.length}
+            filteredCount={filteredRuns.length}
+            onSearchChange={handleSearchChange}
+            onAgentsChange={handleAgentsChange}
+            onStatusesChange={handleStatusesChange}
+            onClearAll={handleClearAll}
+          />
+
           <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
             <div className="overflow-x-auto">
               <div className="min-w-[640px]">
@@ -92,9 +180,14 @@ export function OverviewPage() {
                   </Text>
                 </div>
                 <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-                  {runs.map((run) => (
-                    <RunRow key={run.runId} {...run} />
-                  ))}
+                  {filteredRuns.length > 0 ? (
+                    filteredRuns.map((run) => <RunRow key={run.runId} {...run} />)
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 px-4 py-10 text-center">
+                      <Text size="sm" weight="medium">No runs match your filters</Text>
+                      <Text size="xs" tone="subtle">Try adjusting the search or clearing a filter.</Text>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

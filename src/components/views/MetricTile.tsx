@@ -6,6 +6,9 @@ import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
 
+export type TrendDirection = 'up' | 'down' | 'flat'
+export type TrendSentiment = 'positive' | 'negative' | 'neutral'
+
 export const metricTileVariants = cva('flex flex-col gap-2 border-t-2', {
   variants: {
     emphasis: {
@@ -21,9 +24,6 @@ const sentimentTopBorder: Record<TrendSentiment, string> = {
   negative: 'border-t-(--color-danger)',
   neutral: 'border-t-(--color-border-strong)',
 }
-
-export type TrendDirection = 'up' | 'down' | 'flat'
-export type TrendSentiment = 'positive' | 'negative' | 'neutral'
 
 export interface MetricTileProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'>,
@@ -107,7 +107,7 @@ function Sparkline({ data, sentiment, width = 120, height = 40 }: SparklineProps
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={sentimentFill[sentiment]} stopOpacity="0.18" />
+          <stop offset="0%" stopColor={sentimentFill[sentiment]} stopOpacity="0.25" />
           <stop offset="100%" stopColor={sentimentFill[sentiment]} stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -153,7 +153,11 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         variant={emphasis === 'raised' ? 'raised' : 'default'}
         padding="md"
         radius="lg"
-        className={cn(metricTileVariants({ emphasis }), className)}
+        className={cn(
+          metricTileVariants({ emphasis }),
+          sentimentTopBorder[sentiment],
+          className,
+        )}
         {...props}
       >
         <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide">
@@ -162,11 +166,11 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         <div className="flex items-end justify-between gap-2">
           <div className="flex flex-col gap-2">
             <div className="flex items-baseline gap-1">
-              <Heading as="div" size="2xl" weight="semibold">
+              <Heading as="div" size="3xl" weight="semibold">
                 {value}
               </Heading>
               {unit ? (
-                <Text size="sm" tone="muted">
+                <Text size="md" tone="muted">
                   {unit}
                 </Text>
               ) : null}
@@ -193,7 +197,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
           </div>
           {sparkline && sparkline.length >= 2 && (
             <div className="shrink-0 self-end pb-0.5">
-              <Sparkline data={sparkline} sentiment={sentiment} width={80} height={36} />
+              <Sparkline data={sparkline} sentiment={sentiment} width={88} height={40} />
             </div>
           )}
         </div>

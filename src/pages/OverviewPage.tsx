@@ -23,6 +23,13 @@ export function OverviewPage() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricTile
+          label="Simulations / 24h"
+          value="12,481"
+          delta="−2.1 vs. last week"
+          trend="down"
+          sentiment="negative"
+        />
+        <MetricTile
           label="Eval pass rate"
           value="94.2"
           unit="%"
@@ -30,14 +37,6 @@ export function OverviewPage() {
           trend="up"
           sentiment="positive"
           sparkline={metricSparklines.evalPassRate}
-        />
-        <MetricTile
-          label="Simulations / 24h"
-          value="12,481"
-          delta="−2.1 vs. last week"
-          trend="down"
-          sentiment="negative"
-          sparkline={metricSparklines.simulations}
         />
         <MetricTile
           label="Escalation rate"

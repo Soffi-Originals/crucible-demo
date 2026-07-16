@@ -142,7 +142,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         ref={ref}
         variant="raised"
         padding="md"
-        radius="lg"
+        radius="sm"
         className={cn(metricTileVariants({ emphasis }), className)}
         {...props}
       >

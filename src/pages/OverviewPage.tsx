@@ -13,8 +13,8 @@ export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl" style={{ color: '#2563EB' }}>
-          Overview
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl" style={{ color: '#18181B' }}>
+          Good afternoon
         </Heading>
         <Text size="sm" tone="muted" style={{ color: '#18181B', fontSize: '12px' }}>
           How your agents are behaving across simulations and live traffic.

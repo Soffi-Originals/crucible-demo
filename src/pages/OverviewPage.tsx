@@ -287,7 +287,7 @@ export function OverviewPage() {
       </div>
 
       <div className="flex flex-col gap-6">
-        <div className="flex min-w-0 flex-col gap-3 lg:col-span-2">
+        <div className="flex min-w-0 flex-col gap-3">
           {/* Section header */}
           <div className="flex items-center justify-between">
             <Heading as="h2" size="md" weight="semibold">

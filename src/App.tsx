@@ -60,7 +60,7 @@ function App() {
           badge={pageMeta[page].badge}
           theme={theme}
           onToggleTheme={toggle}
-          onMenuClick={() => setSidebarOpen(true)}
+          onMenuClick={() => setSidebarOpen(prev => !prev)}
           primaryAction={
             page === 'agents'
               ? { label: 'New agent' }

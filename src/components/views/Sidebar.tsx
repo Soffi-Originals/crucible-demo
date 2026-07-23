@@ -17,7 +17,6 @@ import { Text } from '@/components/ui/Text'
 import { Input } from '@/components/ui/Input'
 import { Kbd } from '@/components/ui/Kbd'
 import { Divider } from '@/components/ui/Divider'
-import { IconButton } from '@/components/ui/IconButton'
 
 export type PageId =
   | 'overview'

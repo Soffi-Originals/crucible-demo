@@ -70,16 +70,6 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
           </div>
           <ChevronsUpDown className="h-3.5 w-3.5 text-(--color-fg-subtle)" />
         </button>
-        {onClose ? (
-          <IconButton
-            variant="ghost"
-            size="sm"
-            aria-label="Close sidebar"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </IconButton>
-        ) : null}
       </div>
 
       <div className="relative flex items-center">

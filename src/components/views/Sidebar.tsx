@@ -10,7 +10,6 @@ import {
   Plug,
   Search,
   Settings,
-  X,
 } from 'lucide-react'
 import { SidebarNavItem } from './SidebarNavItem'
 import { Avatar } from '@/components/ui/Avatar'

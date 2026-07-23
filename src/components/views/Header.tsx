@@ -35,7 +35,7 @@ export function Header({
           size="sm"
           aria-label="Open menu"
           onClick={onMenuClick}
-          className="-ml-1 lg:hidden"
+          className="-ml-1"
         >
           <Menu className="h-4 w-4" />
         </IconButton>

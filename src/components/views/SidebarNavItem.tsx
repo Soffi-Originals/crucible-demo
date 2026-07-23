@@ -47,11 +47,6 @@ export const SidebarNavItem = React.forwardRef<
       className={cn(sidebarNavItemVariants({ state, size }), className)}
       {...props}
     >
-      {icon ? (
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-          {icon}
-        </span>
-      ) : null}
       <Text size="sm" weight="medium" className="flex-1 text-current">
         {label}
       </Text>

@@ -5,14 +5,14 @@ import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
 export const sidebarNavItemVariants = cva(
-  'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) transition-[background-color,border-color,color] duration-150 ease-in-out border-l-2 border-transparent',
+  'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) transition-[background-color,color] duration-150 ease-in-out',
   {
     variants: {
       state: {
         default:
           'text-(--color-fg-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
         active:
-          'bg-(--color-surface-subtle) text-(--color-fg) font-medium border-(--color-accent)',
+          'bg-(--color-surface-raised) text-(--color-fg) font-medium',
         muted: 'opacity-50',
       },
       size: {

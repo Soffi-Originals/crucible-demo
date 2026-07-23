@@ -32,7 +32,7 @@ const pageMeta: Record<
 
 function App() {
   const [page, setPage] = useState<PageId>('overview')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const { theme, toggle } = useTheme()
 
   const handleNavigate = (id: PageId) => {

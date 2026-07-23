@@ -20,7 +20,8 @@ export function AppShell({
 }: AppShellProps) {
   React.useEffect(() => {
     if (typeof document === 'undefined') return
-    document.body.style.overflow = sidebarOpen ? 'hidden' : ''
+    const isMobile = window.innerWidth < 1024
+    document.body.style.overflow = sidebarOpen && isMobile ? 'hidden' : ''
     return () => {
       document.body.style.overflow = ''
     }

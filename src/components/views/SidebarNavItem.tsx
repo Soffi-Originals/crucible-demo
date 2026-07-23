@@ -12,7 +12,7 @@ export const sidebarNavItemVariants = cva(
         default:
           'text-(--color-fg-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
         active:
-          'bg-(--color-surface-raised) text-(--color-fg) font-medium',
+          'bg-(--color-surface-muted) text-(--color-fg) font-medium',
         muted: 'opacity-50',
       },
       size: {

@@ -74,9 +74,8 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
           <IconButton
             variant="ghost"
             size="sm"
-            aria-label="Close menu"
+            aria-label="Close sidebar"
             onClick={onClose}
-            className="lg:hidden"
           >
             <X className="h-4 w-4" />
           </IconButton>

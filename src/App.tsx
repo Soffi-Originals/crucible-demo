@@ -37,7 +37,8 @@ function App() {
 
   const handleNavigate = (id: PageId) => {
     setPage(id)
-    setSidebarOpen(false)
+    // Close sidebar on mobile (small screens) after navigation, keep open on desktop
+    if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
   return (

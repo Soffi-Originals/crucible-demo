@@ -1,3 +1,4 @@
+import type { SparklinePoint } from '@/components/ui/Sparkline'
 import type { AgentTone } from '@/components/views/AgentRow'
 import type { ConnectorState } from '@/components/views/ConnectorCard'
 import type { RunStatus } from '@/components/views/RunRow'
@@ -263,6 +264,44 @@ export const simulationSteps: SimulationStepEntry[] = [
   { label: 'Confirmation email sent', state: 'done' },
   { label: 'Done', state: 'final' },
 ]
+
+// ---------------------------------------------------------------------------
+// Sparkline series for the four overview metric tiles
+// Each array covers the last 14 days (oldest → newest).
+// ---------------------------------------------------------------------------
+
+function makePoints(
+  values: number[],
+  formatter: (v: number) => string,
+): SparklinePoint[] {
+  const now = new Date()
+  return values.map((value, i) => {
+    const d = new Date(now)
+    d.setDate(d.getDate() - (values.length - 1 - i))
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return { value, label, formatted: formatter(value) }
+  })
+}
+
+export const evalPassRateSeries: SparklinePoint[] = makePoints(
+  [91.4, 92.0, 91.8, 93.1, 92.7, 93.5, 94.0, 93.8, 94.2, 93.9, 94.5, 94.1, 94.3, 94.2],
+  (v) => `${v.toFixed(1)}%`,
+)
+
+export const simulationsSeries: SparklinePoint[] = makePoints(
+  [13200, 12800, 13100, 12500, 12900, 13400, 12700, 12300, 12100, 12600, 12900, 12400, 12500, 12481],
+  (v) => v.toLocaleString(),
+)
+
+export const latencySeries: SparklinePoint[] = makePoints(
+  [2.1, 2.0, 1.9, 2.0, 1.8, 1.9, 2.1, 2.0, 1.8, 1.9, 1.7, 1.8, 1.9, 1.8],
+  (v) => `${v.toFixed(1)}s`,
+)
+
+export const escalationRateSeries: SparklinePoint[] = makePoints(
+  [3.8, 3.7, 3.9, 3.6, 3.5, 3.7, 3.4, 3.5, 3.3, 3.4, 3.2, 3.3, 3.1, 3.1],
+  (v) => `${v.toFixed(1)}%`,
+)
 
 export type Plan = {
   id: string

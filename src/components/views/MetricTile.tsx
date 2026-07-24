@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
+import { Sparkline, type SparklinePoint } from '@/components/ui/Sparkline'
 
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
@@ -29,6 +30,10 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  /** Optional sparkline series rendered at the bottom of the card */
+  sparkline?: SparklinePoint[]
+  /** Color for the sparkline line and fill (CSS value). Defaults to the accent color. */
+  sparklineColor?: string
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -43,6 +48,38 @@ const sentimentColor: Record<TrendSentiment, string> = {
   neutral: 'text-(--color-fg-muted)',
 }
 
+// A width-responsive wrapper for Sparkline — measures its container and passes
+// the pixel width down so the SVG fills the card.
+function SparklineAutoWidth({
+  points,
+  color,
+  height,
+}: {
+  points: SparklinePoint[]
+  color?: string
+  height: number
+}) {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const [width, setWidth] = React.useState(0)
+
+  React.useLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    setWidth(el.clientWidth)
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  return (
+    <div ref={containerRef} style={{ width: '100%' }}>
+      {width > 0 && (
+        <Sparkline points={points} color={color} width={width} height={height} />
+      )}
+    </div>
+  )
+}
+
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
   function MetricTile(
     {
@@ -55,6 +92,8 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
+      sparklineColor,
       ...props
     },
     ref,
@@ -98,6 +137,15 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
                 {hint}
               </Text>
             ) : null}
+          </div>
+        )}
+        {sparkline && sparkline.length >= 2 && (
+          <div className="mt-1 w-full overflow-visible">
+            <SparklineAutoWidth
+              points={sparkline}
+              color={sparklineColor}
+              height={36}
+            />
           </div>
         )}
       </Card>

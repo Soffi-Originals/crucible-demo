@@ -32,12 +32,13 @@ const pageMeta: Record<
 
 function App() {
   const [page, setPage] = useState<PageId>('overview')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const { theme, toggle } = useTheme()
 
   const handleNavigate = (id: PageId) => {
     setPage(id)
-    setSidebarOpen(false)
+    // Close sidebar on mobile (small screens) after navigation, keep open on desktop
+    if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
   return (
@@ -59,7 +60,7 @@ function App() {
           badge={pageMeta[page].badge}
           theme={theme}
           onToggleTheme={toggle}
-          onMenuClick={() => setSidebarOpen(true)}
+          onMenuClick={() => setSidebarOpen(prev => !prev)}
           primaryAction={
             page === 'agents'
               ? { label: 'New agent' }

@@ -5,14 +5,14 @@ import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
 export const sidebarNavItemVariants = cva(
-  'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) transition-colors',
+  'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) transition-[background-color,color] duration-150 ease-in-out',
   {
     variants: {
       state: {
         default:
           'text-(--color-fg-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
         active:
-          'bg-(--color-surface-subtle) text-(--color-fg) ring-1 ring-(--color-border)',
+          'bg-(--color-surface-muted) text-(--color-fg) font-medium',
         muted: 'opacity-50',
       },
       size: {
@@ -47,11 +47,6 @@ export const SidebarNavItem = React.forwardRef<
       className={cn(sidebarNavItemVariants({ state, size }), className)}
       {...props}
     >
-      {icon ? (
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-          {icon}
-        </span>
-      ) : null}
       <Text size="sm" weight="medium" className="flex-1 text-current">
         {label}
       </Text>

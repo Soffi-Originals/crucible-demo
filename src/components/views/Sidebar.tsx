@@ -10,7 +10,6 @@ import {
   Plug,
   Search,
   Settings,
-  X,
 } from 'lucide-react'
 import { SidebarNavItem } from './SidebarNavItem'
 import { Avatar } from '@/components/ui/Avatar'
@@ -18,7 +17,6 @@ import { Text } from '@/components/ui/Text'
 import { Input } from '@/components/ui/Input'
 import { Kbd } from '@/components/ui/Kbd'
 import { Divider } from '@/components/ui/Divider'
-import { IconButton } from '@/components/ui/IconButton'
 
 export type PageId =
   | 'overview'
@@ -70,17 +68,6 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
           </div>
           <ChevronsUpDown className="h-3.5 w-3.5 text-(--color-fg-subtle)" />
         </button>
-        {onClose ? (
-          <IconButton
-            variant="ghost"
-            size="sm"
-            aria-label="Close menu"
-            onClick={onClose}
-            className="lg:hidden"
-          >
-            <X className="h-4 w-4" />
-          </IconButton>
-        ) : null}
       </div>
 
       <div className="relative flex items-center">

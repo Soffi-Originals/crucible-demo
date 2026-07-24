@@ -93,7 +93,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
           </div>
 
           <div className="flex items-baseline gap-1">
-            <Heading as="div" size="2xl" weight="semibold">
+            <Heading as="div" size="sm" weight="semibold">
               {price}
             </Heading>
             {pricePeriod ? (

@@ -14,7 +14,6 @@ import {
   evals,
   runs,
   evalPassRateSeries,
-  simulationsSeries,
   latencySeries,
   escalationRateSeries,
 } from '@/data/demo'

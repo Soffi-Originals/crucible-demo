@@ -71,6 +71,7 @@ interface SparklineProps {
 }
 
 function Sparkline({ data, sentiment, width = 120, height = 40 }: SparklineProps) {
+  const uid = React.useId()
   if (data.length < 2) return null
 
   const min = Math.min(...data)

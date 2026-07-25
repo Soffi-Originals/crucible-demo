@@ -97,7 +97,7 @@ function Sparkline({ data, sentiment, width = 120, height = 40 }: SparklineProps
     ` L${points[0].x.toFixed(2)},${(pad + innerH).toFixed(2)} Z`
 
   const lastPoint = points[points.length - 1]
-  const gradientId = `spark-${sentiment}-${Math.random().toString(36).slice(2, 7)}`
+  const gradientId = `spark-${sentiment}-${uid.replace(/:/g, '')}`
 
   return (
     <svg

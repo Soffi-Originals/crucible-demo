@@ -9,6 +9,7 @@ import { Heading } from '@/components/ui/Heading'
 export type TrendDirection = 'up' | 'down' | 'flat'
 export type TrendSentiment = 'positive' | 'negative' | 'neutral'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const metricTileVariants = cva('flex flex-col gap-2 border-t-2', {
   variants: {
     emphasis: {

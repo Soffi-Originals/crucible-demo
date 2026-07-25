@@ -13,7 +13,9 @@ export type RunsFilters = {
   statuses: RunStatus[]
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AGENT_OPTIONS = ['Navigator', 'Explorer', 'Pioneer', 'Voyager'] as const
+// eslint-disable-next-line react-refresh/only-export-components
 export const STATUS_OPTIONS: RunStatus[] = ['passed', 'running', 'failed', 'cancelled', 'queued']
 
 const STATUS_LABELS: Record<RunStatus, string> = {

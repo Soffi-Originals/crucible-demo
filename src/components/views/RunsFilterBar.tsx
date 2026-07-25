@@ -229,7 +229,7 @@ export function RunsFilterBar({
         />
 
         {/* Result count */}
-        <Text size="xs" tone="subtle" className="ml-auto shrink-0 tabular-nums">
+        <Text size="xs" tone="accent" className="ml-auto shrink-0 tabular-nums">
           {hasActiveFilters
             ? `Showing ${filteredCount} of ${totalCount}`
             : `${totalCount} runs`}

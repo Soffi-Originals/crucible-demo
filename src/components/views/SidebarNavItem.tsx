@@ -17,8 +17,8 @@ export const sidebarNavItemVariants = cva(
         muted: 'opacity-50',
       },
       size: {
-        sm: 'pl-[calc(0.5rem-2px)] pr-2 pt-1.5 pb-9 text-sm',
-        md: 'pl-[calc(0.625rem-2px)] pr-2.5 pt-2 pb-9 text-sm',
+        sm: 'pl-[calc(0.5rem-2px)] pr-2 py-1.5 text-sm',
+        md: 'pl-[calc(0.625rem-2px)] pr-2.5 py-2 text-sm',
       },
     },
     defaultVariants: { state: 'default', size: 'md' },

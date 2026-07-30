@@ -211,14 +211,14 @@ export function OverviewPage() {
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between border-t border-(--color-border-subtle) px-4 py-2.5">
                     <Text size="xs" tone="subtle">
-                      {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredRuns.length)} of {filteredRuns.length} runs
+                      {(activePage - 1) * PAGE_SIZE + 1}–{Math.min(activePage * PAGE_SIZE, filteredRuns.length)} of {filteredRuns.length} runs
                     </Text>
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
                         leadingIcon={<ChevronLeft className="h-3.5 w-3.5" />}
-                        disabled={page === 1}
+                        disabled={activePage === 1}
                         onClick={() => setPage((p) => p - 1)}
                       >
                         Prev
@@ -227,7 +227,7 @@ export function OverviewPage() {
                         variant="ghost"
                         size="sm"
                         trailingIcon={<ChevronRight className="h-3.5 w-3.5" />}
-                        disabled={page === totalPages}
+                        disabled={activePage === totalPages}
                         onClick={() => setPage((p) => p + 1)}
                       >
                         Next

@@ -67,7 +67,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
         radius="xl"
         className={cn(
           planCardVariants({ tier, featured }),
-          'overflow-hidden h-full',
+          'overflow-hidden',
           className,
         )}
         {...props}
@@ -122,7 +122,6 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
             variant={featured ? 'primary' : 'secondary'}
             size="lg"
             fullWidth
-            className="mt-auto font-bold bg-(--color-border-focus)"
             onClick={onCta}
           >
             {ctaLabel}

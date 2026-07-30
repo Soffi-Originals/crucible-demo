@@ -51,7 +51,7 @@ const items: {
 
 export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
   return (
-    <div className="flex h-full flex-col gap-4 p-4 text-(--color-border)">
+    <div className="flex h-full flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
         <button
           type="button"

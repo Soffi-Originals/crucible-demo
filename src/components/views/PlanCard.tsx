@@ -122,7 +122,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
             variant={featured ? 'primary' : 'secondary'}
             size="lg"
             fullWidth
-            className="mt-auto"
+            className="mt-auto h-[61px]"
             onClick={onCta}
           >
             {ctaLabel}

@@ -85,15 +85,19 @@ export function OverviewPage() {
 
   function handleSearchChange(value: string) {
     setFilters((f) => ({ ...f, search: value }))
+    setPage(1)
   }
   function handleAgentsChange(agents: string[]) {
     setFilters((f) => ({ ...f, agents }))
+    setPage(1)
   }
   function handleStatusesChange(statuses: RunStatus[]) {
     setFilters((f) => ({ ...f, statuses }))
+    setPage(1)
   }
   function handleClearAll() {
     setFilters({ search: '', agents: [], statuses: [] })
+    setPage(1)
   }
 
   return (

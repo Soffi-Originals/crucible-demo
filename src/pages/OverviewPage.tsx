@@ -65,9 +65,20 @@ export function OverviewPage() {
 
   const [page, setPage] = React.useState(1)
 
-  // Filtered runs — also resets page to 1 when filters change
-  const { filteredRuns, resetKey } = React.useMemo(() => {
-    const result = runs.filter((run) => {
+  // Track the active filter key so we can reset the page during render
+  // when filters change — avoids calling setState inside an effect.
+  const filterKey = `${debouncedSearch}|${filters.agents.join()}|${filters.statuses.join()}`
+  const prevFilterKeyRef = React.useRef(filterKey)
+  let activePage = page
+  if (prevFilterKeyRef.current !== filterKey) {
+    prevFilterKeyRef.current = filterKey
+    activePage = 1
+    setPage(1)
+  }
+
+  // Filtered runs
+  const filteredRuns = React.useMemo(() => {
+    return runs.filter((run) => {
       const matchSearch =
         debouncedSearch === '' ||
         run.scenario.toLowerCase().includes(debouncedSearch.toLowerCase())
@@ -77,23 +88,10 @@ export function OverviewPage() {
         filters.statuses.length === 0 || filters.statuses.includes(run.status)
       return matchSearch && matchAgent && matchStatus
     })
-    return { filteredRuns: result, resetKey: `${debouncedSearch}|${filters.agents.join()}|${filters.statuses.join()}` }
   }, [debouncedSearch, filters.agents, filters.statuses])
 
-  // Keep page in bounds when filters change
-  const clampedPage = React.useMemo(() => {
-    const total = Math.max(1, Math.ceil(filteredRuns.length / PAGE_SIZE))
-    return Math.min(page, total)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetKey, filteredRuns.length, page])
-
-  React.useLayoutEffect(() => {
-    setPage(1)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetKey])
-
   const totalPages = Math.max(1, Math.ceil(filteredRuns.length / PAGE_SIZE))
-  const pagedRuns = filteredRuns.slice((clampedPage - 1) * PAGE_SIZE, clampedPage * PAGE_SIZE)
+  const pagedRuns = filteredRuns.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE)
 
   function handleSearchChange(value: string) {
     setFilters((f) => ({ ...f, search: value }))

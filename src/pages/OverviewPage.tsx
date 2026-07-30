@@ -1,16 +1,19 @@
 import * as React from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Heading } from '@/components/ui/Heading'
 import { Text } from '@/components/ui/Text'
 import { Card } from '@/components/ui/Card'
 import { Divider } from '@/components/ui/Divider'
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
 import { MetricTile } from '@/components/views/MetricTile'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
 import { RunsFilterBar, type RunsFilters } from '@/components/views/RunsFilterBar'
 import { evals, runs } from '@/data/demo'
 import type { RunStatus } from '@/components/views/RunRow'
+
+const PAGE_SIZE = 10
 
 // ─── URL param helpers ─────────────────────────────────────────────────────────
 

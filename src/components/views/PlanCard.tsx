@@ -76,7 +76,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
           <div className="h-32 w-full">{banner}</div>
         ) : null}
 
-        <div className="flex flex-col gap-4 p-6">
+        <div className="flex flex-1 flex-col gap-4 p-6">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
               <Heading as="h3" size="md" weight="semibold">

@@ -16,7 +16,7 @@ export function PlansPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-start">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-stretch">
         {plans.map((plan) => (
           <PlanCard
             key={plan.id}

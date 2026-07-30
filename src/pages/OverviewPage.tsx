@@ -193,8 +193,8 @@ export function OverviewPage() {
                   </Text>
                 </div>
                 <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-                  {filteredRuns.length > 0 ? (
-                    filteredRuns.map((run) => <RunRow key={run.runId} {...run} />)
+                  {pagedRuns.length > 0 ? (
+                    pagedRuns.map((run) => <RunRow key={run.runId} {...run} />)
                   ) : (
                     <div className="flex flex-col items-center gap-1 px-4 py-10 text-center">
                       <Text size="sm" weight="medium">No runs match your filters</Text>
@@ -202,6 +202,33 @@ export function OverviewPage() {
                     </div>
                   )}
                 </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between border-t border-(--color-border-subtle) px-4 py-2.5">
+                    <Text size="xs" tone="subtle">
+                      {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredRuns.length)} of {filteredRuns.length} runs
+                    </Text>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        leadingIcon={<ChevronLeft className="h-3.5 w-3.5" />}
+                        disabled={page === 1}
+                        onClick={() => setPage((p) => p - 1)}
+                      >
+                        Prev
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        trailingIcon={<ChevronRight className="h-3.5 w-3.5" />}
+                        disabled={page === totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </Card>

@@ -67,7 +67,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
         radius="xl"
         className={cn(
           planCardVariants({ tier, featured }),
-          'overflow-hidden',
+          'h-full overflow-hidden',
           className,
         )}
         {...props}

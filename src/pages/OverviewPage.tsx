@@ -65,17 +65,6 @@ export function OverviewPage() {
 
   const [page, setPage] = React.useState(1)
 
-  // Track the active filter key so we can reset the page during render
-  // when filters change — avoids calling setState inside an effect.
-  const filterKey = `${debouncedSearch}|${filters.agents.join()}|${filters.statuses.join()}`
-  const prevFilterKeyRef = React.useRef(filterKey)
-  let activePage = page
-  if (prevFilterKeyRef.current !== filterKey) {
-    prevFilterKeyRef.current = filterKey
-    activePage = 1
-    setPage(1)
-  }
-
   // Filtered runs
   const filteredRuns = React.useMemo(() => {
     return runs.filter((run) => {
@@ -91,6 +80,7 @@ export function OverviewPage() {
   }, [debouncedSearch, filters.agents, filters.statuses])
 
   const totalPages = Math.max(1, Math.ceil(filteredRuns.length / PAGE_SIZE))
+  const activePage = Math.min(page, totalPages)
   const pagedRuns = filteredRuns.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE)
 
   function handleSearchChange(value: string) {

@@ -63,6 +63,8 @@ export function OverviewPage() {
     window.history.replaceState(null, '', url)
   }, [debouncedSearch, filters])
 
+  const [page, setPage] = React.useState(1)
+
   // Filtered runs
   const filteredRuns = React.useMemo(() => {
     return runs.filter((run) => {
@@ -76,6 +78,14 @@ export function OverviewPage() {
       return matchSearch && matchAgent && matchStatus
     })
   }, [debouncedSearch, filters.agents, filters.statuses])
+
+  // Reset to page 1 whenever filters change
+  React.useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch, filters.agents, filters.statuses])
+
+  const totalPages = Math.max(1, Math.ceil(filteredRuns.length / PAGE_SIZE))
+  const pagedRuns = filteredRuns.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function handleSearchChange(value: string) {
     setFilters((f) => ({ ...f, search: value }))

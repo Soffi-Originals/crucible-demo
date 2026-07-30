@@ -16,10 +16,11 @@ export function PlansPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-start">
         {plans.map((plan) => (
           <PlanCard
             key={plan.id}
+            className={plan.featured ? 'xl:scale-105 xl:shadow-lg' : ''}
             name={plan.name}
             price={plan.price}
             pricePeriod={plan.pricePeriod}

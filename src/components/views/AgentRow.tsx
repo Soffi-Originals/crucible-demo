@@ -5,6 +5,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const agentRowVariants = cva(
   'flex items-center gap-3 w-full text-left transition-colors',
   {

@@ -29,6 +29,7 @@ export function OverviewPage() {
           delta="+1.4 vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={[91.2, 91.8, 92.1, 91.9, 92.5, 93.0, 92.8, 93.4, 93.9, 94.2]}
         />
         <MetricTile
           label="Simulations / 24h"
@@ -36,6 +37,7 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={[13200, 13050, 12980, 13100, 12870, 12760, 12640, 12590, 12510, 12481]}
         />
         <MetricTile
           label="P95 latency"
@@ -44,6 +46,7 @@ export function OverviewPage() {
           delta="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={[1.75, 1.82, 1.79, 1.84, 1.77, 1.81, 1.76, 1.80, 1.78, 1.80]}
         />
         <MetricTile
           label="Escalation rate"
@@ -52,6 +55,7 @@ export function OverviewPage() {
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={[3.9, 3.8, 3.7, 3.8, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1]}
         />
       </div>
 

@@ -7,6 +7,7 @@ import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const connectorCardVariants = cva('flex flex-col gap-4', {
   variants: {
     layout: {

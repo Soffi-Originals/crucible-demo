@@ -116,6 +116,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,
@@ -132,35 +133,42 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide">
           {label}
         </Text>
-        <div className="flex items-baseline gap-1">
-          <Heading as="div" size="2xl" weight="semibold">
-            {value}
-          </Heading>
-          {unit ? (
-            <Text size="sm" tone="muted">
-              {unit}
-            </Text>
+        <div className="flex items-end justify-between gap-3">
+          <div className="flex flex-col gap-2 min-w-0">
+            <div className="flex items-baseline gap-1">
+              <Heading as="div" size="2xl" weight="semibold">
+                {value}
+              </Heading>
+              {unit ? (
+                <Text size="sm" tone="muted">
+                  {unit}
+                </Text>
+              ) : null}
+            </div>
+            {(delta || hint) && (
+              <div className="flex items-center justify-between">
+                {delta ? (
+                  <div className={cn('flex items-center gap-1', sentimentColor[sentiment])}>
+                    {trendIcon[trend]}
+                    <Text size="xs" weight="medium" className="text-current">
+                      {delta}
+                    </Text>
+                  </div>
+                ) : (
+                  <span />
+                )}
+                {hint ? (
+                  <Text size="xs" tone="subtle">
+                    {hint}
+                  </Text>
+                ) : null}
+              </div>
+            )}
+          </div>
+          {sparkline && sparkline.length >= 2 ? (
+            <Sparkline data={sparkline} sentiment={sentiment} />
           ) : null}
         </div>
-        {(delta || hint) && (
-          <div className="flex items-center justify-between">
-            {delta ? (
-              <div className={cn('flex items-center gap-1', sentimentColor[sentiment])}>
-                {trendIcon[trend]}
-                <Text size="xs" weight="medium" className="text-current">
-                  {delta}
-                </Text>
-              </div>
-            ) : (
-              <span />
-            )}
-            {hint ? (
-              <Text size="xs" tone="subtle">
-                {hint}
-              </Text>
-            ) : null}
-          </div>
-        )}
       </Card>
     )
   },

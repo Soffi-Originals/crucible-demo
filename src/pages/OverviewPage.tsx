@@ -154,7 +154,7 @@ export function OverviewPage() {
               <span
                 key={agent}
                 className={cn(
-                  badgeVariants({ variant: 'neutral', size: 'md', shape: 'pill' }),
+                  badgeVariants({ variant: 'outline', size: 'md', shape: 'pill' }),
                   'flex items-center gap-1',
                 )}
               >

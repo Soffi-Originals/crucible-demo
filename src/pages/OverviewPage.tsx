@@ -134,7 +134,7 @@ export function OverviewPage() {
                 onClick={() => toggleAgent(agent)}
                 className={cn(
                   badgeVariants({
-                    variant: isActive ? 'solid' : 'neutral',
+                    variant: isActive ? 'solid' : 'outline',
                     size: 'md',
                     shape: 'pill',
                   }),

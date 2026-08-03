@@ -66,6 +66,7 @@ function Sparkline({ data, sentiment = 'neutral', width = 80, height = 32 }: Spa
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
     emphasis: {

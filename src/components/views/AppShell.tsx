@@ -37,7 +37,7 @@ export function AppShell({
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm"
           onClick={() => onSidebarOpenChange?.(false)}
         />
       ) : null}

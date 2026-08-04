@@ -4,6 +4,7 @@ import { cn } from '@/lib/cn'
 import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const sidebarNavItemVariants = cva(
   'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) transition-colors',
   {

@@ -37,15 +37,15 @@ export function AppShell({
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm"
           onClick={() => onSidebarOpenChange?.(false)}
         />
       ) : null}
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-(--color-border-subtle) bg-(--color-surface) shadow-(--shadow-lg) transition-transform duration-200 ease-out lg:static lg:z-auto lg:w-64 lg:shrink-0 lg:translate-x-0 lg:shadow-none',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-(--color-border-subtle) bg-(--color-surface) shadow-(--shadow-lg) transition-transform duration-200 ease-out lg:static lg:z-auto lg:w-64 lg:shrink-0 lg:shadow-none',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
         {sidebar}

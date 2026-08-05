@@ -8,6 +8,7 @@ import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const planCardVariants = cva('flex flex-col gap-4', {
   variants: {
     tier: {
@@ -66,7 +67,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
         radius="xl"
         className={cn(
           planCardVariants({ tier, featured }),
-          'overflow-hidden',
+          'h-full overflow-hidden',
           className,
         )}
         {...props}
@@ -75,7 +76,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
           <div className="h-32 w-full">{banner}</div>
         ) : null}
 
-        <div className="flex flex-col gap-4 p-6">
+        <div className="flex flex-1 flex-col gap-4 p-6">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
               <Heading as="h3" size="md" weight="semibold">
@@ -121,6 +122,7 @@ export const PlanCard = React.forwardRef<HTMLDivElement, PlanCardProps>(
             variant={featured ? 'primary' : 'secondary'}
             size="lg"
             fullWidth
+            className="mt-auto h-[61px]"
             onClick={onCta}
           >
             {ctaLabel}

@@ -4,6 +4,7 @@ import { Check, Loader2, X } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Text } from '@/components/ui/Text'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const simulationStepVariants = cva('flex items-start gap-3 relative', {
   variants: {
     state: {

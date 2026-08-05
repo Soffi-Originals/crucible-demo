@@ -7,12 +7,13 @@ import { Heading } from '@/components/ui/Heading'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Badge } from '@/components/ui/Badge'
 
-export const evalScoreCardVariants = cva('flex flex-col gap-3', {
+// eslint-disable-next-line react-refresh/only-export-components
+export const evalScoreCardVariants = cva('flex flex-col gap-3 border-l-2', {
   variants: {
     severity: {
-      pass: '',
-      warn: '',
-      fail: '',
+      pass: 'border-l-(--color-success)',
+      warn: 'border-l-(--color-warning)',
+      fail: 'border-l-(--color-danger)',
     },
   },
   defaultVariants: { severity: 'pass' },
@@ -36,6 +37,12 @@ const severityLabel: Record<EvalSeverity, string> = {
   pass: 'Passing',
   warn: 'Needs review',
   fail: 'Regressing',
+}
+
+const severityBg: Record<EvalSeverity, string> = {
+  pass: '',
+  warn: 'bg-(--color-warning-soft)',
+  fail: 'bg-(--color-danger-soft)',
 }
 
 export interface EvalScoreCardProps
@@ -62,7 +69,7 @@ export const EvalScoreCard = React.forwardRef<
       variant="default"
       padding="md"
       radius="lg"
-      className={cn(evalScoreCardVariants({ severity }), className)}
+      className={cn(evalScoreCardVariants({ severity }), severityBg[severity ?? 'pass'], className)}
       {...props}
     >
       <div className="flex items-start justify-between gap-3">

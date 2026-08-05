@@ -9,6 +9,7 @@ import {
   type SimulationStepProps,
 } from './SimulationStep'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const simulationConversationVariants = cva('flex flex-col gap-5', {
   variants: {
     density: {

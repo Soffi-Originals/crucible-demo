@@ -2,6 +2,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/cn'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const cardVariants = cva('flex flex-col bg-(--color-surface)', {
   variants: {
     variant: {
@@ -57,6 +58,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(function Card(
   )
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const cardSectionVariants = cva('flex', {
   variants: {
     align: {

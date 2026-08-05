@@ -4,20 +4,21 @@ import { cn } from '@/lib/cn'
 import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const sidebarNavItemVariants = cva(
-  'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) transition-colors',
+  'flex items-center gap-2.5 w-full text-left rounded-(--radius-md) border-l-2 border-l-transparent transition-[background-color,border-color] duration-150 ease-in-out',
   {
     variants: {
       state: {
         default:
           'text-(--color-fg-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
         active:
-          'bg-(--color-surface-subtle) text-(--color-fg) ring-1 ring-(--color-border)',
+          'bg-(--color-surface-subtle) text-(--color-fg) border-l-(--color-accent) font-medium',
         muted: 'opacity-50',
       },
       size: {
-        sm: 'px-2 py-1.5 text-sm',
-        md: 'px-2.5 py-2 text-sm',
+        sm: 'pl-[calc(0.5rem-2px)] pr-2 py-1.5 text-sm',
+        md: 'pl-[calc(0.625rem-2px)] pr-2.5 py-2 text-sm',
       },
     },
     defaultVariants: { state: 'default', size: 'md' },

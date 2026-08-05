@@ -154,7 +154,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         ref={ref}
         variant={emphasis === 'raised' ? 'raised' : 'subtle'}
         padding="md"
-        radius="lg"
+        radius="sm"
         className={cn(
           metricTileVariants({ emphasis }),
           sentimentTopBorder[sentiment],

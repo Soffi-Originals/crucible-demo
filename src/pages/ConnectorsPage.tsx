@@ -20,12 +20,12 @@ export function ConnectorsPage() {
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
+          <Text size="sm" tone="accent" className="mt-[21px]">
+            Tools agents can read from or take action against during a simulation.
+          </Text>
           <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
             Connectors
           </Heading>
-          <Text size="sm" tone="muted">
-            Tools agents can read from or take action against during a simulation.
-          </Text>
         </div>
         <Input
           variant="default"

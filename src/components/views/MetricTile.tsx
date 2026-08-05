@@ -152,7 +152,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
     return (
       <Card
         ref={ref}
-        variant={emphasis === 'raised' ? 'raised' : 'default'}
+        variant={emphasis === 'raised' ? 'raised' : 'subtle'}
         padding="md"
         radius="lg"
         className={cn(

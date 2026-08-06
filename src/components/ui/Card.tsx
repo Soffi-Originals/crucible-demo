@@ -58,6 +58,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(function Card(
   )
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const cardSectionVariants = cva('flex', {
   variants: {
     align: {

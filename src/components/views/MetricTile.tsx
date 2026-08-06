@@ -162,7 +162,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         </div>
 
         {sparkline && sparkline.length > 1 && (
-          <div className="-mx-1 mt-1">
+          <div className="-mx-1 mt-1 overflow-visible pb-1">
             <Sparkline points={sparkline} sentiment={sentiment} />
           </div>
         )}

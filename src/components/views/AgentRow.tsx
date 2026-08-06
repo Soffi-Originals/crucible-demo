@@ -6,7 +6,7 @@ import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
 export const agentRowVariants = cva(
-  'flex items-center gap-3 w-full text-left transition-colors',
+  'flex items-start gap-3 w-full text-left transition-colors',
   {
     variants: {
       state: {

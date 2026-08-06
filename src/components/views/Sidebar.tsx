@@ -55,7 +55,7 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="flex flex-1 items-center gap-2.5 rounded-(--radius-md) p-1.5 -m-1.5 text-left transition-colors hover:bg-(--color-surface-subtle)"
+          className="flex flex-1 items-center gap-2.5 rounded-(--radius-md) border border-(--color-border) p-1.5 -m-1.5 text-left transition-colors hover:bg-(--color-surface-subtle)"
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-(--radius-md) bg-(--color-fg) text-(--color-warning)">
             <Flame className="h-4 w-4" strokeWidth={2.25} fill="currentColor" />

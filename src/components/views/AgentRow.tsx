@@ -82,7 +82,7 @@ export const AgentRow = React.forwardRef<HTMLButtonElement, AgentRowProps>(
             {name}
           </Text>
           {description ? (
-            <Text size="sm" tone="muted" truncate>
+            <Text size="base" tone="muted" truncate>
               {description}
             </Text>
           ) : null}

@@ -7,6 +7,7 @@ import { Heading } from '@/components/ui/Heading'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Badge } from '@/components/ui/Badge'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const evalScoreCardVariants = cva('flex flex-col gap-3', {
   variants: {
     severity: {

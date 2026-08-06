@@ -78,23 +78,23 @@ export const AgentRow = React.forwardRef<HTMLButtonElement, AgentRowProps>(
           initials={initials ?? name.charAt(0).toUpperCase()}
         />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className="flex items-center gap-2">
-            <Text size="base" weight="medium" truncate>
-              {name}
-            </Text>
-            {badge ? (
-              <Badge variant="neutral" size="sm" shape="pill">
-                {badge}
-              </Badge>
-            ) : null}
-          </div>
+          <Text size="base" weight="medium" truncate>
+            {name}
+          </Text>
           {description ? (
             <Text size="sm" tone="muted" truncate>
               {description}
             </Text>
           ) : null}
         </div>
-        {trailing ? <div className="flex shrink-0">{trailing}</div> : null}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {badge ? (
+            <Badge variant="neutral" size="sm" shape="pill">
+              {badge}
+            </Badge>
+          ) : null}
+          {trailing ? <div>{trailing}</div> : null}
+        </div>
       </button>
     )
   },

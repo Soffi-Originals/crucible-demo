@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
     emphasis: {

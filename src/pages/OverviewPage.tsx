@@ -7,29 +7,21 @@ import { Badge } from '@/components/ui/Badge'
 import { MetricTile } from '@/components/views/MetricTile'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
-import { evals, runs } from '@/data/demo'
+import { evals, runs, metricSparklines } from '@/data/demo'
 
 export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
-          Production overview
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl" style={{ color: 'var(--color-border-focus)' }}>
+          Good afternoon
         </Heading>
-        <Text size="sm" tone="muted">
+        <Text size="xs" tone="muted" style={{ color: '#3B82F6', fontSize: '12px', fontWeight: 700 }}>
           How your agents are behaving across simulations and live traffic.
         </Text>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricTile
-          label="Eval pass rate"
-          value="94.2"
-          unit="%"
-          delta="+1.4 vs. last week"
-          trend="up"
-          sentiment="positive"
-        />
         <MetricTile
           label="Simulations / 24h"
           value="12,481"
@@ -38,12 +30,13 @@ export function OverviewPage() {
           sentiment="negative"
         />
         <MetricTile
-          label="P95 latency"
-          value="1.8"
-          unit="s"
-          delta="flat"
-          trend="flat"
-          sentiment="neutral"
+          label="Eval pass rate"
+          value="94.2"
+          unit="%"
+          delta="+1.4 vs. last week"
+          trend="up"
+          sentiment="positive"
+          sparkline={metricSparklines.evalPassRate}
         />
         <MetricTile
           label="Escalation rate"
@@ -52,6 +45,16 @@ export function OverviewPage() {
           delta="−0.6 vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={metricSparklines.escalationRate}
+        />
+        <MetricTile
+          label="P95 latency"
+          value="1.8"
+          unit="s"
+          delta="flat"
+          trend="flat"
+          sentiment="neutral"
+          sparkline={metricSparklines.p95Latency}
         />
       </div>
 

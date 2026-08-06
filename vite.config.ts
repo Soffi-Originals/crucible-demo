@@ -15,5 +15,6 @@ export default defineConfig({
     headers: {
       'Content-Security-Policy': 'frame-ancestors *',
     },
+    historyApiFallback: true,
   },
 })

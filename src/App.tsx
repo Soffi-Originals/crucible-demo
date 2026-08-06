@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AppShell } from '@/components/views/AppShell'
 import { Sidebar, type PageId } from '@/components/views/Sidebar'
 import { Header } from '@/components/views/Header'
 import { useTheme } from '@/lib/theme'
+import { useState } from 'react'
 
 import { OverviewPage } from '@/pages/OverviewPage'
 import { AgentsPage } from '@/pages/AgentsPage'
@@ -15,10 +16,7 @@ const pageMeta: Record<
   PageId,
   { title: string; description?: string; badge?: string }
 > = {
-  overview: {
-    title: 'Overview',
-    description: 'Real-time agent health',
-  },
+  overview: { title: 'Overview', description: 'Real-time agent health' },
   agents: { title: 'Agents', description: '4 agents' },
   simulations: {
     title: 'Simulations',
@@ -30,15 +28,23 @@ const pageMeta: Record<
   plans: { title: 'Plans & billing' },
 }
 
-function App() {
-  const [page, setPage] = useState<PageId>('overview')
+const pathToPage: Record<string, PageId> = {
+  '/': 'overview',
+  '/overview': 'overview',
+  '/agents': 'agents',
+  '/simulations': 'simulations',
+  '/evals': 'evals',
+  '/connectors': 'connectors',
+  '/plans': 'plans',
+}
+
+function Shell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, toggle } = useTheme()
+  const location = useLocation()
 
-  const handleNavigate = (id: PageId) => {
-    setPage(id)
-    setSidebarOpen(false)
-  }
+  const currentPage: PageId = pathToPage[location.pathname] ?? 'overview'
+  const meta = pageMeta[currentPage]
 
   return (
     <AppShell
@@ -46,39 +52,50 @@ function App() {
       onSidebarOpenChange={setSidebarOpen}
       sidebar={
         <Sidebar
-          current={page}
-          onNavigate={handleNavigate}
+          current={currentPage}
           onClose={() => setSidebarOpen(false)}
         />
       }
       header={
         <Header
           workspace="Crucible"
-          page={pageMeta[page].title}
-          description={pageMeta[page].description}
-          badge={pageMeta[page].badge}
+          page={meta.title}
+          description={meta.description}
+          badge={meta.badge}
           theme={theme}
           onToggleTheme={toggle}
           onMenuClick={() => setSidebarOpen(true)}
           primaryAction={
-            page === 'agents'
+            currentPage === 'agents'
               ? { label: 'New agent' }
-              : page === 'simulations'
+              : currentPage === 'simulations'
                 ? { label: 'New simulation' }
-                : page === 'evals'
+                : currentPage === 'evals'
                   ? { label: 'New eval' }
                   : undefined
           }
         />
       }
     >
-      {page === 'overview' && <OverviewPage />}
-      {page === 'agents' && <AgentsPage />}
-      {page === 'simulations' && <SimulationsPage />}
-      {page === 'evals' && <EvalsPage />}
-      {page === 'connectors' && <ConnectorsPage />}
-      {page === 'plans' && <PlansPage />}
+      <Routes>
+        <Route path="/" element={<Navigate to="/overview" replace />} />
+        <Route path="/overview" element={<OverviewPage />} />
+        <Route path="/agents" element={<AgentsPage />} />
+        <Route path="/simulations" element={<SimulationsPage />} />
+        <Route path="/evals" element={<EvalsPage />} />
+        <Route path="/connectors" element={<ConnectorsPage />} />
+        <Route path="/plans" element={<PlansPage />} />
+        <Route path="*" element={<Navigate to="/overview" replace />} />
+      </Routes>
     </AppShell>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Shell />
+    </BrowserRouter>
   )
 }
 

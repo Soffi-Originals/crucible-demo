@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
+import type { SparkPoint } from '@/data/demo'
 
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
@@ -29,6 +30,7 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  sparkline?: SparkPoint[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -43,6 +45,82 @@ const sentimentColor: Record<TrendSentiment, string> = {
   neutral: 'text-(--color-fg-muted)',
 }
 
+// Stroke colors per sentiment, using CSS vars directly so dark mode works
+const sparklineStroke: Record<TrendSentiment, string> = {
+  positive: 'var(--color-success)',
+  negative: 'var(--color-danger)',
+  neutral: 'var(--color-fg-subtle)',
+}
+
+
+function Sparkline({
+  points,
+  sentiment,
+}: {
+  points: SparkPoint[]
+  sentiment: TrendSentiment
+}) {
+  const W = 100
+  const H = 36
+  const PAD = 5
+
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+  const rangeX = maxX - minX || 1
+  const rangeY = maxY - minY || 1
+
+  const toSvg = (p: SparkPoint) => ({
+    sx: PAD + ((p.x - minX) / rangeX) * (W - PAD * 2),
+    sy: H - PAD - ((p.y - minY) / rangeY) * (H - PAD * 2),
+  })
+
+  const coords = points.map(toSvg)
+
+  // Straight-line polyline — sharp corners, no bezier smoothing
+  const d = coords
+    .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.sx.toFixed(2)} ${pt.sy.toFixed(2)}`)
+    .join(' ')
+
+  const last = coords[coords.length - 1]
+  const stroke = sparklineStroke[sentiment]
+  const TICK = 3
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      overflow="visible"
+      className="w-full"
+      style={{ height: H }}
+      aria-hidden="true"
+    >
+      {/* Polyline */}
+      <path
+        d={d}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="1.25"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
+      {/* Terminal crosshair tick */}
+      <line
+        x1={last.sx}
+        y1={last.sy - TICK}
+        x2={last.sx}
+        y2={last.sy + TICK}
+        stroke={stroke}
+        strokeWidth="1.25"
+        strokeLinecap="square"
+      />
+    </svg>
+  )
+}
+
 export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
   function MetricTile(
     {
@@ -55,6 +133,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,
@@ -62,9 +141,9 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
     return (
       <Card
         ref={ref}
-        variant={emphasis === 'raised' ? 'raised' : 'default'}
+        variant="default"
         padding="md"
-        radius="lg"
+        radius="sm"
         className={cn(metricTileVariants({ emphasis }), className)}
         {...props}
       >
@@ -81,6 +160,13 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
             </Text>
           ) : null}
         </div>
+
+        {sparkline && sparkline.length > 1 && (
+          <div className="-mx-1 mt-1 overflow-visible pb-1">
+            <Sparkline points={sparkline} sentiment={sentiment} />
+          </div>
+        )}
+
         {(delta || hint) && (
           <div className="flex items-center justify-between">
             {delta ? (

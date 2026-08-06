@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import {
   Activity,
   Bot,
@@ -30,26 +31,26 @@ export type PageId =
 
 export interface SidebarProps {
   current: PageId
-  onNavigate: (id: PageId) => void
   onClose?: () => void
 }
 
 const items: {
   id: PageId
   label: string
+  path: string
   icon: React.ReactNode
   count?: number
   shortcut?: string
 }[] = [
-  { id: 'overview', label: 'Overview', icon: <Gauge className="h-4 w-4" />, shortcut: '⌘1' },
-  { id: 'agents', label: 'Agents', icon: <Bot className="h-4 w-4" />, count: 4, shortcut: '⌘2' },
-  { id: 'simulations', label: 'Simulations', icon: <Activity className="h-4 w-4" />, count: 12, shortcut: '⌘3' },
-  { id: 'evals', label: 'Eval packs', icon: <Box className="h-4 w-4" />, shortcut: '⌘4' },
-  { id: 'connectors', label: 'Connectors', icon: <Plug className="h-4 w-4" />, shortcut: '⌘5' },
-  { id: 'plans', label: 'Plans & billing', icon: <CreditCard className="h-4 w-4" />, shortcut: '⌘6' },
+  { id: 'overview', label: 'Overview', path: '/overview', icon: <Gauge className="h-4 w-4" />, shortcut: '⌘1' },
+  { id: 'agents', label: 'Agents', path: '/agents', icon: <Bot className="h-4 w-4" />, count: 4, shortcut: '⌘2' },
+  { id: 'simulations', label: 'Simulations', path: '/simulations', icon: <Activity className="h-4 w-4" />, count: 12, shortcut: '⌘3' },
+  { id: 'evals', label: 'Eval packs', path: '/evals', icon: <Box className="h-4 w-4" />, shortcut: '⌘4' },
+  { id: 'connectors', label: 'Connectors', path: '/connectors', icon: <Plug className="h-4 w-4" />, shortcut: '⌘5' },
+  { id: 'plans', label: 'Plans & billing', path: '/plans', icon: <CreditCard className="h-4 w-4" />, shortcut: '⌘6' },
 ]
 
-export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
+export function Sidebar({ current, onClose }: SidebarProps) {
   return (
     <div className="flex h-full flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
@@ -98,15 +99,15 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
 
       <nav className="flex flex-col gap-0.5">
         {items.map((item) => (
-          <SidebarNavItem
-            key={item.id}
-            label={item.label}
-            icon={item.icon}
-            count={item.count}
-            shortcut={item.shortcut}
-            state={current === item.id ? 'active' : 'default'}
-            onClick={() => onNavigate(item.id)}
-          />
+          <Link key={item.id} to={item.path} onClick={onClose} className="contents">
+            <SidebarNavItem
+              label={item.label}
+              icon={item.icon}
+              count={item.count}
+              shortcut={item.shortcut}
+              state={current === item.id ? 'active' : 'default'}
+            />
+          </Link>
         ))}
       </nav>
 

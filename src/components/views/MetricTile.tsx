@@ -62,7 +62,7 @@ function Sparkline({
 }) {
   const W = 100
   const H = 36
-  const PAD = 2
+  const PAD = 5
 
   const xs = points.map((p) => p.x)
   const ys = points.map((p) => p.y)

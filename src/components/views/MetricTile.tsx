@@ -83,12 +83,6 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
           ) : null}
         </div>
 
-        {sparkline && sparkline.length > 1 && (
-          <div className="-mx-1 mt-1 overflow-visible pb-1">
-            <Sparkline points={sparkline} sentiment={sentiment} />
-          </div>
-        )}
-
         {(delta || hint) && (
           <div className="flex items-center justify-between">
             {delta ? (

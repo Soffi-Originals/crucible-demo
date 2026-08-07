@@ -191,9 +191,9 @@ const LEGEND = [
 
 // Donut rings: outer = pass rate, middle = eval coverage, inner = uptime
 const DONUT_RINGS = [
-  { pct: 94, color: 'var(--color-accent)', trackColor: 'var(--color-accent-soft)', r: 62, stroke: 12 },
-  { pct: 80, color: 'var(--color-success)', trackColor: 'var(--color-success-soft)', r: 46, stroke: 10 },
-  { pct: 99, color: 'var(--color-info)', trackColor: 'var(--color-info-soft)', r: 32, stroke: 8 },
+  { pct: 94, color: 'var(--color-accent)', trackColor: 'var(--color-accent-soft)', r: 62, stroke: 5 },
+  { pct: 80, color: 'var(--color-success)', trackColor: 'var(--color-success-soft)', r: 52, stroke: 5 },
+  { pct: 99, color: 'var(--color-info)', trackColor: 'var(--color-info-soft)', r: 42, stroke: 5 },
 ]
 
 // ---------------------------------------------------------------------------

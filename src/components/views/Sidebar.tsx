@@ -43,11 +43,11 @@ const navItems: {
 export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
   return (
     <div
-      className="flex h-full flex-col items-center py-4 gap-2 bg-surface-inverse"
+      className="flex h-full flex-col items-center py-4 gap-2 bg-canvas border-r border-(--color-border)"
     >
       {/* Logo */}
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius-md) mb-2 bg-surface-muted">
-        <Flame className="h-5 w-5 text-(--color-fg-inverse)" strokeWidth={2.25} fill="currentColor" />
+        <Flame className="h-5 w-5 text-(--color-fg)" strokeWidth={2.25} fill="currentColor" />
       </div>
 
       {/* Close button — mobile only */}
@@ -56,7 +56,7 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
           type="button"
           aria-label="Close menu"
           onClick={onClose}
-          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-(--radius-md) text-(--color-fg-subtle) hover:bg-(--color-surface-raised) transition-colors"
+          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-(--radius-md) text-(--color-fg-subtle) hover:bg-(--color-surface-muted) transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
@@ -76,8 +76,8 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
               className={cn(
                 'flex h-10 w-10 items-center justify-center rounded-(--radius-md) transition-colors',
                 isActive
-                  ? 'bg-(--color-surface-raised) text-(--color-fg-inverse)'
-                  : 'text-(--color-fg-subtle) hover:bg-(--color-surface-muted) hover:text-(--color-fg-inverse)',
+                  ? 'bg-(--color-surface-muted) text-(--color-fg)'
+                  : 'text-(--color-fg-subtle) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
               )}
             >
               {item.icon}
@@ -92,7 +92,7 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
           type="button"
           aria-label="Settings"
           title="Settings"
-          className="flex h-10 w-10 items-center justify-center rounded-(--radius-md) text-(--color-fg-subtle) hover:bg-(--color-surface-muted) hover:text-(--color-fg-inverse) transition-colors"
+          className="flex h-10 w-10 items-center justify-center rounded-(--radius-md) text-(--color-fg-subtle) hover:bg-(--color-surface-subtle) hover:text-(--color-fg) transition-colors"
         >
           <Settings className="h-5 w-5" />
         </button>

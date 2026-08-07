@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge'
 import { MetricTile } from '@/components/views/MetricTile'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
-import { evals, runs, metricSparklines } from '@/data/demo'
+import { evals, runs } from '@/data/demo'
 
 export function OverviewPage() {
   return (

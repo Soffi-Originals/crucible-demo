@@ -5,7 +5,6 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
-import type { SparkPoint } from '@/data/demo'
 
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {

@@ -29,7 +29,6 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
-  sparkline?: SparkPoint[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {

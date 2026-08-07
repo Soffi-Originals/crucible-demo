@@ -178,22 +178,22 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 // Run volume per month across 3 "years" — purely illustrative
 const RUN_SERIES = [
-  { color: '#7c3aed', values: [420, 390, 460, 510, 490, 540, 580, 620, 590, 650, 700, 730] },
-  { color: '#a78bfa', values: [310, 340, 300, 360, 380, 350, 400, 420, 390, 430, 460, 480] },
-  { color: '#c4b5fd', values: [200, 220, 190, 240, 210, 250, 270, 260, 280, 290, 310, 330] },
+  { color: 'var(--color-accent)', values: [420, 390, 460, 510, 490, 540, 580, 620, 590, 650, 700, 730] },
+  { color: 'var(--color-info)', values: [310, 340, 300, 360, 380, 350, 400, 420, 390, 430, 460, 480] },
+  { color: 'var(--color-accent-soft)', values: [200, 220, 190, 240, 210, 250, 270, 260, 280, 290, 310, 330] },
 ]
 
 const LEGEND = [
-  { label: 'This year', color: '#7c3aed' },
-  { label: 'Last year', color: '#a78bfa' },
-  { label: '2 yrs ago', color: '#c4b5fd' },
+  { label: 'This year', color: 'var(--color-accent)' },
+  { label: 'Last year', color: 'var(--color-info)' },
+  { label: '2 yrs ago', color: 'var(--color-fg-subtle)' },
 ]
 
 // Donut rings: outer = pass rate, middle = eval coverage, inner = uptime
 const DONUT_RINGS = [
-  { pct: 94, color: '#5b21b6', trackColor: '#ede9fe', r: 62, stroke: 12 },
-  { pct: 80, color: '#7c3aed', trackColor: '#ede9fe', r: 46, stroke: 10 },
-  { pct: 99, color: '#a78bfa', trackColor: '#ede9fe', r: 32, stroke: 8 },
+  { pct: 94, color: 'var(--color-accent)', trackColor: 'var(--color-accent-soft)', r: 62, stroke: 12 },
+  { pct: 80, color: 'var(--color-success)', trackColor: 'var(--color-success-soft)', r: 46, stroke: 10 },
+  { pct: 99, color: 'var(--color-info)', trackColor: 'var(--color-info-soft)', r: 32, stroke: 8 },
 ]
 
 // ---------------------------------------------------------------------------

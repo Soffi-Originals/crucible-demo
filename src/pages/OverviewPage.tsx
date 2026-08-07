@@ -74,53 +74,26 @@ export function OverviewPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
 
         {/* Donut — Active evals */}
-        <div className="rounded-(--radius-xl) border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-xs)">
-          <div className="mb-4 flex items-center justify-between">
-            <Text size="sm" weight="semibold" tone="muted">Active evals</Text>
-            <button className="text-(--color-fg-subtle) hover:text-(--color-fg) transition-colors">
-              <MoreVertical className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex justify-center">
-            <DonutChart
-              value={`${passPct}%`}
-              label="passing"
-              rings={DONUT_RINGS}
-            />
-          </div>
-          <div className="mt-4 flex justify-center gap-4">
-            {[
-              { label: 'Passing', color: 'var(--color-accent)', count: passEvals },
-              { label: 'Warning', color: 'var(--color-warning)', count: evals.filter(e => e.severity === 'warn').length },
-              { label: 'Failing', color: 'var(--color-danger)', count: evals.filter(e => e.severity === 'fail').length },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                <Text size="xs" tone="muted">{item.label}</Text>
-                <Text size="xs" weight="semibold">{item.count}</Text>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DonutChart
+          title="Active evals"
+          value={`${passPct}%`}
+          label="passing"
+          rings={DONUT_RINGS}
+          legend={[
+            { label: 'Passing', color: 'var(--color-accent)', count: passEvals },
+            { label: 'Warning', color: 'var(--color-warning)', count: evals.filter(e => e.severity === 'warn').length },
+            { label: 'Failing', color: 'var(--color-danger)', count: evals.filter(e => e.severity === 'fail').length },
+          ]}
+          showMenu
+        />
 
         {/* Sparkline — Run volume */}
-        <div className="rounded-(--radius-xl) border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-xs)">
-          <div className="mb-3 flex items-center justify-between">
-            <Text size="sm" weight="semibold" tone="muted">Simulation runs</Text>
-            <div className="flex items-center gap-4">
-              {LEGEND.map((l) => (
-                <div key={l.label} className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: l.color }} />
-                  <Text size="xs" tone="subtle">{l.label}</Text>
-                </div>
-              ))}
-              <button className="text-(--color-fg-subtle) hover:text-(--color-fg) transition-colors">
-                <MoreVertical className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <SparklineChart series={RUN_SERIES} months={MONTHS} />
-        </div>
+        <SparklineChart
+          title="Simulation runs"
+          series={RUN_SERIES}
+          xLabels={MONTHS}
+          showMenu
+        />
       </div>
 
       {/* ── Filter bar ── */}

@@ -242,9 +242,9 @@ export function OverviewPage() {
           </div>
           <div className="mt-4 flex justify-center gap-4">
             {[
-              { label: 'Passing', color: '#5b21b6', count: passEvals },
-              { label: 'Warning', color: '#7c3aed', count: evals.filter(e => e.severity === 'warn').length },
-              { label: 'Failing', color: '#a78bfa', count: evals.filter(e => e.severity === 'fail').length },
+              { label: 'Passing', color: 'var(--color-accent)', count: passEvals },
+              { label: 'Warning', color: 'var(--color-warning)', count: evals.filter(e => e.severity === 'warn').length },
+              { label: 'Failing', color: 'var(--color-danger)', count: evals.filter(e => e.severity === 'fail').length },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />

@@ -56,11 +56,11 @@ function DonutChart({
             )
           })}
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-semibold text-(--color-fg)" style={{ fontFeatureSettings: '"tnum"' }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+          <span className="text-lg font-semibold leading-none text-(--color-fg)" style={{ fontFeatureSettings: '"tnum"' }}>
             {value}
           </span>
-          <span className="text-xs text-(--color-fg-subtle)">{label}</span>
+          <span className="text-[10px] leading-none text-(--color-fg-subtle)">{label}</span>
         </div>
       </div>
     </div>

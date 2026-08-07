@@ -1,159 +1,14 @@
 import * as React from 'react'
-import { Upload, Plus, Search, SlidersHorizontal, X, MoreVertical } from 'lucide-react'
+import { Upload, Plus, Search, SlidersHorizontal, X } from 'lucide-react'
 import { Heading } from '@/components/ui/Heading'
 import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { RunRow } from '@/components/views/RunRow'
+import { DonutChart } from '@/components/views/DonutChart'
+import { SparklineChart } from '@/components/views/SparklineChart'
 import { runs, evals } from '@/data/demo'
-
-// ---------------------------------------------------------------------------
-// Donut ring chart — rendered with SVG, no library needed
-// ---------------------------------------------------------------------------
-function DonutChart({
-  value,
-  label,
-  rings,
-}: {
-  value: string
-  label: string
-  rings: { pct: number; color: string; trackColor: string; r: number; stroke: number }[]
-}) {
-  const size = 160
-  const cx = size / 2
-  const cy = size / 2
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          {rings.map((ring, i) => {
-            const circumference = 2 * Math.PI * ring.r
-            const dash = (ring.pct / 100) * circumference
-            return (
-              <g key={i}>
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={ring.r}
-                  fill="none"
-                  stroke={ring.trackColor}
-                  strokeWidth={ring.stroke}
-                />
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={ring.r}
-                  fill="none"
-                  stroke={ring.color}
-                  strokeWidth={ring.stroke}
-                  strokeDasharray={`${dash} ${circumference - dash}`}
-                  strokeDashoffset={circumference * 0.25}
-                  strokeLinecap="round"
-                  style={{ transition: 'stroke-dasharray 0.6s ease' }}
-                />
-              </g>
-            )
-          })}
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-          <span className="text-lg font-semibold leading-none text-(--color-fg)" style={{ fontFeatureSettings: '"tnum"' }}>
-            {value}
-          </span>
-          <span className="text-[10px] leading-none text-(--color-fg-subtle)">{label}</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Sparkline area chart — SVG, no library
-// ---------------------------------------------------------------------------
-function SparklineChart({
-  series,
-  months,
-}: {
-  series: { color: string; values: number[] }[]
-  months: string[]
-}) {
-  const W = 520
-  const H = 120
-  const padL = 0
-  const padR = 0
-  const padT = 8
-  const padB = 24
-
-  const allVals = series.flatMap((s) => s.values)
-  const minV = Math.min(...allVals)
-  const maxV = Math.max(...allVals)
-  const range = maxV - minV || 1
-
-  const pts = (values: number[]) =>
-    values.map((v, i) => {
-      const x = padL + (i / (values.length - 1)) * (W - padL - padR)
-      const y = padT + (1 - (v - minV) / range) * (H - padT - padB)
-      return [x, y] as [number, number]
-    })
-
-  const toPath = (points: [number, number][]) =>
-    points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ')
-
-  const toArea = (points: [number, number][]) => {
-    const line = toPath(points)
-    const last = points[points.length - 1]
-    const first = points[0]
-    return `${line} L${last[0]},${H - padB} L${first[0]},${H - padB} Z`
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full">
-        <defs>
-          {series.map((s, i) => (
-            <linearGradient key={i} id={`grad-${i}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={s.color} stopOpacity="0.25" />
-              <stop offset="100%" stopColor={s.color} stopOpacity="0.02" />
-            </linearGradient>
-          ))}
-        </defs>
-        {series.map((s, i) => {
-          const points = pts(s.values)
-          return (
-            <g key={i}>
-              <path d={toArea(points)} fill={`url(#grad-${i})`} />
-              <path
-                d={toPath(points)}
-                fill="none"
-                stroke={s.color}
-                strokeWidth={i === 0 ? 2 : 1.5}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </g>
-          )
-        })}
-        {/* X-axis labels */}
-        {months.map((m, i) => {
-          const x = padL + (i / (months.length - 1)) * (W - padL - padR)
-          return (
-            <text
-              key={m}
-              x={x}
-              y={H - 4}
-              textAnchor="middle"
-              fontSize={10}
-              fill="var(--color-fg-subtle)"
-              fontFamily="var(--font-sans)"
-            >
-              {m}
-            </text>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Filter chip
@@ -176,17 +31,10 @@ function FilterChip({ label, onRemove }: { label: string; onRemove?: () => void 
 // ---------------------------------------------------------------------------
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-// Run volume per month across 3 "years" — purely illustrative
 const RUN_SERIES = [
-  { color: 'var(--color-accent)', values: [420, 390, 460, 510, 490, 540, 580, 620, 590, 650, 700, 730] },
-  { color: 'var(--color-info)', values: [310, 340, 300, 360, 380, 350, 400, 420, 390, 430, 460, 480] },
-  { color: 'var(--color-accent-soft)', values: [200, 220, 190, 240, 210, 250, 270, 260, 280, 290, 310, 330] },
-]
-
-const LEGEND = [
-  { label: 'This year', color: 'var(--color-accent)' },
-  { label: 'Last year', color: 'var(--color-info)' },
-  { label: '2 yrs ago', color: 'var(--color-fg-subtle)' },
+  { label: 'This year', color: 'var(--color-accent)', values: [420, 390, 460, 510, 490, 540, 580, 620, 590, 650, 700, 730] },
+  { label: 'Last year', color: 'var(--color-info)', values: [310, 340, 300, 360, 380, 350, 400, 420, 390, 430, 460, 480] },
+  { label: '2 yrs ago', color: 'var(--color-fg-subtle)', values: [200, 220, 190, 240, 210, 250, 270, 260, 280, 290, 310, 330] },
 ]
 
 // Donut rings: outer = pass rate, middle = eval coverage, inner = uptime

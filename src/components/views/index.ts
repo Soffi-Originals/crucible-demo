@@ -46,3 +46,16 @@ export {
   type SidebarNavItemProps,
 } from './SidebarNavItem'
 export { PlanCard, planCardVariants, type PlanCardProps } from './PlanCard'
+export {
+  DonutChart,
+  donutChartVariants,
+  type DonutChartProps,
+  type DonutRing,
+  type DonutLegendItem,
+} from './DonutChart'
+export {
+  SparklineChart,
+  sparklineChartVariants,
+  type SparklineChartProps,
+  type SparklineSeries,
+} from './SparklineChart'

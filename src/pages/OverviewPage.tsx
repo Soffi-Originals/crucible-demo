@@ -322,7 +322,7 @@ export function OverviewPage() {
           {evals.map((e) => {
             const pct = Math.round((e.score / e.total) * 100)
             const barColor =
-              e.severity === 'pass' ? '#7c3aed' : e.severity === 'warn' ? '#f59e0b' : '#ef4444'
+              e.severity === 'pass' ? 'var(--color-accent)' : e.severity === 'warn' ? 'var(--color-warning)' : 'var(--color-danger)'
             const badgeVariant =
               e.severity === 'pass' ? 'success' : e.severity === 'warn' ? 'warning' : 'danger'
             const badgeLabel =

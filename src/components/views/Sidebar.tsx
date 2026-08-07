@@ -43,12 +43,10 @@ const navItems: {
 export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
   return (
     <div
-      className="flex h-full flex-col items-center py-4 gap-2"
-      style={{ backgroundColor: '#4a1d96' }}
+      className="flex h-full flex-col items-center py-4 gap-2 bg-canvas"
     >
       {/* Logo */}
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius-md) mb-2"
-        style={{ backgroundColor: '#6d28d9' }}>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-(--radius-md) mb-2 bg-surface">
         <Flame className="h-5 w-5 text-white" strokeWidth={2.25} fill="currentColor" />
       </div>
 

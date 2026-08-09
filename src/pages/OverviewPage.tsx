@@ -93,6 +93,7 @@ export function OverviewPage() {
           series={RUN_SERIES}
           xLabels={MONTHS}
           showMenu
+          size="lg"
         />
       </div>
 

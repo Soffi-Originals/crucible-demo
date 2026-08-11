@@ -64,7 +64,7 @@ export function OverviewPage() {
           <Button variant="secondary" size="md" leadingIcon={<Upload className="h-4 w-4" />}>
             Export
           </Button>
-          <Button variant="accent" size="md" leadingIcon={<Plus className="h-4 w-4" />}>
+          <Button variant="primary" size="md" leadingIcon={<Plus className="h-4 w-4" />}>
             New simulation
           </Button>
         </div>

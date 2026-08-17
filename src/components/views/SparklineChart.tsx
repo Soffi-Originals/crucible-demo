@@ -102,7 +102,7 @@ export const SparklineChart = React.forwardRef<HTMLDivElement, SparklineChartPro
     return (
       <div
         ref={ref}
-        className={cn(sparklineChartVariants({ size }), className)}
+        className={cn(sparklineChartVariants({ size, variant }), className)}
         {...props}
       >
         {/* Header */}

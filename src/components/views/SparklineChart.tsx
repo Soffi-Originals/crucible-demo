@@ -6,7 +6,7 @@ import { Text } from '@/components/ui/Text'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const sparklineChartVariants = cva(
-  'rounded-(--radius-xl) border border-(--color-border) bg-(--color-surface) shadow-(--shadow-xs)',
+  'rounded-(--radius-xl) border border-(--color-border)',
   {
     variants: {
       size: {
@@ -14,8 +14,13 @@ export const sparklineChartVariants = cva(
         md: 'p-5',
         lg: 'p-6',
       },
+      variant: {
+        default: 'bg-(--color-surface) shadow-(--shadow-xs)',
+        outlined: 'bg-transparent',
+        ghost: 'border-transparent bg-transparent',
+      },
     },
-    defaultVariants: { size: 'md' },
+    defaultVariants: { size: 'md', variant: 'default' },
   },
 )
 

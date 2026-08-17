@@ -58,6 +58,7 @@ export const SparklineChart = React.forwardRef<HTMLDivElement, SparklineChartPro
     {
       className,
       size,
+      variant,
       title,
       series,
       xLabels,

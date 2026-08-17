@@ -5,6 +5,7 @@ import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 import { StatusDot } from '@/components/ui/StatusDot'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const runRowVariants = cva(
   'grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-3 transition-colors',
   {

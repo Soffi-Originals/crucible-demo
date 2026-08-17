@@ -24,7 +24,7 @@ export function AgentsPage() {
 
   return (
     <div className="flex h-full flex-col lg:flex-row">
-      <div className="flex w-full shrink-0 flex-col gap-4 border-b border-(--color-border-subtle) bg-(--color-surface) p-4 sm:p-6 lg:w-96 lg:border-b-0 lg:border-r">
+      <div className="flex w-full shrink-0 flex-col gap-4 border-b border-(--color-border-subtle) bg-(--color-surface) p-4 sm:p-6 lg:w-[433px] lg:border-b-0 lg:border-r">
         <div className="flex flex-col gap-1">
           <Heading as="h1" size="lg" weight="semibold">
             Agents

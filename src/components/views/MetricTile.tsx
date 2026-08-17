@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const metricTileVariants = cva('flex flex-col gap-2', {
   variants: {
     emphasis: {
@@ -63,7 +64,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       <Card
         ref={ref}
         variant={emphasis === 'raised' ? 'raised' : 'default'}
-        padding="md"
+        padding="sm"
         radius="lg"
         className={cn(metricTileVariants({ emphasis }), className)}
         {...props}

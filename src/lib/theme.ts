@@ -15,9 +15,9 @@ export function useTheme() {
   })
 
   useEffect(() => {
-    const body = document.body
-    if (theme === 'dark') body.classList.add('dark')
-    else body.classList.remove('dark')
+    const root = document.documentElement
+    if (theme === 'dark') root.classList.add('dark')
+    else root.classList.remove('dark')
     window.localStorage.setItem(STORAGE_KEY, theme)
   }, [theme])
 

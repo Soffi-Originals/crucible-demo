@@ -5,8 +5,9 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Text } from '@/components/ui/Text'
 import { Badge } from '@/components/ui/Badge'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const agentRowVariants = cva(
-  'flex items-center gap-3 w-full text-left transition-colors',
+  'flex items-start gap-3 w-full text-left transition-colors',
   {
     variants: {
       state: {
@@ -79,22 +80,22 @@ export const AgentRow = React.forwardRef<HTMLButtonElement, AgentRowProps>(
         />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <Text size="base" weight="medium" truncate>
+            <Text size="base" weight="medium" truncate className="flex-1">
               {name}
             </Text>
             {badge ? (
-              <Badge variant="neutral" size="sm" shape="pill">
+              <Badge variant="neutral" size="sm" shape="pill" className="shrink-0">
                 {badge}
               </Badge>
             ) : null}
+            {trailing ? <div className="shrink-0">{trailing}</div> : null}
           </div>
           {description ? (
-            <Text size="sm" tone="muted" truncate>
+            <Text size="base" tone="muted" truncate>
               {description}
             </Text>
           ) : null}
         </div>
-        {trailing ? <div className="flex shrink-0">{trailing}</div> : null}
       </button>
     )
   },

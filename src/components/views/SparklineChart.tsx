@@ -38,6 +38,8 @@ export interface SparklineSeries {
 export interface SparklineChartProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof sparklineChartVariants> {
+  /** Visual variant: default (surface + shadow), outlined (transparent bg), ghost (no border or bg) */
+  variant?: 'default' | 'outlined' | 'ghost'
   /** Panel heading */
   title?: string
   /** All series to render */

@@ -59,7 +59,7 @@ export const EvalScoreCard = React.forwardRef<
   return (
     <Card
       ref={ref}
-      variant="default"
+      variant="outlined"
       padding="md"
       radius="lg"
       className={cn(evalScoreCardVariants({ severity }), className)}

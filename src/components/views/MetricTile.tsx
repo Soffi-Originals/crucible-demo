@@ -107,7 +107,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         className={cn(metricTileVariants({ emphasis }), className)}
         {...props}
       >
-        <Text size="xs" tone="muted" weight="medium" className="uppercase tracking-wide">
+        <Text size="sm" tone="muted" weight="medium">
           {label}
         </Text>
         <div className="flex items-baseline gap-1">

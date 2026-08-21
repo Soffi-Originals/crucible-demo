@@ -2,13 +2,11 @@ import * as React from 'react'
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react'
 import { Heading } from '@/components/ui/Heading'
 import { Text } from '@/components/ui/Text'
-import { Card } from '@/components/ui/Card'
-import { Divider } from '@/components/ui/Divider'
 import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { MetricTile } from '@/components/views/MetricTile'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
-import { RunRow } from '@/components/views/RunRow'
+import { RunCard } from '@/components/views/RunCard'
 import { cn } from '@/lib/cn'
 import {
   evals,
@@ -236,8 +234,8 @@ export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl text-(--color-success)">
-          Production overview!
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
+          Production overview
         </Heading>
         <Text size="sm" tone="muted">
           How your agents are behaving across simulations and live traffic.
@@ -350,51 +348,29 @@ export function OverviewPage() {
             </div>
           )}
 
-          {/* Table */}
-          <Card variant="subtle" padding="none" radius="lg" className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="min-w-[640px]">
-                <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">
-                  <span />
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Scenario
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="uppercase tracking-wide">
-                    Agent
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Duration
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Started
-                  </Text>
-                  <Text size="xs" tone="subtle" weight="medium" className="justify-self-end uppercase tracking-wide">
-                    Status
-                  </Text>
-                </div>
-                <div className="flex flex-col divide-y divide-(--color-border-subtle)">
-                  {filteredRuns.length > 0 ? (
-                    filteredRuns.map((run) => <RunRow key={run.runId} {...run} />)
-                  ) : (
-                    <div className="flex flex-col items-center gap-1 px-4 py-10 text-center">
-                      <Text size="sm" weight="medium">No runs match your filters</Text>
-                      <Text size="sm" tone="muted">
-                        Try a different search term or{' '}
-                        <button
-                          type="button"
-                          onClick={clearAll}
-                          className="underline underline-offset-2 transition-colors hover:text-(--color-fg)"
-                        >
-                          clear all filters
-                        </button>
-                        .
-                      </Text>
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* Run cards */}
+          {filteredRuns.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {filteredRuns.map((run) => (
+                <RunCard key={run.runId} {...run} />
+              ))}
             </div>
-          </Card>
+          ) : (
+            <div className="flex flex-col items-center gap-1 rounded-(--radius-lg) border border-(--color-border-subtle) px-4 py-10 text-center">
+              <Text size="sm" weight="medium">No runs match your filters</Text>
+              <Text size="sm" tone="muted">
+                Try a different search term or{' '}
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="underline underline-offset-2 transition-colors hover:text-(--color-fg)"
+                >
+                  clear all filters
+                </button>
+                .
+              </Text>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">

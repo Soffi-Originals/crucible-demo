@@ -40,6 +40,7 @@ export {
   type RunRowProps,
   type RunStatus,
 } from './RunRow'
+export { RunCard, runCardVariants, type RunCardProps } from './RunCard'
 export {
   SidebarNavItem,
   sidebarNavItemVariants,

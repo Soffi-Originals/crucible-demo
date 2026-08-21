@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { ArrowDown, ArrowUp, Minus, MoreVertical } from 'lucide-react'
 import { cn } from '@/lib/cn'
@@ -51,11 +51,7 @@ const sentimentStroke: Record<TrendSentiment, string> = {
   neutral: 'var(--color-fg-subtle)',
 }
 
-const sentimentFill: Record<TrendSentiment, string> = {
-  positive: 'var(--color-success-soft)',
-  negative: 'var(--color-danger-soft)',
-  neutral: 'var(--color-fg-subtle)',
-}
+
 
 interface SparklineProps {
   data: number[]
@@ -64,18 +60,14 @@ interface SparklineProps {
   height?: number
 }
 
-// Corner radius applied to the bottom of the sparkline area fill (matches card radius)
-const SPARKLINE_RADIUS = 8
-
 function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps) {
-  const uid = React.useId()
   if (data.length < 2) return null
 
   const min = Math.min(...data)
   const max = Math.max(...data)
   const range = max - min || 1
 
-  const pad = 2
+  const pad = 4
   const innerW = width - pad * 2
   const innerH = height - pad * 2
 
@@ -84,23 +76,14 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
     y: pad + (1 - (v - min) / range) * innerH,
   }))
 
-  const linePath = points
-    .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
-    .join(' ')
-
-  const bottom = pad + innerH
-
-  // Area path goes straight to the bottom corners — clipping handles the rounding
-  const areaPath =
-    linePath +
-    ` L${(pad + innerW).toFixed(2)},${bottom.toFixed(2)}` +
-    ` L${pad.toFixed(2)},${bottom.toFixed(2)}` +
-    ' Z'
-
-  const lastPoint = points[points.length - 1]
-  const safeId = uid.replace(/:/g, '')
-  const gradientId = `spark-grad-${safeId}`
-  const clipId = `spark-clip-${safeId}`
+  // Smooth curve using cubic bezier control points
+  let d = `M${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1]
+    const curr = points[i]
+    const cpX = (prev.x + curr.x) / 2
+    d += ` C${cpX.toFixed(2)},${prev.y.toFixed(2)} ${cpX.toFixed(2)},${curr.y.toFixed(2)} ${curr.x.toFixed(2)},${curr.y.toFixed(2)}`
+  }
 
   return (
     <svg
@@ -108,33 +91,15 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       aria-hidden="true"
+      overflow="visible"
     >
-      <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={sentimentFill[sentiment]} stopOpacity="0.8" />
-          <stop offset="100%" stopColor={sentimentFill[sentiment]} stopOpacity="0.1" />
-        </linearGradient>
-        {/* Rounded rect clip — provides the rounding on all four corners */}
-        <clipPath id={clipId}>
-          <rect x="0" y="0" width={width} height={height} rx={SPARKLINE_RADIUS} ry={SPARKLINE_RADIUS} />
-        </clipPath>
-      </defs>
-      <g clipPath={`url(#${clipId})`}>
-        <path d={areaPath} fill={`url(#${gradientId})`} />
-        <path
-          d={linePath}
-          fill="none"
-          stroke={sentimentStroke[sentiment]}
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </g>
-      <circle
-        cx={lastPoint.x}
-        cy={lastPoint.y}
-        r="3"
-        fill={sentimentStroke[sentiment]}
+      <path
+        d={d}
+        fill="none"
+        stroke={sentimentStroke[sentiment]}
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
       />
     </svg>
   )

@@ -23,7 +23,7 @@ const pageMeta: Record<
     description: 'Replay & branch interactions',
     badge: '2 running',
   },
-  evals: { title: 'Eval packs' },
+  evals: { title: 'Evals' },
   connectors: { title: 'Connectors' },
   plans: { title: 'Plans & billing' },
 }

@@ -13,7 +13,7 @@ export function OverviewPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-1">
-        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl" style={{ color: 'var(--color-border-focus)' }}>
+        <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl" style={{ color: 'var(--color-border)' }}>
           Good afternoon
         </Heading>
         <Text size="xs" tone="muted" style={{ color: '#3B82F6', fontSize: '12px', fontWeight: 700 }}>

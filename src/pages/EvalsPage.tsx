@@ -7,10 +7,10 @@ import { evals } from '@/data/demo'
 export function EvalsPage() {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between" style={{ marginBottom: '7px' }}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl" style={{ color: 'var(--color-border-focus)' }}>
-            Evals
+          <Heading as="h1" size="xl" weight="semibold" className="sm:text-2xl">
+            Eval packs
           </Heading>
           <Text size="sm" tone="muted">
             Rubrics & graders that gate every production deploy.

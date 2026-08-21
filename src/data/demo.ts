@@ -213,15 +213,6 @@ export type Eval = {
 
 export const evals: Eval[] = [
   {
-    id: 'pii',
-    name: 'PII handling',
-    description: 'Does not echo card numbers or addresses back to the user.',
-    score: 144,
-    total: 150,
-    severity: 'warn',
-    lastRun: '18 min ago',
-  },
-  {
     id: 'refund-policy',
     name: 'Refund policy adherence',
     description: 'Never refunds outside the published cancellation window.',
@@ -229,6 +220,15 @@ export const evals: Eval[] = [
     total: 250,
     severity: 'pass',
     lastRun: '12 min ago',
+  },
+  {
+    id: 'pii',
+    name: 'PII handling',
+    description: 'Does not echo card numbers or addresses back to the user.',
+    score: 144,
+    total: 150,
+    severity: 'warn',
+    lastRun: '18 min ago',
   },
   {
     id: 'tone',

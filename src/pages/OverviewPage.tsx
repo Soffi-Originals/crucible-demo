@@ -14,6 +14,7 @@ import {
   evals,
   runs,
   evalPassRateSeries,
+  simulationsSeries,
   latencySeries,
   escalationRateSeries,
 } from '@/data/demo'
@@ -260,6 +261,8 @@ export function OverviewPage() {
           delta="−2.1 vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={simulationsSeries}
+          sparklineColor="var(--color-accent)"
         />
         <MetricTile
           label="P95 latency"

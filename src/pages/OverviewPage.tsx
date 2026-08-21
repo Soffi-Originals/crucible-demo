@@ -390,9 +390,7 @@ export function OverviewPage() {
         </div>
       </div>
 
-      <Divider tone="subtle" />
-
-      <Text size="xs" tone="subtle">
+      <Text size="xs" tone="subtle" className="mt-4">
         Data shown is from the production workspace. Synced 38 seconds ago.
       </Text>
     </div>

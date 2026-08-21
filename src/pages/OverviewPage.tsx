@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge'
 import { MetricTile } from '@/components/views/MetricTile'
 import { EvalScoreCard } from '@/components/views/EvalScoreCard'
 import { RunRow } from '@/components/views/RunRow'
-import { evals, runs } from '@/data/demo'
+import { evals, runs, metricSparklines } from '@/data/demo'
 
 export function OverviewPage() {
   return (
@@ -29,6 +29,7 @@ export function OverviewPage() {
           hint="vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={metricSparklines.simulations}
         />
         <MetricTile
           label="Eval pass rate"
@@ -38,6 +39,7 @@ export function OverviewPage() {
           hint="vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={metricSparklines.evalPassRate}
         />
         <MetricTile
           label="Escalation rate"
@@ -47,6 +49,7 @@ export function OverviewPage() {
           hint="vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={metricSparklines.escalationRate}
         />
         <MetricTile
           label="P95 latency"
@@ -55,6 +58,7 @@ export function OverviewPage() {
           hint="flat"
           trend="flat"
           sentiment="neutral"
+          sparkline={metricSparklines.p95Latency}
         />
       </div>
 

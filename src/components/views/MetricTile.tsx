@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Text'
 import { Heading } from '@/components/ui/Heading'
+import { Sparkline, type SparkPoint } from '@/components/ui/Sparkline'
 
 export const metricTileVariants = cva('flex flex-col gap-3', {
   variants: {
@@ -29,6 +30,7 @@ export interface MetricTileProps
   delta?: string
   trend?: TrendDirection
   sentiment?: TrendSentiment
+  sparkline?: SparkPoint[]
 }
 
 const trendIcon: Record<TrendDirection, React.ReactNode> = {
@@ -55,6 +57,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
       delta,
       trend = 'flat',
       sentiment = 'neutral',
+      sparkline,
       ...props
     },
     ref,
@@ -94,24 +97,42 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
           ) : null}
         </div>
 
-        {/* Delta + hint inline */}
-        {(delta || hint) && (
-          <div className="flex items-center gap-1.5">
-            {delta ? (
-              <span className={cn('flex items-center gap-0.5', sentimentColor[sentiment])}>
-                {trendIcon[trend]}
-                <Text size="sm" weight="semibold" className="text-current">
-                  {delta}
+        {/* Delta + hint / sparkline row */}
+        <div className="flex items-end justify-between gap-2">
+          {(delta || hint) ? (
+            <div className="flex items-center gap-1.5">
+              {delta ? (
+                <span className={cn('flex items-center gap-0.5', sentimentColor[sentiment])}>
+                  {trendIcon[trend]}
+                  <Text size="sm" weight="semibold" className="text-current">
+                    {delta}
+                  </Text>
+                </span>
+              ) : null}
+              {hint ? (
+                <Text size="sm" tone="muted">
+                  {hint}
                 </Text>
-              </span>
-            ) : null}
-            {hint ? (
-              <Text size="sm" tone="muted">
-                {hint}
-              </Text>
-            ) : null}
-          </div>
-        )}
+              ) : null}
+            </div>
+          ) : <span />}
+          {sparkline && sparkline.length >= 2 ? (
+            <Sparkline
+              data={sparkline}
+              color={
+                sentiment === 'positive'
+                  ? 'var(--color-success)'
+                  : sentiment === 'negative'
+                  ? 'var(--color-danger)'
+                  : 'var(--color-fg-muted)'
+              }
+              width={72}
+              height={28}
+              strokeWidth={1.5}
+              fill
+            />
+          ) : null}
+        </div>
       </Card>
     )
   },

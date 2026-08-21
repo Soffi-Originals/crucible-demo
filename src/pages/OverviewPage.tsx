@@ -171,7 +171,7 @@ export function OverviewPage() {
             onClearAll={handleClearAll}
           />
 
-          <Card variant="default" padding="none" radius="lg" className="overflow-hidden">
+          <Card variant="outlined" padding="none" radius="sm" className="overflow-hidden">
             <div className="overflow-x-auto">
               <div className="min-w-[640px]">
                 <div className="grid grid-cols-[16px_minmax(0,1fr)_160px_72px_88px_104px] items-center gap-4 px-4 py-2.5 border-b border-(--color-border-subtle)">

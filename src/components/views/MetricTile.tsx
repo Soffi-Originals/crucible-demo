@@ -64,6 +64,9 @@ interface SparklineProps {
   height?: number
 }
 
+// Corner radius applied to the bottom of the sparkline area fill (matches card radius)
+const SPARKLINE_RADIUS = 8
+
 function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps) {
   const uid = React.useId()
   if (data.length < 2) return null
@@ -85,13 +88,22 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
     .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
     .join(' ')
 
+  const bottom = pad + innerH
+  const left = points[0].x
+  const right = points[points.length - 1].x
+  const r = SPARKLINE_RADIUS
+
+  // Area path with rounded bottom-left and bottom-right corners
   const areaPath =
     linePath +
-    ` L${points[points.length - 1].x.toFixed(2)},${(pad + innerH).toFixed(2)}` +
-    ` L${points[0].x.toFixed(2)},${(pad + innerH).toFixed(2)} Z`
+    ` L${right.toFixed(2)},${(bottom - r).toFixed(2)}` +
+    ` Q${right.toFixed(2)},${bottom.toFixed(2)} ${(right - r).toFixed(2)},${bottom.toFixed(2)}` +
+    ` L${(left + r).toFixed(2)},${bottom.toFixed(2)}` +
+    ` Q${left.toFixed(2)},${bottom.toFixed(2)} ${left.toFixed(2)},${(bottom - r).toFixed(2)}` +
+    ' Z'
 
   const lastPoint = points[points.length - 1]
-  const gradientId = `spark-${sentiment}-${uid.replace(/:/g, '')}`
+  const gradientId = `spark-grad-${uid.replace(/:/g, '')}`
 
   return (
     <svg
@@ -103,7 +115,7 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={sentimentFill[sentiment]} stopOpacity="1" />
-          <stop offset="100%" stopColor={sentimentFill[sentiment]} stopOpacity="0" />
+          <stop offset="100%" stopColor={sentimentFill[sentiment]} stopOpacity="0.2" />
         </linearGradient>
       </defs>
       <path d={areaPath} fill={`url(#${gradientId})`} />

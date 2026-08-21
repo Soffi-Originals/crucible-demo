@@ -25,33 +25,41 @@ export function OverviewPage() {
         <MetricTile
           label="Simulations / 24h"
           value="12,481"
-          delta="−2.1 vs. last week"
+          delta="−2.1%"
+          hint="vs. last week"
           trend="down"
           sentiment="negative"
+          sparkline={[60, 72, 68, 80, 74, 65, 58, 52, 55, 50]}
         />
         <MetricTile
           label="Eval pass rate"
           value="94.2"
           unit="%"
-          delta="+1.4 vs. last week"
+          delta="+1.4%"
+          hint="vs. last week"
           trend="up"
           sentiment="positive"
+          sparkline={[70, 72, 74, 71, 76, 80, 79, 84, 88, 94]}
         />
         <MetricTile
           label="Escalation rate"
           value="3.1"
           unit="%"
-          delta="−0.6 vs. last week"
+          delta="−0.6%"
+          hint="vs. last week"
           trend="down"
           sentiment="positive"
+          sparkline={[55, 50, 58, 52, 48, 42, 38, 35, 32, 31]}
         />
         <MetricTile
           label="P95 latency"
           value="1.8"
           unit="s"
           delta="flat"
+          hint="vs. last week"
           trend="flat"
           sentiment="neutral"
+          sparkline={[40, 44, 38, 42, 40, 43, 41, 39, 42, 40]}
         />
       </div>
 

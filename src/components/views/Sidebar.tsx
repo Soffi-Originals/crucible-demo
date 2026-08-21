@@ -17,7 +17,6 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Text } from '@/components/ui/Text'
 import { Input } from '@/components/ui/Input'
 import { Kbd } from '@/components/ui/Kbd'
-import { Divider } from '@/components/ui/Divider'
 import { IconButton } from '@/components/ui/IconButton'
 
 export type PageId =
@@ -51,8 +50,9 @@ const items: {
 
 export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
-      <div className="flex items-center gap-2">
+    <div className="flex h-full flex-col bg-(--color-canvas)">
+      {/* Workspace switcher */}
+      <div className="flex items-center gap-2 p-4 pb-2">
         <button
           type="button"
           className="flex flex-1 items-center gap-2.5 rounded-(--radius-md) p-1.5 -m-1.5 text-left transition-colors hover:bg-(--color-surface-subtle)"
@@ -83,20 +83,25 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
         ) : null}
       </div>
 
-      <div className="relative flex items-center">
-        <Search className="absolute left-2.5 h-3.5 w-3.5 text-(--color-fg-subtle)" />
+      {/* Search */}
+      <div className="relative flex items-center px-4 py-2">
+        <Search className="absolute left-6.5 h-3.5 w-3.5 text-(--color-fg-subtle)" />
         <Input
           variant="ghost"
           size="sm"
           placeholder="Search…"
           className="pl-7 pr-12"
         />
-        <Kbd size="sm" className="absolute right-2">
+        <Kbd size="sm" className="absolute right-6">
           ⌘K
         </Kbd>
       </div>
 
-      <nav className="flex flex-col gap-0.5">
+      {/* Main nav */}
+      <nav className="flex flex-col gap-0.5 px-3 py-2">
+        <Text size="xs" tone="subtle" weight="medium" className="px-2 py-1 uppercase tracking-wider">
+          Workspace
+        </Text>
         {items.map((item) => (
           <SidebarNavItem
             key={item.id}
@@ -110,14 +115,17 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-2">
-        <Divider tone="subtle" />
+      {/* Footer */}
+      <div className="mt-auto flex flex-col gap-0.5 border-t border-(--color-border-subtle) px-3 py-3">
         <SidebarNavItem
           label="Settings"
           icon={<Settings className="h-4 w-4" />}
           state="default"
         />
-        <div className="flex items-center gap-2 px-2 py-2">
+        <button
+          type="button"
+          className="flex items-center gap-2.5 rounded-(--radius-md) px-2.5 py-2 text-left transition-colors hover:bg-(--color-surface-subtle)"
+        >
           <Avatar variant="accent" shape="circle" size="sm" initials="BL" />
           <div className="flex min-w-0 flex-1 flex-col">
             <Text size="sm" weight="medium" truncate>
@@ -127,7 +135,7 @@ export function Sidebar({ current, onNavigate, onClose }: SidebarProps) {
               brayden@soffi.ai
             </Text>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   )

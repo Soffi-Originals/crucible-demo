@@ -99,7 +99,6 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       aria-hidden="true"
-      className="overflow-visible"
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -150,7 +149,7 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
         padding="md"
         radius="lg"
         className={cn(
-          'shadow-(--shadow-xs)',
+          'overflow-hidden shadow-(--shadow-xs)',
           metricTileVariants({ emphasis }),
           className,
         )}

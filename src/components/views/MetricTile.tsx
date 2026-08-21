@@ -89,21 +89,18 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
     .join(' ')
 
   const bottom = pad + innerH
-  const left = points[0].x
-  const right = points[points.length - 1].x
-  const r = SPARKLINE_RADIUS
 
-  // Area path with rounded bottom-left and bottom-right corners
+  // Area path goes straight to the bottom corners — clipping handles the rounding
   const areaPath =
     linePath +
-    ` L${right.toFixed(2)},${(bottom - r).toFixed(2)}` +
-    ` Q${right.toFixed(2)},${bottom.toFixed(2)} ${(right - r).toFixed(2)},${bottom.toFixed(2)}` +
-    ` L${(left + r).toFixed(2)},${bottom.toFixed(2)}` +
-    ` Q${left.toFixed(2)},${bottom.toFixed(2)} ${left.toFixed(2)},${(bottom - r).toFixed(2)}` +
+    ` L${(pad + innerW).toFixed(2)},${bottom.toFixed(2)}` +
+    ` L${pad.toFixed(2)},${bottom.toFixed(2)}` +
     ' Z'
 
   const lastPoint = points[points.length - 1]
-  const gradientId = `spark-grad-${uid.replace(/:/g, '')}`
+  const safeId = uid.replace(/:/g, '')
+  const gradientId = `spark-grad-${safeId}`
+  const clipId = `spark-clip-${safeId}`
 
   return (
     <svg
@@ -114,19 +111,25 @@ function Sparkline({ data, sentiment, width = 120, height = 56 }: SparklineProps
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={sentimentFill[sentiment]} stopOpacity="1" />
-          <stop offset="100%" stopColor={sentimentFill[sentiment]} stopOpacity="0.2" />
+          <stop offset="0%" stopColor={sentimentFill[sentiment]} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={sentimentFill[sentiment]} stopOpacity="0.1" />
         </linearGradient>
+        {/* Rounded rect clip — provides the rounding on all four corners */}
+        <clipPath id={clipId}>
+          <rect x="0" y="0" width={width} height={height} rx={SPARKLINE_RADIUS} ry={SPARKLINE_RADIUS} />
+        </clipPath>
       </defs>
-      <path d={areaPath} fill={`url(#${gradientId})`} />
-      <path
-        d={linePath}
-        fill="none"
-        stroke={sentimentStroke[sentiment]}
-        strokeWidth="2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
+      <g clipPath={`url(#${clipId})`}>
+        <path d={areaPath} fill={`url(#${gradientId})`} />
+        <path
+          d={linePath}
+          fill="none"
+          stroke={sentimentStroke[sentiment]}
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      </g>
       <circle
         cx={lastPoint.x}
         cy={lastPoint.y}

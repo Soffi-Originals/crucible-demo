@@ -126,8 +126,8 @@ export const MetricTile = React.forwardRef<HTMLDivElement, MetricTileProps>(
                   ? 'var(--color-danger)'
                   : 'var(--color-fg-muted)'
               }
-              width={72}
-              height={28}
+              width={100}
+              height={48}
               strokeWidth={1.5}
               fill
             />

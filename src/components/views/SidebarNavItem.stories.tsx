@@ -10,6 +10,7 @@ const meta: Meta<typeof SidebarNavItem> = {
   argTypes: {
     state: { control: 'select', options: ['default', 'active', 'muted'] },
     size: { control: 'select', options: ['sm', 'md'] },
+    collapsed: { control: 'boolean' },
   },
 }
 
@@ -20,6 +21,14 @@ export const Default: Story = {}
 export const Active: Story = { args: { state: 'active' } }
 export const WithCount: Story = {
   args: { label: 'Simulations', icon: <Activity className="h-4 w-4" />, count: 12 },
+}
+
+export const Collapsed: Story = {
+  args: { collapsed: true },
+}
+
+export const CollapsedActive: Story = {
+  args: { collapsed: true, state: 'active' },
 }
 
 export const Group: Story = {
@@ -48,6 +57,36 @@ export const Group: Story = {
         label="Connectors"
         icon={<Plug className="h-4 w-4" />}
         shortcut="⌘4"
+        state="muted"
+      />
+    </div>
+  ),
+}
+
+export const CollapsedGroup: Story = {
+  render: () => (
+    <div className="flex w-14 flex-col gap-0.5 rounded-(--radius-md) border border-(--color-border) bg-(--color-surface) p-2">
+      <SidebarNavItem
+        label="Overview"
+        icon={<Gauge className="h-4 w-4" />}
+        collapsed
+        state="default"
+      />
+      <SidebarNavItem
+        label="Agents"
+        icon={<Bot className="h-4 w-4" />}
+        collapsed
+        state="active"
+      />
+      <SidebarNavItem
+        label="Simulations"
+        icon={<Activity className="h-4 w-4" />}
+        collapsed
+      />
+      <SidebarNavItem
+        label="Connectors"
+        icon={<Plug className="h-4 w-4" />}
+        collapsed
         state="muted"
       />
     </div>

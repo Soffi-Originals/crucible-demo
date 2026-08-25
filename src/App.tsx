@@ -33,11 +33,12 @@ const pageMeta: Record<
 function App() {
   const [page, setPage] = useState<PageId>('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { theme, toggle } = useTheme()
 
   const handleNavigate = (id: PageId) => {
     setPage(id)
-    // Close sidebar on mobile (small screens) after navigation, keep open on desktop
+    // Close sidebar on mobile after navigation; keep open on desktop
     if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
@@ -45,11 +46,14 @@ function App() {
     <AppShell
       sidebarOpen={sidebarOpen}
       onSidebarOpenChange={setSidebarOpen}
+      sidebarCollapsed={sidebarCollapsed}
       sidebar={
         <Sidebar
           current={page}
           onNavigate={handleNavigate}
           onClose={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
+          onCollapsedChange={setSidebarCollapsed}
         />
       }
       header={

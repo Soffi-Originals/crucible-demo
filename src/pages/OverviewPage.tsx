@@ -68,23 +68,78 @@ interface FilterDropdownProps {
 function FilterDropdown({ label, options, selected, onToggle }: FilterDropdownProps) {
   const [open, setOpen] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const menuId = React.useId()
 
+  // Close on outside click
   React.useEffect(() => {
     if (!open) return
-    function handleClick(e: MouseEvent) {
+    function handleMouseDown(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
   }, [open])
+
+  // Move focus to first menu item when opened
+  React.useEffect(() => {
+    if (!open) return
+    const menu = ref.current?.querySelector('[role="menu"]') as HTMLElement | null
+    const first = menu?.querySelector<HTMLElement>('[role="menuitemcheckbox"]')
+    first?.focus()
+  }, [open])
+
+  function handleTriggerKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setOpen(true)
+    }
+    if (e.key === 'Escape') {
+      setOpen(false)
+    }
+  }
+
+  function handleMenuKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const items = Array.from(
+      ref.current?.querySelectorAll<HTMLElement>('[role="menuitemcheckbox"]') ?? [],
+    )
+    const focused = document.activeElement as HTMLElement
+    const idx = items.indexOf(focused)
+
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      setOpen(false)
+      triggerRef.current?.focus()
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      items[(idx + 1) % items.length]?.focus()
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      items[(idx - 1 + items.length) % items.length]?.focus()
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      items[0]?.focus()
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      items[items.length - 1]?.focus()
+    } else if (e.key === 'Tab') {
+      // Close on Tab so focus flows naturally
+      setOpen(false)
+    }
+  }
 
   return (
     <div ref={ref} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={handleTriggerKeyDown}
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
         className={cn(
-          'inline-flex h-9 items-center gap-1.5 rounded-(--radius-md) border px-3 text-sm transition-colors',
+          'inline-flex h-9 items-center gap-1.5 rounded-(--radius-md) border px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus) focus-visible:ring-offset-1',
           selected.length > 0
             ? 'border-(--color-accent)/40 bg-(--color-accent-soft) text-(--color-info-fg)'
             : 'border-(--color-border) bg-(--color-surface) text-(--color-fg-muted) hover:border-(--color-border-strong) hover:text-(--color-fg)',
@@ -96,26 +151,35 @@ function FilterDropdown({ label, options, selected, onToggle }: FilterDropdownPr
             {selected.length}
           </span>
         )}
-        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} />
+        <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} aria-hidden="true" />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 min-w-[160px] rounded-(--radius-lg) border border-(--color-border) bg-(--color-surface) py-1 shadow-lg">
+        <div
+          id={menuId}
+          role="menu"
+          aria-label={`${label} filter`}
+          onKeyDown={handleMenuKeyDown}
+          className="absolute left-0 top-full z-50 mt-1.5 min-w-[160px] rounded-(--radius-lg) border border-(--color-border) bg-(--color-surface) py-1 shadow-lg"
+        >
           {options.map((opt) => {
             const active = selected.includes(opt)
             return (
               <button
                 key={opt}
                 type="button"
+                role="menuitemcheckbox"
+                aria-checked={active}
                 onClick={() => onToggle(opt)}
                 className={cn(
-                  'flex w-full items-center gap-2.5 px-3 py-1.5 text-sm transition-colors',
+                  'flex w-full items-center gap-2.5 px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--color-border-focus)',
                   active
                     ? 'bg-(--color-surface-subtle) text-(--color-fg)'
                     : 'text-(--color-fg-muted) hover:bg-(--color-surface-subtle) hover:text-(--color-fg)',
                 )}
               >
                 <span
+                  aria-hidden="true"
                   className={cn(
                     'flex h-4 w-4 shrink-0 items-center justify-center rounded-(--radius-xs) border transition-colors',
                     active
@@ -150,10 +214,10 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
       <button
         type="button"
         onClick={onRemove}
-        className="flex items-center rounded-full p-0.5 transition-colors hover:bg-(--color-surface-muted) hover:text-(--color-fg)"
+        className="flex items-center rounded-full p-0.5 transition-colors hover:bg-(--color-surface-muted) hover:text-(--color-fg) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus)"
         aria-label={`Remove ${label} filter`}
       >
-        <X className="h-3 w-3" />
+        <X className="h-3 w-3" aria-hidden="true" />
       </button>
     </span>
   )
@@ -242,69 +306,78 @@ export function OverviewPage() {
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricTile
-          label="Eval pass rate"
-          value="94.2"
-          unit="%"
-          delta="+1.4 vs. last week"
-          trend="up"
-          sentiment="positive"
-          sparkline={evalPassRateSeries}
-          sparklineColor="var(--color-success)"
-        />
-        <MetricTile
-          label="Simulations / 24h"
-          value="12,481"
-          delta="−2.1 vs. last week"
-          trend="down"
-          sentiment="negative"
-          sparkline={simulationsSeries}
-          sparklineColor="var(--color-accent)"
-        />
-        <MetricTile
-          label="P95 latency"
-          value="1.8"
-          unit="s"
-          delta="flat"
-          trend="flat"
-          sentiment="neutral"
-          sparkline={latencySeries}
-          sparklineColor="var(--color-fg-subtle)"
-        />
-        <MetricTile
-          label="Escalation rate"
-          value="3.1"
-          unit="%"
-          delta="−0.6 vs. last week"
-          trend="down"
-          sentiment="positive"
-          sparkline={escalationRateSeries}
-          sparklineColor="var(--color-warning)"
-        />
-      </div>
+      {/* ── Key metrics ──────────────────────────────────────────────────── */}
+      <section aria-label="Key metrics">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricTile
+            label="Eval pass rate"
+            value="94.2"
+            unit="%"
+            delta="+1.4 vs. last week"
+            trend="up"
+            sentiment="positive"
+            sparkline={evalPassRateSeries}
+            sparklineColor="var(--color-success)"
+          />
+          <MetricTile
+            label="Simulations / 24h"
+            value="12,481"
+            delta="−2.1 vs. last week"
+            trend="down"
+            sentiment="negative"
+            sparkline={simulationsSeries}
+            sparklineColor="var(--color-accent)"
+          />
+          <MetricTile
+            label="P95 latency"
+            value="1.8"
+            unit="s"
+            delta="flat"
+            trend="flat"
+            sentiment="neutral"
+            sparkline={latencySeries}
+            sparklineColor="var(--color-fg-subtle)"
+          />
+          <MetricTile
+            label="Escalation rate"
+            value="3.1"
+            unit="%"
+            delta="−0.6 vs. last week"
+            trend="down"
+            sentiment="positive"
+            sparkline={escalationRateSeries}
+            sparklineColor="var(--color-warning)"
+          />
+        </div>
+      </section>
 
       <div className="flex flex-col gap-6">
-        <div className="flex min-w-0 flex-col gap-3">
+        {/* ── Recent runs ────────────────────────────────────────────────── */}
+        <section aria-labelledby="section-runs-heading" className="flex min-w-0 flex-col gap-3">
           {/* Section header */}
           <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
+            <Heading id="section-runs-heading" as="h2" size="md" weight="semibold">
               Recent runs
             </Heading>
-            <Text size="sm" tone="muted" className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label="View all recent runs"
+              className="inline-flex items-center gap-1 text-sm text-(--color-fg-muted) transition-colors hover:text-(--color-fg) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus) focus-visible:ring-offset-1 rounded-(--radius-sm)"
+            >
               View all
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Text>
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
           </div>
 
           {/* Filter bar */}
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative min-w-[200px] flex-1">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-(--color-fg-subtle)" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-(--color-fg-subtle)" aria-hidden="true" />
               <Input
                 variant="default"
                 size="md"
                 placeholder="Search scenarios…"
+                aria-label="Search scenarios"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="pl-8"
@@ -329,7 +402,7 @@ export function OverviewPage() {
 
           {/* Active chips + result count */}
           {(chips.length > 0 || hasFilters) && (
-            <div className="flex flex-wrap items-center gap-2">
+            <div aria-label="Active filters" className="flex flex-wrap items-center gap-2">
               <Text size="xs" tone="subtle">
                 Showing {filteredRuns.length} of {runs.length} runs
               </Text>
@@ -340,7 +413,7 @@ export function OverviewPage() {
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="text-xs text-(--color-fg-subtle) underline-offset-2 transition-colors hover:text-(--color-fg) hover:underline"
+                  className="text-xs text-(--color-fg-subtle) underline-offset-2 transition-colors hover:text-(--color-fg) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus) focus-visible:ring-offset-1 rounded-(--radius-sm)"
                 >
                   Clear all
                 </button>
@@ -363,7 +436,7 @@ export function OverviewPage() {
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="underline underline-offset-2 transition-colors hover:text-(--color-fg)"
+                  className="underline underline-offset-2 transition-colors hover:text-(--color-fg) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-focus) focus-visible:ring-offset-1 rounded-(--radius-sm)"
                 >
                   clear all filters
                 </button>
@@ -371,11 +444,12 @@ export function OverviewPage() {
               </Text>
             </div>
           )}
-        </div>
+        </section>
 
-        <div className="flex flex-col gap-3">
+        {/* ── Eval health ────────────────────────────────────────────────── */}
+        <section aria-labelledby="section-evals-heading" className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <Heading as="h2" size="md" weight="semibold">
+            <Heading id="section-evals-heading" as="h2" size="md" weight="semibold">
               Eval health
             </Heading>
             <Badge variant="warning" size="sm" shape="pill">
@@ -387,12 +461,15 @@ export function OverviewPage() {
               <EvalScoreCard key={evalEntry.id} {...evalEntry} />
             ))}
           </div>
-        </div>
+        </section>
       </div>
 
-      <Text size="xs" tone="subtle" className="mt-4">
-        Data shown is from the production workspace. Synced 38 seconds ago.
-      </Text>
+      {/* ── Sync status (live region) ─────────────────────────────────── */}
+      <div aria-live="polite" aria-atomic="true">
+        <Text size="xs" tone="subtle" className="mt-4">
+          Data shown is from the production workspace. Synced 38 seconds ago.
+        </Text>
+      </div>
     </div>
   )
 }
